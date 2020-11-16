@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: taf-tafagent
+  namespace: taf
+  labels:
+    app: taf-tafagent
+spec:
+  selector:
+    matchLabels:
+      app: taf-tafagent
+  template:
+    metadata:
+      labels:
+        app: taf-tafagent
+    spec:
+      hostNetwork: true
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: taf.io/node
+                    operator: Exists
+      containers:
+        - name: taf-tafagent
+          image: _DOCKER_REGISTRY_URL_/taf.tafagent:10000
+          ports:
+            - containerPort: 8000
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /usr/local/app/taf/app_log
+              name: host-log-path
+      volumes:
+        - hostPath:
+            path: /usr/local/app/taf/app_log
+            type: DirectoryOrCreate
+          name: host-log-path
+      imagePullSecrets:
+        - name: taf-image-secret

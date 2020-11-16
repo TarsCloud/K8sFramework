@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    taf.io/Servant: '{"logobj":{"Name":"LogObj","Port":10000,"HostPort":0,"Threads":3,"Connections":10000,"Capacity":10000,"Timeout":60000,"IsTaf":true,"IsTcp":true}}' 
+  labels:
+    taf.io/ServerApp: taf
+    taf.io/ServerName: taflog
+  name: taf-taflog
+  namespace: taf
+spec:
+  clusterIP: None
+  ports:
+    - name: logobj
+      port: 10000
+      protocol: TCP
+      targetPort: 10000
+    - name: nodeobj
+      port: 19385
+      protocol: TCP
+      targetPort: 19385
+  selector:
+    taf.io/ServerApp: taf
+    taf.io/ServerName: taflog
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    taf.io/NodeSelector: '{"Kind":"AbilityPool","Value":[]}'
+    taf.io/NotStacked: "false"
+  labels:
+    taf.io/ServerApp: taf
+    taf.io/ServerName: taflog
+  name: taf-taflog
+  namespace: taf
+spec:
+  podManagementPolicy: "Parallel"
+  replicas: 1
+  selector:
+    matchLabels:
+      taf.io/ServerApp: taf
+      taf.io/ServerName: taflog
+  serviceName: taf-taflog
+  template:
+    metadata:
+      labels:
+        taf.io/ServerApp: taf
+        taf.io/ServerName: taflog
+        taf.io/ServerVersion: "10000"
+      name: taf-taflog
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: taf.io/node
+                operator: Exists
+              - key: taf.io/ability.taf
+                operator: Exists
+      containers:
+        - env:
+            - name: ServerApp
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['taf.io/ServerApp']
+            - name: PodName
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          image: _DOCKER_REGISTRY_URL_/taf.taflog:10000
+          imagePullPolicy: Always
+          name: taf-taflog
+          volumeMounts:
+            - mountPath: /host-log-path
+              name: host-log-path
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: false
+      imagePullSecrets:
+        - name: taf-image-secret
+      readinessGates:
+      - conditionType: taf.io/service
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      volumes:
+        - hostPath:
+            path: /usr/local/app/taf/app_log
+            type: DirectoryOrCreate
+          name: host-log-path

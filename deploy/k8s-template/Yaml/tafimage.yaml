@@ -1,0 +1,83 @@
+
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: taf-tafimage
+  name: taf-tafimage
+  namespace: taf
+spec:
+  clusterIP: None
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+  selector:
+    app: taf-tafimage
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: taf-tafimage
+  name: taf-tafimage
+  namespace: taf
+spec:
+  podManagementPolicy: "Parallel"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taf-tafimage
+  serviceName: taf-tafimage
+  template:
+    metadata:
+      labels:
+        app: taf-tafimage
+      name: taf-tafimage
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: taf.io/node
+                operator: Exists
+              - key: taf.io/ability.taf
+                operator: Exists
+      containers:
+        - image: _DOCKER_REGISTRY_URL_/taf.tafimage:10000
+          imagePullPolicy: Always
+          name: taf-tafimage
+          volumeMounts:
+            - mountPath: /var/run/docker.sock
+              name: docker-sock
+            - mountPath: /etc/registry-env/
+              name: registry-env
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: false
+      imagePullSecrets:
+        - name: taf-image-secret
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - hostPath:
+            path: /var/run/docker.sock
+            type: File
+          name: docker-sock
+        - configMap:
+            defaultMode: 420
+            name: taf-image
+          name: registry-env
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate

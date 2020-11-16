@@ -1,0 +1,38 @@
+#include "/usr/local/tars/cpp/include/servant/EndpointF.tars"
+
+module tars
+{
+    struct AdapterDescriptor
+    {
+        0 require string adapterName;
+        1 require string threadNum;
+        2 require string endpoint;
+        3 require int maxConnections;
+        4 require string allowIp;
+        5 require string servant;
+        6 require int queuecap;
+        7 require int queuetimeout;
+        8 optional string protocol;
+    };
+
+    struct ServerDescriptor
+    {
+        0 require string profile;
+        1 require map<string, AdapterDescriptor> adapters;
+        2 optional string startScript;
+        3 optional string stopScript;
+        4 optional string monitorScript;
+        5 optional int asyncThreadNum;
+    };
+
+    struct ObjectName
+    {
+        0 require string ObjectId;
+    };
+
+    struct ObjectItem
+    {
+        0 require vector<EndpointF> vActiveEndpoints;
+        1 require vector<EndpointF> vInactiveEndpoints;
+    };
+};
