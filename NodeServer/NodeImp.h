@@ -3,7 +3,7 @@
 // #include <Registry.h>
 #include "Node.h"
 
-using namespace taf;
+using namespace tars;
 using namespace std;
 
 class NodeImp : public Node {
@@ -62,7 +62,7 @@ public:
     * @param seconds  重启等待时间
     * @return  int
     */
-   int restartServer(const std::string &application, const std::string &serverName, std::string &result, taf::CurrentPtr current) override;
+   int restartServer(const std::string &application, const std::string &serverName, std::string &result, tars::CurrentPtr current) override;
 
     /**
      * 通知服务

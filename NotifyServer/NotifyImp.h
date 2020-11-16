@@ -23,6 +23,22 @@ public:
      */
     void destroy() final {};
 
+    // /**
+    //  * report
+    //  * @param sServerName
+    //  * @param sThreadId
+    //  * @param sResult
+    //  * @param current
+    //  */
+    // void reportServer(const string &sServerName,
+    //                   const string &sThreadId,
+    //                   const string &sResult,
+    //                   tars::CurrentPtr current) override;
+
+    // void notifyServerEx(const std::string &sServerName, tars::NOTIFYLEVEL level, const std::string &sTitle,
+    //                     const std::string &sMessage, tars::CurrentPtr current) override;
+
+
     /**
      * report
      * @param sServerName
@@ -30,13 +46,28 @@ public:
      * @param sResult
      * @param current
      */
-    void reportServer(const string &sServerName,
-                      const string &sThreadId,
-                      const string &sResult,
-                      tars::CurrentPtr current) override;
+    virtual void reportServer(const string& sServerName, const string& sThreadId, const string& sResult, tars::TarsCurrentPtr current);
 
-    void notifyServerEx(const std::string &sServerName, tars::NOTIFYLEVEL level, const std::string &sTitle,
-                        const std::string &sMessage, tars::CurrentPtr current) override;
+    /**
+     * notify
+     * @param sServerName
+     * @param sThreadId
+     * @param sCommand
+     * @param sResult
+     * @param current
+     */
+    virtual void notifyServer(const string& sServerName, NOTIFYLEVEL level, const string& sMessage, tars::TarsCurrentPtr current);
+
+    /**
+     * get notify info
+     */
+    virtual tars::Int32 getNotifyInfo(const tars::NotifyKey & stKey,tars::NotifyInfo &stInfo,tars::TarsCurrentPtr current);
+
+    /*
+     *reportNotifyInfo
+     *@param info
+     */
+    virtual void reportNotifyInfo(const tars::ReportInfo & info, tars::TarsCurrentPtr current);
 
 protected:
     void loadConf();

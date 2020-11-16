@@ -2,7 +2,7 @@
 #include "ServerImp.h"
 #include "ServerManger.h"
 
-int ServerImp::keepAlive(const taf::ServerInfo &serverInfo, taf::CurrentPtr current) {
+int ServerImp::keepAlive(const tars::ServerInfo &serverInfo, tars::CurrentPtr current) {
     auto serverObjectPtr = ServerManger::instance().getServer(serverInfo.application, serverInfo.serverName);
 
     if (serverObjectPtr != nullptr) {
@@ -13,7 +13,7 @@ int ServerImp::keepAlive(const taf::ServerInfo &serverInfo, taf::CurrentPtr curr
     return 0;
 }
 
-int ServerImp::reportVersion(const string &app, const string &serverName, const string &version, taf::CurrentPtr current) {
+int ServerImp::reportVersion(const string &app, const string &serverName, const string &version, tars::CurrentPtr current) {
 //    auto serverObjectPtr = ServerManger::instance().getServer(app, serverName);
 //    if (serverObjectPtr != nullptr) {
 //        serverObjectPtr->setPid(serverInfo.pid);
@@ -22,7 +22,7 @@ int ServerImp::reportVersion(const string &app, const string &serverName, const 
     return 0;
 }
 
-int ServerImp::keepActiving(const taf::ServerInfo &serverInfo, taf::CurrentPtr current) {
+int ServerImp::keepActiving(const tars::ServerInfo &serverInfo, tars::CurrentPtr current) {
     auto serverObjectPtr = ServerManger::instance().getServer(serverInfo.application, serverInfo.serverName);
     if (serverObjectPtr != nullptr) {
         LOG->debug() << "keepActiving|" << serverInfo.adapter << "|" << serverInfo.pid << endl;
@@ -32,7 +32,7 @@ int ServerImp::keepActiving(const taf::ServerInfo &serverInfo, taf::CurrentPtr c
     return 0;
 }
 
-unsigned int ServerImp::getLatestKeepAliveTime(taf::CurrentPtr current)
+unsigned int ServerImp::getLatestKeepAliveTime(tars::CurrentPtr current)
 {
     return TNOW;
 }

@@ -28,7 +28,7 @@ int NodeImp::stopServer(const string &application, const string &serverName, str
     return pServerObjectPtr->stopServer(result);
 }
 
-int NodeImp::restartServer(const std::string &application, const std::string &serverName, std::string &result, taf::CurrentPtr current) {
+int NodeImp::restartServer(const std::string &application, const std::string &serverName, std::string &result, tars::CurrentPtr current) {
 //    TLOG_DEBUG("restartServer:" << application << "," << serverName << endl);
     auto pServerObjectPtr = ServerManger::instance().getServer(application, serverName);
     if (pServerObjectPtr == nullptr) {

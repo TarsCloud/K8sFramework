@@ -33,7 +33,7 @@ int ServerObject::MetaData::updateConfFromDescriptor(const ServerDescriptor &des
         TC_Config tConf;
         map<string, string> m;
         m["node"] = FIXED_NODE_PROXY_NAME;
-        tConf.insertDomainParam("/taf/application/server", m, true);
+        tConf.insertDomainParam("/tars/application/server", m, true);
         m.clear();
 
         _vAdapter.clear();
@@ -54,7 +54,7 @@ int ServerObject::MetaData::updateConfFromDescriptor(const ServerDescriptor &des
             m["threads"] = TC_Common::tostr(itAdapters->second.threadNum);
             m["servant"] = TC_Common::tostr(itAdapters->second.servant);
             m["protocol"] = itAdapters->second.protocol;
-            tConf.insertDomainParam("/taf/application/server/" + itAdapters->first, m, true);
+            tConf.insertDomainParam("/tars/application/server/" + itAdapters->first, m, true);
             m.clear();
         }
 
@@ -104,18 +104,18 @@ int ServerObject::MetaData::loadConf(TC_Config &tConf) {
     constexpr char TARS_JAVA[] = "taf_java";
     try {
         if (strncmp(_sServerType.c_str(), TARS_JAVA, sizeof(TARS_JAVA) - 1) == 0) {
-            std::string sJvmParams = tConf.get("/taf/application/server<jvmparams>", "");
+            std::string sJvmParams = tConf.get("/tars/application/server<jvmparams>", "");
             _sServerLauncherArgv = TC_Common::replace(_sServerLauncherArgv, "#{jvmparams}", sJvmParams);
 
-            std::string sMainClass = tConf.get("/taf/application/server<mainclass>", "");
+            std::string sMainClass = tConf.get("/tars/application/server<mainclass>", "");
             _sServerLauncherArgv = TC_Common::replace(_sServerLauncherArgv, "#{mainclass}", sMainClass);
 
-            std::string sClassPath = tConf.get("/taf/application/server<classpath>", "");
+            std::string sClassPath = tConf.get("/tars/application/server<classpath>", "");
             _sServerLauncherArgv = TC_Common::replace(_sServerLauncherArgv, "#{classpath}", sClassPath);
         }
 
-        _sServerLauncherEnv = tConf.get("/taf/application/server<env>", "");
-        _iTimeout = TC_Common::strto<int>(tConf.get("/taf/application/server<hearttimeout>", "60"));
+        _sServerLauncherEnv = tConf.get("/tars/application/server<env>", "");
+        _iTimeout = TC_Common::strto<int>(tConf.get("/tars/application/server<hearttimeout>", "60"));
     }
     catch (const exception &e) {
         LOG->error() << FILE_FUN << e.what() << endl;
@@ -182,7 +182,7 @@ ServerObject::ProcessStatus ServerObject::_doStart(std::string &result) {
     } while (false);
 
     if (!activateOk) {
-        _runtimeData.presentState = taf::ServerState::Inactive;
+        _runtimeData.presentState = tars::ServerState::Inactive;
         uploadState(_runtimeData.settingState, _runtimeData.presentState);
         result = "activate server error, " + _metaData._sServerApp + ":" + _metaData._sServerName;
         return ProcessStatus::Error;
@@ -410,8 +410,8 @@ int ServerObject::addFile(string sFile, std::string &result) {
 ////        return getScriptFile(result);
 //    }
 
-    TafRemoteConfig tTafRemoteConfig;
-    tTafRemoteConfig.setConfigInfo(ServerConfig::Config, _metaData._sServerApp, _metaData._sServerName, sFilePath);
+    TarsRemoteConfig tTafRemoteConfig;
+    tTafRemoteConfig.setConfigInfo(Application::getCommunicator(), ServerConfig::Config, _metaData._sServerApp, _metaData._sServerName, sFilePath);
     return tTafRemoteConfig.addConfig(sFileName, result);
 }
 
@@ -513,7 +513,7 @@ void ServerObject::uploadState() {
     }
 }
 
-void ServerObject::uploadState(taf::ServerState settingState, taf::ServerState presentState) {
+void ServerObject::uploadState(tars::ServerState settingState, tars::ServerState presentState) {
     TimerTaskQueue::instance().pushTimerTask([settingState, presentState] {
         try {
             auto ptr = ProxyManger::instance().getRegistryProxy();

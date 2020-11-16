@@ -8,12 +8,12 @@
 #include "util/tc_config.h"
 #include "servant/AdminF.h"
 #include "servant/NodeF.h"
-#include "servant/taf_logger.h"
+#include "servant/RemoteLogger.h"
 #include "util.h"
 #include "TimerTaskQueue.h"
 #include "ContainerDetail.h"
 
-using namespace taf;
+using namespace tars;
 using namespace std;
 
 class ServerObject : public std::enable_shared_from_this<ServerObject> {

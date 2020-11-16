@@ -25,7 +25,7 @@ link_directories(/usr/local/tars/cpp/thirdparty/lib)
 
 add_subdirectory(ConfigServer)
 add_subdirectory(NodeServer)
-add_subdirectory(NotifyServer)
+#add_subdirectory(NotifyServer)
 add_subdirectory(RegistryServer)
 
 ############################################################################

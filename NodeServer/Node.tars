@@ -1,6 +1,6 @@
 #include "../RegistryServer/NodeDescriptor.tars"
 
-module taf
+module tars
 {
 
     interface Node
