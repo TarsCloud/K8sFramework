@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: taf-tafagent
-  namespace: taf
+  name: tars-tafagent
+  namespace: tars
   labels:
-    app: taf-tafagent
+    app: tars-tafagent
 spec:
   selector:
     matchLabels:
-      app: taf-tafagent
+      app: tars-tafagent
   template:
     metadata:
       labels:
-        app: taf-tafagent
+        app: tars-tafagent
     spec:
       hostNetwork: true
       affinity:
@@ -20,21 +20,21 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: taf.io/node
+                  - key: tars.io/node
                     operator: Exists
       containers:
-        - name: taf-tafagent
-          image: _DOCKER_REGISTRY_URL_/taf.tafagent:10000
+        - name: tars-tafagent
+          image: _DOCKER_REGISTRY_URL_/tars.tafagent:10000
           ports:
             - containerPort: 8000
           imagePullPolicy: Always
           volumeMounts:
-            - mountPath: /usr/local/app/taf/app_log
+            - mountPath: /usr/local/app/tars/app_log
               name: host-log-path
       volumes:
         - hostPath:
-            path: /usr/local/app/taf/app_log
+            path: /usr/local/app/tars/app_log
             type: DirectoryOrCreate
           name: host-log-path
       imagePullSecrets:
-        - name: taf-image-secret
+        - name: tars-image-secret

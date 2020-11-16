@@ -2,9 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: taf-web
-  name: taf-tafweb
-  namespace: taf
+    app: tars-web
+  name: tars-tafweb
+  namespace: tars
 spec:
   ports:
     - name: http
@@ -12,7 +12,7 @@ spec:
       protocol: TCP
       targetPort: 3000
   selector:
-    app: taf-web
+    app: tars-web
   sessionAffinity: None
   type: NodePort
 
@@ -22,34 +22,34 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: taf-web
-  name: taf-tafweb
-  namespace: taf
+    app: tars-web
+  name: tars-tafweb
+  namespace: tars
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: taf-web
-  serviceName: taf-tafweb
+      app: tars-web
+  serviceName: tars-tafweb
   template:
     metadata:
       labels:
-        app: taf-web
-      name: taf-tafweb
+        app: tars-web
+      name: tars-tafweb
     spec:
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: taf.io/node
+              - key: tars.io/node
                 operator: Exists
-              - key: taf.io/ability.taf
+              - key: tars.io/ability.tars
                 operator: Exists
       containers:
-        - image:  _DOCKER_REGISTRY_URL_/taf.tafweb:10000
+        - image:  _DOCKER_REGISTRY_URL_/tars.tafweb:10000
           imagePullPolicy: Always
-          name: taf-tafweb
+          name: tars-tafweb
       dnsConfig:
         options:
           - name: ndots
@@ -57,6 +57,6 @@ spec:
       dnsPolicy: ClusterFirst
       enableServiceLinks: false
       imagePullSecrets:
-        - name: taf-image-secret
+        - name: tars-image-secret
       restartPolicy: Always
       schedulerName: default-scheduler

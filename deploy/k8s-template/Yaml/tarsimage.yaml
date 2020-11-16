@@ -3,9 +3,9 @@ kind: Service
 apiVersion: v1
 metadata:
   labels:
-    app: taf-tafimage
-  name: taf-tafimage
-  namespace: taf
+    app: tars-tafimage
+  name: tars-tafimage
+  namespace: tars
 spec:
   clusterIP: None
   ports:
@@ -13,7 +13,7 @@ spec:
       port: 80
       protocol: TCP
   selector:
-    app: taf-tafimage
+    app: tars-tafimage
   sessionAffinity: None
   type: ClusterIP
 
@@ -23,35 +23,35 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: taf-tafimage
-  name: taf-tafimage
-  namespace: taf
+    app: tars-tafimage
+  name: tars-tafimage
+  namespace: tars
 spec:
   podManagementPolicy: "Parallel"
   replicas: 1
   selector:
     matchLabels:
-      app: taf-tafimage
-  serviceName: taf-tafimage
+      app: tars-tafimage
+  serviceName: tars-tafimage
   template:
     metadata:
       labels:
-        app: taf-tafimage
-      name: taf-tafimage
+        app: tars-tafimage
+      name: tars-tafimage
     spec:
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: taf.io/node
+              - key: tars.io/node
                 operator: Exists
-              - key: taf.io/ability.taf
+              - key: tars.io/ability.tars
                 operator: Exists
       containers:
-        - image: _DOCKER_REGISTRY_URL_/taf.tafimage:10000
+        - image: _DOCKER_REGISTRY_URL_/tars.tafimage:10000
           imagePullPolicy: Always
-          name: taf-tafimage
+          name: tars-tafimage
           volumeMounts:
             - mountPath: /var/run/docker.sock
               name: docker-sock
@@ -64,7 +64,7 @@ spec:
       dnsPolicy: ClusterFirst
       enableServiceLinks: false
       imagePullSecrets:
-        - name: taf-image-secret
+        - name: tars-image-secret
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30
@@ -75,7 +75,7 @@ spec:
           name: docker-sock
         - configMap:
             defaultMode: 420
-            name: taf-image
+            name: tars-image
           name: registry-env
   updateStrategy:
     rollingUpdate:

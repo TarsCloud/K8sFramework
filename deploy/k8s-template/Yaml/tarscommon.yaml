@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: taf
+  name: tars
 ---
 
 apiVersion: v1
 kind: Secret
 metadata:
-  name: taf-db
-  namespace: taf
+  name: tars-db
+  namespace: tars
 stringData:
   _DB_HOST_: "_DB_TAF_HOST_"
   _DB_PORT_: "_DB_TAF_PORT_"
@@ -21,14 +21,14 @@ stringData:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: taf-image
-  namespace: taf
+  name: tars-image
+  namespace: tars
 data:
   DockerRegistryUrl: "_DOCKER_REGISTRY_URL_"
   DockerRegistryUser: "_DOCKER_REGISTRY_USER_"
   DockerRegistryPassword: "_DOCKER_REGISTRY_PASSWORD_"
-  CppImageBase: "_DOCKER_REGISTRY_URL_/taf.cppbase:10000"
-  JavaImageBase: "_DOCKER_REGISTRY_URL_/taf.javabase:10000"
-  NodeImageBase: "_DOCKER_REGISTRY_URL_/taf.nodebase:10000"
-  Node8ImageBase: "_DOCKER_REGISTRY_URL_/taf.node8base:10000"
-  Node10ImageBase: "_DOCKER_REGISTRY_URL_/taf.node10base:10000"
+  CppImageBase: "_DOCKER_REGISTRY_URL_/tars.cppbase:10000"
+  JavaImageBase: "_DOCKER_REGISTRY_URL_/tars.javabase:10000"
+  NodeImageBase: "_DOCKER_REGISTRY_URL_/tars.nodebase:10000"
+  Node8ImageBase: "_DOCKER_REGISTRY_URL_/tars.node8base:10000"
+  Node10ImageBase: "_DOCKER_REGISTRY_URL_/tars.node10base:10000"

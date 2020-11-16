@@ -2,16 +2,16 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    taf.io/Servant: '{"logobj":{"Name":"LogObj","Port":10000,"HostPort":0,"Threads":3,"Connections":10000,"Capacity":10000,"Timeout":60000,"IsTaf":true,"IsTcp":true}}' 
+    tars.io/Servant: '{"statobj":{"Name":"StatObj","Port":10000,"HostPort":0,"Threads":3,"Connections":10000,"Capacity":10000,"Timeout":60000,"IsTaf":true,"IsTcp":true}}'  
   labels:
-    taf.io/ServerApp: taf
-    taf.io/ServerName: taflog
-  name: taf-taflog
-  namespace: taf
+    tars.io/ServerApp: tars
+    tars.io/ServerName: tafstat
+  name: tars-tafstat
+  namespace: tars
 spec:
   clusterIP: None
   ports:
-    - name: logobj
+    - name: statobj
       port: 10000
       protocol: TCP
       targetPort: 10000
@@ -20,8 +20,8 @@ spec:
       protocol: TCP
       targetPort: 19385
   selector:
-    taf.io/ServerApp: taf
-    taf.io/ServerName: taflog
+    tars.io/ServerApp: tars
+    tars.io/ServerName: tafstat
   sessionAffinity: None
   type: ClusterIP
 
@@ -31,37 +31,37 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   annotations:
-    taf.io/NodeSelector: '{"Kind":"AbilityPool","Value":[]}'
-    taf.io/NotStacked: "false"
+    tars.io/NodeSelector: '{"Kind":"AbilityPool","Value":[]}'
+    tars.io/NotStacked: "false"
   labels:
-    taf.io/ServerApp: taf
-    taf.io/ServerName: taflog
-  name: taf-taflog
-  namespace: taf
+    tars.io/ServerApp: tars
+    tars.io/ServerName: tafstat
+  name: tars-tafstat
+  namespace: tars
 spec:
   podManagementPolicy: "Parallel"
   replicas: 1
   selector:
     matchLabels:
-      taf.io/ServerApp: taf
-      taf.io/ServerName: taflog
-  serviceName: taf-taflog
+      tars.io/ServerApp: tars
+      tars.io/ServerName: tafstat
+  serviceName: tars-tafstat
   template:
     metadata:
       labels:
-        taf.io/ServerApp: taf
-        taf.io/ServerName: taflog
-        taf.io/ServerVersion: "10000"
-      name: taf-taflog
+        tars.io/ServerApp: tars
+        tars.io/ServerName: tafstat
+        tars.io/ServerVersion: "10000"
+      name: tars-tafstat
     spec:
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: taf.io/node
+              - key: tars.io/node
                 operator: Exists
-              - key: taf.io/ability.taf
+              - key: tars.io/ability.tars
                 operator: Exists
       containers:
         - env:
@@ -69,14 +69,14 @@ spec:
               valueFrom:
                 fieldRef:
                   apiVersion: v1
-                  fieldPath: metadata.labels['taf.io/ServerApp']
+                  fieldPath: metadata.labels['tars.io/ServerApp']
             - name: PodName
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-          image: _DOCKER_REGISTRY_URL_/taf.taflog:10000
+          image:  _DOCKER_REGISTRY_URL_/tars.tafstat:10000
           imagePullPolicy: Always
-          name: taf-taflog
+          name: tars-tafstat
           volumeMounts:
             - mountPath: /host-log-path
               name: host-log-path
@@ -87,13 +87,14 @@ spec:
       dnsPolicy: ClusterFirst
       enableServiceLinks: false
       imagePullSecrets:
-        - name: taf-image-secret
+        - name: tars-image-secret
       readinessGates:
-      - conditionType: taf.io/service
+      - conditionType: tars.io/service
       restartPolicy: Always
       schedulerName: default-scheduler
       volumes:
         - hostPath:
-            path: /usr/local/app/taf/app_log
+            path: /usr/local/app/tars/app_log
             type: DirectoryOrCreate
           name: host-log-path
+

@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: taf-tafadmin
-  namespace: taf
+  name: tars-tafadmin
+  namespace: tars
 
 ---
 
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: taf-tafadmin
-  namespace: taf
+  name: tars-tafadmin
+  namespace: tars
 rules:
   - apiGroups: [""]
     resources: ["services"]
@@ -23,22 +23,22 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: taf-tafadmin
-  namespace: taf
+  name: tars-tafadmin
+  namespace: tars
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: taf-tafadmin
+  name: tars-tafadmin
 subjects:
   - kind: ServiceAccount
-    name: taf-tafadmin
-    namespace: taf
+    name: tars-tafadmin
+    namespace: tars
 ---
 
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: taf-tafadmin
+  name: tars-tafadmin
 rules:
   - apiGroups: [""]
     resources: ["nodes"]
@@ -48,14 +48,14 @@ rules:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: taf-tafadmin
+  name: tars-tafadmin
 subjects:
 - kind: ServiceAccount
-  name: taf-tafadmin
-  namespace: taf
+  name: tars-tafadmin
+  namespace: tars
 roleRef:
   kind: ClusterRole
-  name: taf-tafadmin
+  name: tars-tafadmin
   apiGroup: rbac.authorization.k8s.io
 ---
 
@@ -63,10 +63,10 @@ kind: Service
 apiVersion: v1
 metadata:
   labels:
-    TafServerApp: taf
+    TafServerApp: tars
     TafServerName: tafadmin
-  name: taf-tafadmin
-  namespace: taf
+  name: tars-tafadmin
+  namespace: tars
 spec:
   clusterIP: None
   ports:
@@ -74,7 +74,7 @@ spec:
       port: 80
       protocol: TCP
   selector:
-    app: taf-tafadmin
+    app: tars-tafadmin
   sessionAffinity: None
   type: ClusterIP
 
@@ -84,39 +84,39 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: taf-tafadmin
-  name: taf-tafadmin
-  namespace: taf
+    app: tars-tafadmin
+  name: tars-tafadmin
+  namespace: tars
 spec:
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: taf-tafadmin
-  serviceName: taf-tafadmin
+      app: tars-tafadmin
+  serviceName: tars-tafadmin
   template:
     metadata:
       labels:
-        app: taf-tafadmin
-      name: taf-tafadmin
+        app: tars-tafadmin
+      name: tars-tafadmin
     spec:
-      serviceAccountName: taf-tafadmin
+      serviceAccountName: tars-tafadmin
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: taf.io/node
+              - key: tars.io/node
                 operator: Exists
-              - key: taf.io/ability.taf
+              - key: tars.io/ability.tars
                 operator: Exists
       containers:
-        - image: _DOCKER_REGISTRY_URL_/taf.tafadmin:10000
+        - image: _DOCKER_REGISTRY_URL_/tars.tafadmin:10000
           imagePullPolicy: Always
-          name: taf-tafadmin
+          name: tars-tafadmin
           envFrom:
           - secretRef:
-              name: taf-db
+              name: tars-db
           volumeMounts:
             - mountPath: /host-log-path
               name: host-log-path
@@ -127,13 +127,13 @@ spec:
       dnsPolicy: ClusterFirst
       enableServiceLinks: false
       imagePullSecrets:
-        - name: taf-image-secret
+        - name: tars-image-secret
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30
       volumes:
         - hostPath:
-            path: /usr/local/app/taf/app_log
+            path: /usr/local/app/tars/app_log
             type: DirectoryOrCreate
           name: host-log-path
   updateStrategy:
