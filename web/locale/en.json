@@ -1,0 +1,1016 @@
+{
+  "localeCode": "en",
+  "localeName": "English",
+  "header": {
+    "tab": {
+      "tab1": "Services",
+      "tab2": "Operation",
+      "tab3": "Release Package",
+      "tab4": "Cache Configuration",
+      "tab5": "Operation Manage",
+      "tab6": "Base Manage",
+      "tab7": "Services History Manage",
+      "tab8": "Gateway Config"
+    },
+    "dcache": {
+      "tab2": "Create Service"
+    },
+    "logout": "logout",
+    "userCenter": "User Center"
+  },
+  "login": {
+    "loginTitle": "Please Sign In",
+    "userName": "User name",
+    "password": "Password",
+    "repeatPassword": "Repeat password",
+    "login": "Sign in",
+    "toRegisterPage": "Create an account",
+    "toLoginPage": "Sign in",
+    "userNameTips": "User name is required",
+    "userNameRegTips": "The user name can contain only letters or Numbers, underscores",
+    "passwordTips": "Password is required",
+    "passwordNoCorrect": "Incorrect password",
+    "userNoExist": "User name does not exist",
+    "loginFailed": "Sign in failed",
+    "registerTitle": "Please Sign Up",
+    "repeatPasswordTips": "Repeat password is required",
+    "register": "Sign up",
+    "passwordDiff": "Two different input password, please re-entry",
+    "hasExist": "User name already exists",
+    "registerSucc": "Sign up successfully",
+    "registerFailed": "Sign up failed",
+    "getUidFailed": "Get user name failed",
+    "logout": "Sign out",
+    "noLogin": "You have not been sign in"
+  },
+  "releasePackage": {
+    "proxyList": "Proxy Service List",
+    "routerList": "Router Service List",
+    "cacheList": "Cache Service List",
+    "uploadPackage": "Upload publish package",
+    "moduleName": "moduleName",
+    "uploadTime": "upload time",
+    "default": "default",
+    "confirmDeleteTip": "Are you sure you want to delete this release package?",
+    "cacheType": "cache type"
+  },
+  "api": {
+    "blank": {
+      "error": {
+        "message": "blank error message"
+      },
+      "template": {
+        "id": "blank template id",
+        "name": "blank template name"
+      },
+      "parent": {
+        "template": {
+          "name": "blank parent template name"
+        }
+      }
+    },
+    "create": {
+      "config": {
+        "file": "create configuration file"
+      }
+    },
+    "config": {
+      "file": {
+        "being": {
+          "referred": "configuration file being referred"
+        }
+      }
+    },
+    "cant": {
+      "delete": {
+        "or": {
+          "update": "can't delete/update"
+        }
+      },
+      "update": "can't update"
+    },
+    "nonexistent": {
+      "template": "nonexistent template",
+      "parent": {
+        "template": "nonexistent parent template"
+      },
+      "multipart": "can't find out upload data"
+    },
+    "template": {
+      "being": {
+        "referred": "template being referred"
+      }
+    },
+    "expand": {
+      "node": {
+        "status": {
+          "existent": "existent",
+          "nonexistent": "no expand"
+        }
+      }
+    },
+    "parameter": {
+      "blank": "parameter {0} is blank",
+      "invalid": "invalid parameter {0} value"
+    },
+    "execute": {
+      "package": {
+        "script": {
+          "error": "execute package command error"
+        }
+      }
+    },
+    "resource": {
+      "tafNodeExist": "Taf Node is already exist",
+      "installFailed": "Install Taf Node failed",
+      "uninstallFailed": "Uninstall Taf Node failed",
+      "notConfig": "No machine configuration was found",
+      "serverExist": "There is a service on the machine that does not allow uninstall the taf node",
+      "sshFailed": "SSH link failed",
+      "installSuccess": "Install Taf Node successfully",
+      "uninstallSuccess": "Uninstall Taf Node successfully"
+    }
+  },
+  "apply": {
+    "title": "Application",
+    "name": "Application Name",
+    "createApply": "Create Application",
+    "createRouterProxyService": "Create Router、proxy Service",
+    "createRegionTips": "Before creating the application, create the locale",
+    "uploadPatchPackage": "Before creating the application, please upload the proxy, router, and dcache publishing packages and set the default Settings",
+    "hasExist": "Application already exists",
+    "RouterConfigInfo": "Router configuration information",
+    "ProxyConfigInfo": "Proxy configuration information",
+    "install": "Installation",
+    "publish": "Release",
+    "installAndPublish": "Install And Publish",
+    "ProxyManage": "The Proxy Management",
+    "RouterManage": "The Router Management",
+    "CacheManage": "The Cache Management",
+    "noDefaultProxyPackage": "There is no default Proxy distribution package",
+    "noDefaultRouterPackage": "There is no default Router distribution package",
+    "duplicateIp": "Duplicate service IP is not allowed, please input correct service IP"
+  },
+  "module": {
+    "title": "Module",
+    "name": "Module Name",
+    "namingRule": "Application name + custom name.Only digits and letters allowed.",
+    "keyType": "Key Type",
+    "createModule": "Create Module",
+    "createModuleService": "Creating Module Services",
+    "moduleConfig": "Module Configuration",
+    "scenario": "Application Scenarios",
+    "createApplyTips": "Before creating the module, create the application",
+    "cacheType": "Cache Types",
+    "follower": "Focus People",
+    "serverConfig": "Server Config",
+    "namingError": "Module name must not be started with Application name, only digits and letters allowed",
+    "shmKeyError": "Same share memory keys are not allowed under same IP"
+  },
+  "cache": {
+    "title": "cache",
+    "cachePersistent": "Cache + persistence",
+    "cacheType": "Cache Type",
+    "persistentNumber": "The total number of persistent entries",
+    "dbDataCountUnit": "Article ten thousand the data",
+    "cacheTypeTip1": "Memory database (not obsolete)",
+    "cacheTypeTip2": "Temporary cache (expired)",
+    "cacheTypeTip3": "Hot spot cache (expand elimination)",
+    "perRecordAvg": "Average size of data records",
+    "perRecordAvgUnit": "Byte",
+    "totalRecord": "Save in the Cache",
+    "maxReadFlow": "Estimate peak read flow",
+    "maxWriteFlow": "Estimate peak write flow",
+    "flowUnit": "Times/SEC.",
+    "moduleRemark": "Function of note",
+    "mainEngine": "main engine",
+    "standByEngine": "stand by engine",
+    "mirror": "mirror",
+    "add": "add",
+    "modification": "modification",
+    "config": {
+      "tableTitle": "cache configuration list",
+      "addSuccess": "add configuration success",
+      "addConfig": "add configuration",
+      "deleteConfig": "delete configuration",
+      "editConfig": "edit configuration",
+      "remark": "remark",
+      "path": "path",
+      "item": "item",
+      "itemValue": "item value",
+      "reload": "reload",
+      "period": "period",
+      "configuration": "Configuration",
+      "noModuleExist": "can't find this module",
+      "value": "value",
+      "config_value": "original value",
+      "modify_value": "Modify Values",
+      "edit": "edit",
+      "view": "view",
+      "add": "add",
+      "allSelected": "All",
+      "batchUpdate": "Update",
+      "batchDelete": "Delete",
+      "addModuleConfig": "add module config"
+    }
+  },
+  "dcache": {
+    "expand": "expand",
+    "Shrinkage": "Shrinkage",
+    "Migration": "Migration",
+    "serverMigration": "The deployment of the migration",
+    "nonServerMigration": "Non-deployed migration",
+    "batchPublish": "batch publish",
+    "migrationMethod": "migration method",
+    "migrationMethod1": "Complete data migration",
+    "migrationMethod2": "No data migration",
+    "switch": "Main/backup",
+    "mirrorSwitch": "Mirror Main/backup switch",
+    "mirrorOffSwitch": "Mirror switch",
+    "readFail": "Backup unreadable",
+    "switching": "switching",
+    "switchSuccess": "switch success",
+    "notSwitch": "not switch",
+    "switchFailure": "switch failure",
+    "rw": "read-write",
+    "ro": "read-only",
+    "imageUnavailable": "mirror unavailable",
+    "auto": "auto switch",
+    "manual": "manual switch",
+    "omig": "migration",
+    "oreset": "reset",
+    "oswitch": "Main/backup",
+    "amig": "a key migration",
+    "areset": "mirroring",
+    "mirrorEmpty": "Mirror idc is empty, do not restore the mirror state.",
+    "noTheSamePatchVersion": "There are different versions of the service and no operation is allowed",
+    "hasExpandOperation": "This module already has tasks in the migration operation, no more capacity is allowed, please go to operation management stop operation and expand capacity",
+    "hasShrinkageOperation": "This module already has the task in the migration operation, does not allow any more volume reduction, please go to the operation management stop operation again volume reduction",
+    "hasMigrationOperation": "This module already has the task in the migration operation, does not allow the migration, please go to the operation management to stop the operation and then reduce the volume",
+    "leaveOneServiceGroup": "Leave at least one service group",
+    "onlyOneServiceGroup": "There is only one service group and non-deployed migrations are not allowed",
+    "oneGroup": "Migration services, only one group can be selected",
+    "offline": "off line",
+    "cantOffline": "There is active service in selected services, please stop before offline",
+    "hasRouterPageNo": "In the offline service, there are routing pages. Please be careful. ",
+    "hostOfflineAllServers": "In the selected service, there is a host, and all services of this module will be offline",
+    "offlineAllBackupServers": "In the selected service, there is standby machine, and all standby machine services of this module will be offline",
+    "offlineMirrorServers": "The selected service has mirroring. Log off all the mirroring services of this module",
+    "offlineBackupMirrorServers": "The selected service has backup and mirroring to offline all backup and mirroring",
+    "sureOffline": "determine the offline",
+    "operationManage": {
+      "expand": "expand manage",
+      "shrinkage": "shrinkage manage",
+      "migration": "migration manage",
+      "mainBackup": "switch manage",
+      "appName": "application name",
+      "moduleName": "module name",
+      "srcGroupName": "srcGroupName",
+      "dstGroupName": "distGroupName",
+      "status": "status",
+      "beginTime": "begin time",
+      "progress": "progress",
+      "routerPageNo": "routerPageNo",
+      "statusText": {
+        "0": "New migration tasks",
+        "1": "Configuration phase complete",
+        "2": "Release to complete",
+        "3": "On the move",
+        "4": "Complete",
+        "5": "Stop"
+      },
+      "ensureDelete": "Are you sure to delete it?",
+      "ensureStop": "Are you sure to stop it?",
+      "ensureRestart": "Are you sure to restart task?",
+      "ensureShrinkage": "Are you sure to shrinkage it?",
+      "hasShrinkage": "Volume reduction has been initiated. Please go to operation management to check the progress of volume reduction",
+      "hasExpand": "Expansion has been initiated. Please go to operation management to check the expansion progress",
+      "hasServerMigration": "Deployment migration has been initiated, please go to operation management to see the progress of deployment migration",
+      "hasnonServerMigration": "A non-deployed migration has been initiated. Go to action management to see the progress of the deployment migration",
+      "onceSwitch": "Only one set of switches is allowed at a time",
+      "ensureSwitch": "Are you sure to switch？",
+      "switchSuccess": "switch success",
+      "groupName": "group name",
+      "masterServer": "master server",
+      "slaveServer": "slave server",
+      "switchTime": "start time",
+      "modifyTime": "update time",
+      "dbFlag": "DB Flag",
+      "allowedOut": "allowed out",
+      "switchType": "switch type",
+      "switchResult": "switch result",
+      "groupStatus": "group status",
+      "switchMethod": "switch method"
+    },
+    "batch": {
+      "restart": "batch restart",
+      "stop": "batch stop"
+    },
+    "execute": "in execution...",
+    "executeSuccess": "execution is completed "
+  },
+  "service": {
+    "serverName": "The service name",
+    "serverIp": "Service IP",
+    "templateFile": "The service template",
+    "routerDbName": "Routing database",
+    "routerDbNameTip": "Provide the available mysql instance and set a desired database name, router will automatically create the database and use it to store routing information for each module under the application.",
+    "routerDbIp": "The database of IP",
+    "routerDbPort": "Database port",
+    "routerDbUser": "username",
+    "routerDbPass": "password",
+    "multipleIp": "Service IP(multiple IP USES ; Separated)"
+  },
+  "region": {
+    "title": "region",
+    "idcArea": "IDC area",
+    "setArea": "Allochthonous mirror region",
+    "list": "Region list",
+    "label": "Region label",
+    "modify": "Modify the area",
+    "add": "The new area",
+    "regionTips": "For example: shenzhen",
+    "labelTips": "For example: sz"
+  },
+  "common": {
+    "createPerson": "createPerson",
+    "baseInfo": "baseInfo",
+    "nextStep": "nextStep",
+    "admin": "admin",
+    "serial": "serial",
+    "config": "configuration",
+    "patch": "publish",
+    "service": "service",
+    "time": "Time",
+    "name": "name",
+    "true": "true",
+    "false": "false",
+    "yes": "yes",
+    "no": "no",
+    "template": "template",
+    "type": "Type",
+    "cancel": "cancel",
+    "submit": "ok",
+    "status": "status",
+    "result": "result",
+    "error": "Error!!!",
+    "warning": "Warning!!!",
+    "success": "Success!!!",
+    "ip": "node",
+    "systemError": "system error",
+    "noPrivilage": "no privilage",
+    "notEmpty": " is required",
+    "needNumber": " must be numeric type",
+    "needArray": " must be array type",
+    "needObject": " must be object type",
+    "needBoolean": " must be boolean type",
+    "noLogin": "You have not been login",
+    "nodata": "No Data",
+    "noService": "No Services",
+    "retry": "Click to try again",
+    "enable": "enable",
+    "disable": "disable",
+    "alert": "Alert",
+    "networkErr": "Network Error",
+    "set": {
+      "setName": "SET Name",
+      "setArea": "SET Area",
+      "setGroup": "SET Group"
+    },
+    "message": "Message"
+  },
+  "operate": {
+    "update": "update",
+    "undeploy": "undeploy",
+    "restart": "restart",
+    "start": "start",
+    "stop": "stop",
+    "restartServer": "restart Server",
+    "startServer": "start Server",
+    "stopServer": "stop Server",
+    "add": "add",
+    "manage": "management",
+    "config": "config",
+    "approval": "approval",
+    "delete": "delete",
+    "more": "more",
+    "operates": "Operates",
+    "view": "view",
+    "search": "search",
+    "server": "Server",
+    "servant": "Servant",
+    "k8s": "K8S",
+    "viewTemplate": "view Template",
+    "privateTemplateManage": "private Template Manage",
+    "goback": "go back",
+    "default": "default",
+    "save": "save",
+    "title": {
+      "update": "Update",
+      "add": "Add",
+      "more": "More"
+    },
+    "retry": "retry"
+  },
+  "index": {
+    "rightView": {
+      "title": "choose a service",
+      "tips": "if you want to check the service list or the Real-time service status ,<br>please choose a service on the left menu.",
+      "tab": {
+        "patch": "Publish",
+        "serviceConfig": "Service Configuration",
+        "setConfig": "SET Configuration",
+        "appConfig": "APP Configuration",
+        "statMonitor": "Status Monitor",
+        "propertyMonitor": "Property Monitor",
+        "privileage": "Privileage",
+        "infDebuger": "Interface Debuger"
+      }
+    }
+  },
+  "serverList": {
+    "title": {
+      "serverList": "Services",
+      "serverStatus": "Real Time Service Status",
+      "patchList": "Patchs"
+    },
+    "table": {
+      "th": {
+        "group": "group",
+        "service": "Service",
+        "ip": "Node",
+        "zb": "main",
+        "nodeIP": "Node IP",
+        "podID": "pod ID",
+        "podName": "pod Name",
+        "podIP": "pod IP",
+        "enableSet": "SET",
+        "configStatus": "Configuration Status",
+        "currStatus": "Current Status",
+        "currMessage": "Current Message",
+        "processID": "Process ID",
+        "version": "Version",
+        "versionPath": "Version Path",
+        "time": "Publish Time",
+        "createTime": "Create Time",
+        "createPerson": "Create Person",
+        "updateTime": "Update Time",
+        "deleteTime": "Delete Time",
+        "threadID": "Thread ID",
+        "serviceID": "Service ID",
+        "result": "Result",
+        "buildID": "Build ID",
+        "buildTime": "Build Time",
+        "enableTime": "Enable Time",
+        "enablePerson": "Enable Person",
+        "source": "Source"
+      },
+      "servant": {
+        "title": "Servants",
+        "adress": "endpoint",
+        "thread": "threads count",
+        "connections": "Max connections",
+        "capacity": "Max queue",
+        "timeout": "Queue timeout(ms)"
+      },
+      "k8s": {
+        "title": "K8S"
+      },
+      "msg": {
+        "fail": "Failed to load the service list and retry?"
+      }
+    },
+    "dlg": {
+      "isBackup": "is backup",
+      "placeholder": {
+        "english": "all lower-case",
+        "num": "number or *",
+        "thread": "Nodejs >=1,other >=3"
+      },
+      "serviceType": "service type",
+      "asyncThread": "async threads",
+      "defaultPath": "default path",
+      "exePath": "exe path",
+      "startScript": "start script",
+      "stopScript": "stop script",
+      "monitorScript": "monitor script",
+      "privateTemplate": "private template",
+      "errMsg": {
+        "required": "All starred must be filled in",
+        "setName": "Set name can only contain english lowercase letters",
+        "setArea": "Set area can only contain english lowercase letters",
+        "setGroup": "Set group must be a number or *",
+        "defaultPath": "default path error,must be an absolute path",
+        "exePath": "EXE path error,must be an absolute path",
+        "startScript": "start script path error,must be an absolute path",
+        "stopScript": "stop script path error,must be an absolute path",
+        "monitorScript": "monitoring script path error,must be an absolute path",
+        "updateSuccess": "Success! the service has been updated successfully",
+        "updateFailed": "Failed! service update failed"
+      },
+      "msg": {
+        "undeploy": "Are you sure to undeploy this service?",
+        "undeployFailed": "undeploy failed"
+      },
+      "title": {
+        "editService": "Edit Service",
+        "undeploy": "undeploy",
+        "taskStatus": "task status"
+      }
+    },
+    "tips": {
+      "treeid": "Please select a service from the left side of the business tree",
+      "loadingError": "error",
+      "paramsError": "params error",
+      "systemError": "system error",
+      "undeploy": "can`t undeploy running service"
+    },
+    "restart": {
+      "notStart": "not start",
+      "running": "running",
+      "success": "success",
+      "failed": "failed",
+      "cancel": "cancel",
+      "parial": "partial success",
+      "restartFailed": "restart failed",
+      "restartResult": "restart result"
+    },
+    "startService": {
+      "msg": {
+        "startService": "Are you sure to start this service"
+      }
+    },
+    "restartService": {
+      "msg": {
+        "restartService": "Are you sure to restart this service"
+      }
+    },
+    "stopService": {
+      "msg": {
+        "stopService": "Are you sure to stop this service"
+      }
+    },
+    "servant": {
+      "obj": "OBJ name can only contains english letters",
+      "thread": "threads must be numeric and greater than 0",
+      "error": "Error!!!  <br>address：To tcp or udp at the beginning, there-h-t-p three parameters, -p 0-30000-t greater than 0 -h ip",
+      "ip": "IP format is wrong, please re-fill.",
+      "servantAddFailed": "Servant added failed",
+      "servantUpdateFailed": "Servant updated failed",
+      "a": "Are you sure to delete the Servant",
+      "deployService": "deploy service",
+      "upload": "upload",
+      "appService": "app·service",
+      "objName": "OBJ name",
+      "c": "English letters, don't need to add in front of the app name and the service name",
+      "numOfThread": "threads count",
+      "BindingAddress": "Binding address",
+      "sample": "sample",
+      "maxConnecttions": "max connecttions",
+      "lengthOfQueue": "max queue length",
+      "queueTimeout": "queue timeout(ms)",
+      "allowIP": "allow ip",
+      "protocol": "protocol",
+      "notTAF": "not TAF",
+      "treatmentGroup": "treatment group",
+      "releasePackage": "release package",
+      "comment": "comment",
+      "logLevel": "log level",
+      "pushFile": "push config file",
+      "sendCommand": "send customer cmd",
+      "serviceLink": "view service Link",
+      "taskID": "taskID",
+      "statusCode": "error status code,status code"
+    }
+  },
+  "pub": {
+    "btn": {
+      "pub": "publish version",
+      "history": "history"
+    },
+    "dlg": {
+      "patchType": "PatchType",
+      "ip": "Node",
+      "releaseVersion": "release version",
+      "upload": "upload release package",
+      "compileAndPublish": "compile and publish",
+      "releasePkg": "release package",
+      "defaultValue": "choose ...",
+      "noConfFile": "no configuration files",
+      "a": "please choose an ip",
+      "ab": "please choose a release version",
+      "unpublished": "Unpublished",
+      "conf": "Configure compiler interface",
+      "tag": "version interface",
+      "compiler": "compiler interface",
+      "task": "compilation progress interface",
+      "compileProgress": "Compilation progress",
+      "uploadPkg": "Uploading package, please wait",
+      "hasModule": "We need to log off all the modules under this application to log off the unique router and proxy services",
+      "cantUseApply": "下线的是仅有的节点,下线后该应用将无用"
+    },
+    "tips": {
+      "default": "Release management management service level, please first in the left tree selection service business.",
+      "tagListUrl": "Please configure SVN / GIT version acquisition interface first",
+      "tag": "Please enter the interface address to get the version list"
+    },
+    "date": "Date"
+  },
+  "cfg": {
+    "title": {
+      "a": "Configuration",
+      "b": "Reference files",
+      "c": "Node configuration",
+      "viewConf": "View configuration content",
+      "viewMerged": "View merged configuration",
+      "viewHistory": "View update history",
+      "viewTemplate": "View template content",
+      "viewProfileTemplate": "View profile template content"
+    },
+    "btn": {
+      "add": "add configuration",
+      "addRef": "add reference file",
+      "pushFile": "push file",
+      "fileName": "fileName",
+      "content": "content",
+      "reason": "reason",
+      "lastUpdate": "lastupdate time",
+      "mod": "the modification"
+    },
+    "table": {
+      "modCfg": "edit",
+      "delCfg": "delete",
+      "delRef": "delete",
+      "serviceName": "service name",
+      "viewMerge": "view",
+      "viewIpContent": "nodeConf",
+      "mangeRefFile": "manage reference file"
+    },
+    "msg": {
+      "chooseCfg": "please choose service configuration first",
+      "refFile": "reference file",
+      "addError": "add file error",
+      "delError": "delete error",
+      "confirm": "Are you sure to delete this file",
+      "viewContent": "view content",
+      "confirmCfg": "Are you sure to delete this configuration",
+      "nofile": "no file",
+      "selectNode": "Please select at least one node",
+      "empty": "Empty"
+    },
+    "dlg": {
+      "fileName": "fileName is required",
+      "fileNameReg": "The file name can contain only letters or Numbers, point, underscores, dash",
+      "contentReg": "content is required",
+      "addSucccess": "add success"
+    }
+  },
+  "monitor": {
+    "search": {
+      "a": "show date",
+      "b": "compare date",
+      "start": "start time",
+      "end": "end time",
+      "master": "master name",
+      "slave": "slave name",
+      "interfaceName": "interface name",
+      "masterIP": "master IP",
+      "slaveIP": "slave IP"
+    },
+    "btn": {
+      "submit": "get monitoring charts"
+    },
+    "msg": {
+      "info": "system is set up for the first time, contrast, countless according to please compare the date to date"
+    },
+    "table": {
+      "total": "total flow",
+      "curr": "the same day",
+      "contrast": "contrast day",
+      "fluctuating": "swings",
+      "average": "average response time in Day1",
+      "abnormal": "ratio of exceptional request in Day1",
+      "abnormalC": "ratio of exceptional request in Day2",
+      "timeout": "ratio of out-of-time request in Day1",
+      "timeoutC": "ratio of out-of-time request in Day2",
+      "errTips": "Service monitoring need specific to the service, please select a service in the left tree first.",
+      "a": "average time",
+      "b": "abnormal rate",
+      "c": "timeout rate",
+      "d": "Monitor time"
+    },
+    "select": {
+      "all": "all",
+      "property": "property",
+      "strategy": "policy"
+    },
+    "property": {
+      "property": "characteristic value of curr day",
+      "propertyC": "characteristic value of contrast day"
+    }
+  },
+  "deployService": {
+    "title": {
+      "deploy": "Deploy service",
+      "approval": "approval service",
+      "history": "history service",
+      "expand": "Expand service",
+      "template": "Manage template",
+      "affinity": "Manage affinity",
+      "application": "Manage application",
+      "apply": "Apply for deployment",
+      "business": "Manage business",
+      "node": "Manage node"
+    },
+    "form": {
+      "app": "APP",
+      "appMark": "App Mark",
+      "business": "Business",
+      "tips": "No need to add applications and services, such as MTT.HttpProxyServer.HttpProxyObj, where only fill HttpProxyObj",
+      "serviceType": "Service type",
+      "serviceName": "Service name",
+      "serviceMark": "Service mark",
+      "template": "Template",
+      "set": "Set grouping",
+      "obj": "OBJ binds IP",
+      "port": "port",
+      "portType": "PortType",
+      "placeholder": "Only supports English letters",
+      "portTips": "port range 0 ~ 30000, your input is beyond the scope",
+      "appTips": "application name cannot be empty",
+      "businessTips": "business name cannot be empty",
+      "serviceTips": "the service name cannot be empty",
+      "serviceTypeTips": "the service type cannot be empty",
+      "templateTips": "the template cannot be empty",
+      "serviceFormatTips": "The service name can only contain letters, Numbers, and begin with a letter",
+      "nodeTips": "the node cannot be empty",
+      "nodeFormatTips": "Node format is not correct, please enter the IP address",
+      "setNameTips": "the Set name cannot be empty",
+      "setAreaTips": "the Set area cannot be empty",
+      "setNameFormatTips": "The Set name can only English lowercase letters",
+      "setAreaFormatTips": "The Set area can only English lowercase letters",
+      "setGroupTips": "Set group name cannot be empty",
+      "setGroupFormatTips": "Set group name can only numbers or *",
+      "inputTips": "all * must be filled",
+      "objTips": "OBJ name cannot be empty",
+      "deployServiceTip": "Are you sure to deploy this service?",
+      "getPort": "get port",
+      "ret": {
+        "success": "Deployed application submitted successfully",
+        "failed": "Deployed application submission failed!Please contact your administrator"
+      },
+      "nameTips": "This service is existing in the system, please change the application name, service name or nodes and retry",
+      "portOrNetWork": "HostPort Or HostNetWork cannot co-exist"
+    },
+    "table": {
+      "th": {
+        "endpoint": "OBJ Endpoint",
+        "port": "Port",
+        "protocol": "Protocol",
+        "threads": "Threads",
+        "replicas": "Replicas",
+        "netMode": "Net Mode",
+        "nodeSelector": "Node Selector",
+        "stacked": "Stacked",
+        "hostIpc": "HostIpc",
+        "hostNetwork": "HostNetwork",
+        "hostPort": "HostPort",
+        "generateHostPort": "Generate"
+      },
+      "tips": {
+        "ip": "OBJ Endpoint cannot be empty",
+        "ipFormat": "IP format error",
+        "empty": "cannot be empty"
+      }
+    }
+  },
+  "template": {
+    "search": {
+      "parentTemplate": "Parent template"
+    },
+    "btn": {
+      "addTempate": "add tempate",
+      "addApplication": "add Application"
+    },
+    "form": {
+      "content": "content"
+    },
+    "view": {
+      "title": "View template"
+    },
+    "add": {
+      "templateNameTips": "The template name cannot be empty",
+      "templateFormatTips": "The template name can only contain letters, Numbers, and begin with a letter",
+      "parentTemplate": "Please select the parent template",
+      "title": "Add template"
+    },
+    "update": {
+      "title": "Update tempate",
+      "errTips": "update failed"
+    },
+    "delete": {
+      "confirmTips": "Are you sure to delete this template",
+      "title": "Delete template"
+    }
+  },
+  "serviceApproval": {
+    "RequestPerson": "request person",
+    "RequestTime": "request time",
+    "ApprovalResult": "approval result",
+    "ApprovalMark": "approval mark"
+  },
+  "serviceExpand": {
+    "title": "service expand",
+    "form": {
+      "tarIP": "Target IP",
+      "placeholder": "Multiple IP separated by comma (,), semicolon (;) newline (\\ n)",
+      "nodeConfig": "Node configuration",
+      "copyNodeConfig": "copy node configuration",
+      "preExpand": "Pre expand",
+      "noExpand": "no expand",
+      "disableSet": "disable Set",
+      "errTips": {
+        "tarIP": "tarIP can not be empty",
+        "preExpand": "expansion failed! Please contact the administrator",
+        "noneNodes": "Please check the object to be expanded",
+        "ipFormat": "Please fill in the correct IP address",
+        "success": "Expansion success"
+      }
+    },
+    "newGroup": "Add a group",
+    "removeGroup": "Remove last group"
+  },
+  "historyList": {
+    "title": "Release History",
+    "table": {
+      "th": {
+        "c2": "serial",
+        "c4": "details of the subtasks"
+      }
+    },
+    "dlg": {
+      "th": {
+        "c1": "ID",
+        "c2": "Application",
+        "c3": "Service",
+        "c4": "Node",
+        "c5": "Command",
+        "c7": "Execute info",
+        "c8": "Status"
+      }
+    }
+  },
+  "user": {
+    "op": "Operation",
+    "dev": "Developer",
+    "tips": {
+      "sep": "Multiple people separated by semicolon"
+    }
+  },
+  "resource": {
+    "installRstMsg": ",The results of installment of Tafnode are as follows:",
+    "installResult": "Install result"
+  },
+  "inf": {
+    "list": {
+      "debug": "debug"
+    },
+    "title": {
+      "listTitle": "Taf Files",
+      "dlgTitle": "Upload Taf File"
+    },
+    "dlg": {
+      "selectLabel": "modules/interfaces/functions",
+      "inParam": "in params",
+      "outParam": "out params",
+      "tafFile": "taf file",
+      "deleteMsg": "are you sure to delete this file?",
+      "objName": "Servant Name"
+    }
+  },
+  "publishLog": {
+    "title": "Publish Log",
+    "sync": "synchronizing PMS...",
+    "releaseId": "Release ID"
+  },
+  "filter": {
+    "title": {
+      "app": "Application",
+      "business": "Business",
+      "serverId": "Server ID",
+      "adapterId": "Adapter ID",
+      "adapterName": "Adapter Name",
+      "port": "port",
+      "mark": "Mark",
+      "name": "Name",
+      "node": "Node",
+      "order": "Order",
+      "domain": "Domain",
+      "FirstLevelDomain": "First Level Domain",
+      "SecondLevelDomain": "Second Level Domain",
+      "ThirdLevelDomain": "Third Level Domain",
+      "FourthLevelDomain": "Fourth Level Domain",
+      "router": "Router",
+      "routerType": "Router Type",
+      "diffTxt": "Diff Text",
+      "nodeName": "NodeName",
+      "nodeAbility": "NodeAbility",
+      "nodePublic": "NodePublic",
+      "nodeAddress": "NodeAddress",
+      "nodeInfo": "NodeInfo",
+      "startPublic": "start Public",
+      "stopPublic": "stop Public"
+    },
+    "btn": {
+      "add": "Add",
+      "addNode": "Add Node",
+      "addServer": "Add Server",
+      "search": "Search"
+    }
+  },
+  "table": {
+    "btn": {
+      "appList": "Application List",
+      "deleteNode": "Delete Node",
+      "deleteServer": "Delete Server"
+    }
+  },
+  "dialog": {
+    "title": {
+      "add": "add",
+      "edit": "edit"
+    },
+    "tips": {
+      "delete": "Are you sure to delete",
+      "item": "Please select one"
+    }
+  },
+  "gateway":{
+    "station":"Station Config",
+    "upstream":"Upstream Config",
+    "globalblack":"Global Black List",
+    "stationId":"Station ID",
+    "stationName":"Station Name",
+    "monitorUrl":"Monitor Url",
+    "serverName":"Server Name",
+    "pathRule":"Path Rule",
+    "proxyPass":"ProxyPass",
+    "addr":"Addr",
+    "weight":"Weight",
+    "fusing":"Fusing",
+    "fusingOn":"FusingOn",
+    "fusingOff":"FusingOff",
+    "lastUpdate":"Update Time",
+    "btn":{
+      "addGateway": "Add Gateway",
+      "addUpstream": "Add Upstream",
+      "addHttpRouter": "Add Router"
+    },
+    "add": {
+      "stationNameTips": "please input station name",
+      "idFormatTips": "station id can only contain letters, numbers, dots, underscores, start with a letter, and cannot end with Obj",
+      "monitorUrlTips": "please input monitor tips",
+      "upstreamFormatTips":"upstream can only contain letters, numbers, underscores, start with a letter, and cannot end with Obj",
+      "addrFormatTips":"please input ip:port",
+      "weightFormatTips":"please input weight",
+      "serverNameTip":"support wildcards or regular expressions. if empty, matchs all",
+      "pathRuleTip":"please input path rule",
+      "proxyPassTip":"please input ProxyPass，support ip:port, upstream, taf obj",
+      "title": "add station",
+      "upstream": "add upstream"
+    },
+    "update": {
+      "title": "edit station",
+      "upstream": "edit upstream",
+      "errTips": "edit fail"
+    },
+    "delete": {
+      "confirmTips": "are you sure to delete this station?",
+      "upstreamConfirmTips": "are you sure to delete this upstream?",
+      "bwListConfirmTips": "are you sure to delete this black/whitelist?",
+      "deleteUpstreamErrorTip":"detete fail，there are still associated routers, or upstream is not exsit",
+      "title": "Delete Station"
+    },
+    "config":{
+      "title":"Gateway Config"
+    },
+    "bwlist":{
+      "title":{
+        "black":"Blacklist",
+        "white":"Whitelist"
+      },
+      "ipTip":"please input ip（support wildcards）"
+    },
+    "flowControl":{
+      "title":"flow control",
+      "duration":"time window(s)",
+      "durationTip":"please input seconds of time window",
+      "maxFlow":"max flow",
+      "maxFlowTip":"please input max flow in time window",
+      "tip":"that is, during the 'time window', when reached 'max flow', the excess flow will be rejected"
+    },
+    "router":{
+      "title":"Router Config"
+    }
+  }
+}
