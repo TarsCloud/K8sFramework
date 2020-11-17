@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: tars-tafadmin
+  name: tars-tarsadmin
   namespace: tars
 
 ---
@@ -9,7 +9,7 @@ metadata:
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: tars-tafadmin
+  name: tars-tarsadmin
   namespace: tars
 rules:
   - apiGroups: [""]
@@ -23,22 +23,22 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: tars-tafadmin
+  name: tars-tarsadmin
   namespace: tars
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: tars-tafadmin
+  name: tars-tarsadmin
 subjects:
   - kind: ServiceAccount
-    name: tars-tafadmin
+    name: tars-tarsadmin
     namespace: tars
 ---
 
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: tars-tafadmin
+  name: tars-tarsadmin
 rules:
   - apiGroups: [""]
     resources: ["nodes"]
@@ -48,14 +48,14 @@ rules:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: tars-tafadmin
+  name: tars-tarsadmin
 subjects:
 - kind: ServiceAccount
-  name: tars-tafadmin
+  name: tars-tarsadmin
   namespace: tars
 roleRef:
   kind: ClusterRole
-  name: tars-tafadmin
+  name: tars-tarsadmin
   apiGroup: rbac.authorization.k8s.io
 ---
 
@@ -64,8 +64,8 @@ apiVersion: v1
 metadata:
   labels:
     TafServerApp: tars
-    TafServerName: tafadmin
-  name: tars-tafadmin
+    TafServerName: tarsadmin
+  name: tars-tarsadmin
   namespace: tars
 spec:
   clusterIP: None
@@ -74,7 +74,7 @@ spec:
       port: 80
       protocol: TCP
   selector:
-    app: tars-tafadmin
+    app: tars-tarsadmin
   sessionAffinity: None
   type: ClusterIP
 
@@ -84,23 +84,23 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: tars-tafadmin
-  name: tars-tafadmin
+    app: tars-tarsadmin
+  name: tars-tarsadmin
   namespace: tars
 spec:
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: tars-tafadmin
-  serviceName: tars-tafadmin
+      app: tars-tarsadmin
+  serviceName: tars-tarsadmin
   template:
     metadata:
       labels:
-        app: tars-tafadmin
-      name: tars-tafadmin
+        app: tars-tarsadmin
+      name: tars-tarsadmin
     spec:
-      serviceAccountName: tars-tafadmin
+      serviceAccountName: tars-tarsadmin
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -111,9 +111,9 @@ spec:
               - key: tars.io/ability.tars
                 operator: Exists
       containers:
-        - image: _DOCKER_REGISTRY_URL_/tars.tafadmin:10000
+        - image: _DOCKER_REGISTRY_URL_/tars.tarsadmin:10000
           imagePullPolicy: Always
-          name: tars-tafadmin
+          name: tars-tarsadmin
           envFrom:
           - secretRef:
               name: tars-db

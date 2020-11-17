@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: tars-tafagent
+  name: tars-tarsagent
   namespace: tars
   labels:
-    app: tars-tafagent
+    app: tars-tarsagent
 spec:
   selector:
     matchLabels:
-      app: tars-tafagent
+      app: tars-tarsagent
   template:
     metadata:
       labels:
-        app: tars-tafagent
+        app: tars-tarsagent
     spec:
       hostNetwork: true
       affinity:
@@ -23,8 +23,8 @@ spec:
                   - key: tars.io/node
                     operator: Exists
       containers:
-        - name: tars-tafagent
-          image: _DOCKER_REGISTRY_URL_/tars.tafagent:10000
+        - name: tars-tarsagent
+          image: _DOCKER_REGISTRY_URL_/tars.tarsagent:10000
           ports:
             - containerPort: 8000
           imagePullPolicy: Always

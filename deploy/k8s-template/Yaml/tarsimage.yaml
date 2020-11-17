@@ -3,8 +3,8 @@ kind: Service
 apiVersion: v1
 metadata:
   labels:
-    app: tars-tafimage
-  name: tars-tafimage
+    app: tars-tarsimage
+  name: tars-tarsimage
   namespace: tars
 spec:
   clusterIP: None
@@ -13,7 +13,7 @@ spec:
       port: 80
       protocol: TCP
   selector:
-    app: tars-tafimage
+    app: tars-tarsimage
   sessionAffinity: None
   type: ClusterIP
 
@@ -23,21 +23,21 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: tars-tafimage
-  name: tars-tafimage
+    app: tars-tarsimage
+  name: tars-tarsimage
   namespace: tars
 spec:
   podManagementPolicy: "Parallel"
   replicas: 1
   selector:
     matchLabels:
-      app: tars-tafimage
-  serviceName: tars-tafimage
+      app: tars-tarsimage
+  serviceName: tars-tarsimage
   template:
     metadata:
       labels:
-        app: tars-tafimage
-      name: tars-tafimage
+        app: tars-tarsimage
+      name: tars-tarsimage
     spec:
       affinity:
         nodeAffinity:
@@ -49,9 +49,9 @@ spec:
               - key: tars.io/ability.tars
                 operator: Exists
       containers:
-        - image: _DOCKER_REGISTRY_URL_/tars.tafimage:10000
+        - image: _DOCKER_REGISTRY_URL_/tars.tarsimage:10000
           imagePullPolicy: Always
-          name: tars-tafimage
+          name: tars-tarsimage
           volumeMounts:
             - mountPath: /var/run/docker.sock
               name: docker-sock

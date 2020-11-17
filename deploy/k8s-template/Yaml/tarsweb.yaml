@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     app: tars-web
-  name: tars-tafweb
+  name: tars-tarsweb
   namespace: tars
 spec:
   ports:
@@ -23,19 +23,19 @@ kind: StatefulSet
 metadata:
   labels:
     app: tars-web
-  name: tars-tafweb
+  name: tars-tarsweb
   namespace: tars
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: tars-web
-  serviceName: tars-tafweb
+  serviceName: tars-tarsweb
   template:
     metadata:
       labels:
         app: tars-web
-      name: tars-tafweb
+      name: tars-tarsweb
     spec:
       affinity:
         nodeAffinity:
@@ -47,9 +47,9 @@ spec:
               - key: tars.io/ability.tars
                 operator: Exists
       containers:
-        - image:  _DOCKER_REGISTRY_URL_/tars.tafweb:10000
+        - image:  _DOCKER_REGISTRY_URL_/tars.tarsweb:10000
           imagePullPolicy: Always
-          name: tars-tafweb
+          name: tars-tarsweb
       dnsConfig:
         options:
           - name: ndots

@@ -5,8 +5,8 @@ metadata:
     tars.io/Servant: '{"statobj":{"Name":"StatObj","Port":10000,"HostPort":0,"Threads":3,"Connections":10000,"Capacity":10000,"Timeout":60000,"IsTaf":true,"IsTcp":true}}'  
   labels:
     tars.io/ServerApp: tars
-    tars.io/ServerName: tafstat
-  name: tars-tafstat
+    tars.io/ServerName: tarsstat
+  name: tars-tarsstat
   namespace: tars
 spec:
   clusterIP: None
@@ -21,7 +21,7 @@ spec:
       targetPort: 19385
   selector:
     tars.io/ServerApp: tars
-    tars.io/ServerName: tafstat
+    tars.io/ServerName: tarsstat
   sessionAffinity: None
   type: ClusterIP
 
@@ -35,8 +35,8 @@ metadata:
     tars.io/NotStacked: "false"
   labels:
     tars.io/ServerApp: tars
-    tars.io/ServerName: tafstat
-  name: tars-tafstat
+    tars.io/ServerName: tarsstat
+  name: tars-tarsstat
   namespace: tars
 spec:
   podManagementPolicy: "Parallel"
@@ -44,15 +44,15 @@ spec:
   selector:
     matchLabels:
       tars.io/ServerApp: tars
-      tars.io/ServerName: tafstat
-  serviceName: tars-tafstat
+      tars.io/ServerName: tarsstat
+  serviceName: tars-tarsstat
   template:
     metadata:
       labels:
         tars.io/ServerApp: tars
-        tars.io/ServerName: tafstat
+        tars.io/ServerName: tarsstat
         tars.io/ServerVersion: "10000"
-      name: tars-tafstat
+      name: tars-tarsstat
     spec:
       affinity:
         nodeAffinity:
@@ -74,9 +74,9 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-          image:  _DOCKER_REGISTRY_URL_/tars.tafstat:10000
+          image:  _DOCKER_REGISTRY_URL_/tars.tarsstat:10000
           imagePullPolicy: Always
-          name: tars-tafstat
+          name: tars-tarsstat
           volumeMounts:
             - mountPath: /host-log-path
               name: host-log-path

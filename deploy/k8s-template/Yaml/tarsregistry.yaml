@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: tars-tafregistry
+  name: tars-tarsregistry
   namespace: tars
 
 ---
@@ -9,7 +9,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: tars-tafregistry
+  name: tars-tarsregistry
   namespace: tars
 rules:
   - apiGroups: [""]
@@ -23,15 +23,15 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: tars-tafregistry
+  name: tars-tarsregistry
   namespace: tars
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: tars-tafregistry
+  name: tars-tarsregistry
 subjects:
   - kind: ServiceAccount
-    name: tars-tafregistry
+    name: tars-tarsregistry
     namespace: tars
 
 ---
@@ -40,8 +40,8 @@ kind: Service
 apiVersion: v1
 metadata:
   labels:
-    app: tars-tafregistry
-  name: tars-tafregistry
+    app: tars-tarsregistry
+  name: tars-tarsregistry
   namespace: tars
 spec:
   clusterIP: None
@@ -53,7 +53,7 @@ spec:
       port: 17890
       protocol: TCP
   selector:
-    app: tars-tafregistry
+    app: tars-tarsregistry
   sessionAffinity: None
   type: ClusterIP
 
@@ -63,22 +63,22 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: tars-tafregistry
-  name: tars-tafregistry
+    app: tars-tarsregistry
+  name: tars-tarsregistry
   namespace: tars
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: tars-tafregistry
-  serviceName: tars-tafregistry
+      app: tars-tarsregistry
+  serviceName: tars-tarsregistry
   template:
     metadata:
       labels:
-        app: tars-tafregistry
-      name: tars-tafregistry
+        app: tars-tarsregistry
+      name: tars-tarsregistry
     spec:
-      serviceAccountName: tars-tafregistry
+      serviceAccountName: tars-tarsregistry
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -89,9 +89,9 @@ spec:
                   - key: tars.io/ability.tars
                     operator: Exists
       containers:
-        - image: _DOCKER_REGISTRY_URL_/tars.tafregistry:10000
+        - image: _DOCKER_REGISTRY_URL_/tars.tarsregistry:10000
           imagePullPolicy: Always
-          name: tars-tafregistry
+          name: tars-tarsregistry
           envFrom:
             - secretRef:
               name: tars-db

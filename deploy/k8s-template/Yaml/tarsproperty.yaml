@@ -5,8 +5,8 @@ metadata:
     tars.io/Servant: '{"propertyobj":{"Name":"PropertyObj","Port":10000,"HostPort":0,"Threads":3,"Connections":10000,"Capacity":10000,"Timeout":60000,"IsTaf":true,"IsTcp":true}}'
   labels:
     tars.io/ServerApp: tars
-    tars.io/ServerName: tafproperty
-  name: tars-tafproperty
+    tars.io/ServerName: tarsproperty
+  name: tars-tarsproperty
   namespace: tars
 spec:
   clusterIP: None
@@ -21,7 +21,7 @@ spec:
       targetPort: 19385
   selector:
     tars.io/ServerApp: tars
-    tars.io/ServerName: tafproperty
+    tars.io/ServerName: tarsproperty
   sessionAffinity: None
   type: ClusterIP
 
@@ -35,8 +35,8 @@ metadata:
     tars.io/NotStacked: "false"
   labels:
     tars.io/ServerApp: tars
-    tars.io/ServerName: tafproperty
-  name: tars-tafproperty
+    tars.io/ServerName: tarsproperty
+  name: tars-tarsproperty
   namespace: tars
 spec:
   podManagementPolicy: "Parallel"
@@ -44,15 +44,15 @@ spec:
   selector:
     matchLabels:
       tars.io/ServerApp: tars
-      tars.io/ServerName: tafproperty
-  serviceName: tars-tafproperty
+      tars.io/ServerName: tarsproperty
+  serviceName: tars-tarsproperty
   template:
     metadata:
       labels:
         tars.io/ServerApp: tars
-        tars.io/ServerName: tafproperty
+        tars.io/ServerName: tarsproperty
         tars.io/ServerVersion: "10000"
-      name: tars-tafproperty
+      name: tars-tarsproperty
     spec:
       affinity:
         nodeAffinity:
@@ -74,9 +74,9 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-          image: _DOCKER_REGISTRY_URL_/tars.tafproperty:10000
+          image: _DOCKER_REGISTRY_URL_/tars.tarsproperty:10000
           imagePullPolicy: Always
-          name: tars-tafproperty
+          name: tars-tarsproperty
           volumeMounts:
             - mountPath: /host-log-path
               name: host-log-path
