@@ -51,14 +51,15 @@ echo "install node success! Version is ${CURRENT_NODE_VERSION}"
 
 source /etc/profile
 
-rm -rf taf-node 
-git clone http://gitlab.whup.com/taf/taf-node.git
-cd taf-node/src/taf-node-agent; npm install --registry=http://172.16.8.152:7001
-cd ../../..
+# rm -rf taf-node 
+# git clone http://gitlab.whup.com/taf/taf-node.git
+# cd taf-node/src/taf-node-agent; npm install --registry=http://172.16.8.152:7001
+# cd ../../..
 
-rm -rf taf-web-nodejs-k8s
-git clone http://gitlab.whup.com/taf/taf-web-nodejs-k8s.git 
-cd taf-web-nodejs-k8s; npm install --registry=http://172.16.8.152:7001
-cd ..
+# rm -rf  
+# git clone http://gitlab.whup.com/taf/taf-web-nodejs-k8s.git 
+# cd taf-web-nodejs-k8s; npm install --registry=http://172.16.8.152:7001
+# cd ..
 
+cd k8s-web; npm install
 yum install -y mysql

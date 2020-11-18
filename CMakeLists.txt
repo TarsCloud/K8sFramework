@@ -25,7 +25,7 @@ link_directories(/usr/local/tars/cpp/thirdparty/lib)
 
 add_subdirectory(ConfigServer)
 add_subdirectory(NodeServer)
-#add_subdirectory(NotifyServer)
+add_subdirectory(NotifyServer)
 add_subdirectory(RegistryServer)
 
 ############################################################################
@@ -39,6 +39,10 @@ add_subdirectory(AdminServer)
 add_subdirectory(AgentServer)
 
 install(DIRECTORY deploy DESTINATION ${TARS_PATH}
+        PATTERN "*.sh"
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ)
+
+install(DIRECTORY k8s-web DESTINATION ${TARS_PATH}/deploy
         PATTERN "*.sh"
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ)
 

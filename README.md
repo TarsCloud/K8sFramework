@@ -41,10 +41,9 @@
 
 ## 编译代码
 
-请首先编译tars-cpp.
+请首先编译tarscpp.
 
-然后编译服务代码.
-
+然后编译K8SFramework服务代码.
 
 ```bash
     mkdir build && cd build
@@ -72,7 +71,7 @@ cd /usr/local/tars/cpp/deploy
 sh k8s-pre-install.sh
 
 #执行k8s-install.sh
-./k8s-install.sh DOCKER_REGISTRY_URL DOCKER_REGISTRY_USER DOCKER_REGISTRY_PASSWORD DB_tars_HOST DB_tars_PORT DB_tars_USER DB_tars_PASSWORD NODEIP";
+./k8s-install.sh DOCKER_REGISTRY_URL DOCKER_REGISTRY_USER DOCKER_REGISTRY_PASSWORD DB_TARS_HOST DB_TARS_PORT DB_TARS_USER DB_TARS_PASSWORD NODEIP;
 
 #等待执行完毕, 查看 tars-tarsweb service 的 nodeport 端口
 kubectl get service -n tars

@@ -5,19 +5,10 @@
   "scripts": {
     "start": "node bin/www ../config/webConf",
     "dev": "./node_modules/.bin/nodemon bin/www ../config/webConf_test",
-    "dcache": "./node_modules/.bin/nodemon --watch ./../tars-dcache --watch ./ bin/www",
     "prd": "pm2 start bin/www --name=tars-node-web",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@taf/taf-cmd": "^1.0.5",
-    "@taf/taf-config": "^1.2.8",
-    "@taf/taf-config-parser": "^0.1.1",
-    "@taf/taf-logs": "^0.1.1",
-    "@taf/taf-rpc": "^3.1.15",
-    "@taf/taf-stream": "^4.0.8",
-    "@taf/taf-utils": "^1.1.1",
-    "@taf/taf-winston": "^0.3.4",
     "@tars/dcache": "^1.0.1",
     "@tars/rpc": "*",
     "@tars/stream": "*",
@@ -30,7 +21,6 @@
     "fs-extra": "^5.0.0",
     "install": "^0.11.0",
     "internal-ip": "^3.0.1",
-    "kafka-node": "^2.6.1",
     "koa": "^2.5.1",
     "koa-bodyparser": "^3.2.0",
     "koa-compress": "^2.0.0",

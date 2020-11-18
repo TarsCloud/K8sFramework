@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd /tars-web-k8s
+cd /k8s-web
 
 exec npm run start
