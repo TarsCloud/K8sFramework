@@ -475,3 +475,59 @@ func selectTemplate(tafDb *sql.DB) (SelectResult, Error) {
 	}
 	return selectResult, Error{"", 0}
 }
+
+func selectConfig(tafDb *sql.DB) (SelectResult, Error) {
+	requestColumnsSqlColumnsMap := RequestColumnSqlColumnMap{
+		"ConfigId": SqlColumn{
+			ColumnName: "f_config_id",
+			ColumnType: "int",
+		},
+		"ConfigName": SqlColumn{
+			ColumnName: "f_config_name",
+			ColumnType: "string",
+		},
+		"ConfigVersion": SqlColumn{
+			ColumnName: "f_config_version",
+			ColumnType: "int",
+		},
+		"ConfigContent": SqlColumn{
+			ColumnName: "f_config_content",
+			ColumnType: "string",
+		},
+		"CreateTime": SqlColumn{
+			ColumnName: "f_create_time",
+			ColumnType: "string",
+		},
+		"CreatePerson": SqlColumn{
+			ColumnName: "f_create_person",
+			ColumnType: "string",
+		},
+		"ConfigMark": SqlColumn{
+			ColumnName: "f_config_mark",
+			ColumnType: "string",
+		},
+		"AppServer": SqlColumn{
+			ColumnName: "f_app_server",
+			ColumnType: "string",
+		},
+		"PodSeq": SqlColumn{
+			ColumnName: "f_pod_seq",
+			ColumnType: "int",
+		},
+	}
+
+	const from = "t_config"
+
+	var err error
+
+	selectResult := SelectResult{
+		Data:  nil,
+		Count: nil,
+	}
+
+	if selectResult.Data, selectResult.Count, err = execSelectSql(tafDb, from, requestColumnsSqlColumnsMap); err != nil {
+		return SelectResult{}, Error{err.Error(), -1}
+	}
+
+	return selectResult, Error{"", 0}
+}

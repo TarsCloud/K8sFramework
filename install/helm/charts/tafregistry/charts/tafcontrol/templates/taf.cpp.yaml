@@ -1,0 +1,8 @@
+apiVersion: k8s.taf.io/v1alpha1
+kind: TTemplate
+metadata:
+  name: taf.cpp
+  namespace: {{.Release.Namespace}}
+spec:
+  content: ""
+  parent: taf.default

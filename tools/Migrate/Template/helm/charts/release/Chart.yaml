@@ -1,0 +1,7 @@
+apiVersion: v2
+name: release
+version: 0.0.1
+kubeVersion: ">= 1.17.0 <= 1.19.0"
+type: application
+keywords: [ taf , heml, release ]
+appVersion: v1

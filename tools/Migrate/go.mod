@@ -1,4 +1,4 @@
-module main
+module migrate
 
 go 1.14
 

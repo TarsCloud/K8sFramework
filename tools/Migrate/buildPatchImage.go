@@ -46,7 +46,15 @@ type BuildRequest struct {
 	ServerDir 	 string `json:"ServerDir" valid:"required"`
 
 	TReleaseTemplatePath 	string
+	TConfigTemplatePath 	string
 	TServerTemplatePath 	string
+}
+
+func NewBuildRequest() BuildRequest {
+	return BuildRequest{
+		TReleaseTemplatePath: treleaseYamlPath,
+		TConfigTemplatePath: tconfigYamlPath,
+		TServerTemplatePath: tserverYamlPath}
 }
 
 var BashShell = "/bin/bash"
@@ -70,7 +78,7 @@ func BuildPatchImage() {
 	// 构建任务集合
 	var requests = make([]BuildRequest, 0, 0)
 	for _, tgz := range dir {
-		var request BuildRequest
+		request := NewBuildRequest()
 
 		fileName := tgz.Name()
 		if tgz.IsDir() {
@@ -88,22 +96,17 @@ func BuildPatchImage() {
 		request.ServerApp = fileFields[0]
 		request.ServerName= fileFields[1]
 		request.ServerType, request.ServerDir = getServerType(AppBaseDir, fileName)
-		if Init {
-			request.TReleaseTemplatePath = "./Template/trelease.yaml"
-		} else {
+		if !Init {
 			request.TReleaseTemplatePath = fmt.Sprintf("%s/release/%s-%s.yaml", AppBaseDir, strings.ToLower(request.ServerApp), strings.ToLower(request.ServerName))
 		}
-		request.TServerTemplatePath = "./Template/tserver.yaml"
 		requests = append(requests, request)
-
-		totalServerNum += 1
 	}
 
 	// 创建go协程任务
-	for i := 0; i < len(requests); i++ {
-		request := requests[i]
-		syncGroup.Add(1)
-		go createBuildTask(request)
+	totalServerNum := len(requests)
+	syncGroup.Add(totalServerNum)
+	for i := 0; i < totalServerNum; i++ {
+		go createBuildTask(requests[i])
 	}
 	syncGroup.Wait()
 
@@ -177,7 +180,7 @@ func createBuildTask(request BuildRequest) {
 	fmt.Println(fmt.Sprintf("%s: 服务镜像构建完成. 已完成: %d/%d, 本任务耗时：%d(s)",
 		imageTag, completeServerNum, totalServerNum, endTime.Unix()-begTime.Unix()))
 
-	time.Sleep(time.Duration(2)*time.Second)
+	time.Sleep(time.Duration(1)*time.Second)
 }
 
 func unTarGz(srcFilePath string, destDir string) string {
@@ -334,7 +337,7 @@ func writeTServerFile(request BuildRequest, release ReleaseImageItem) {
 		panic(fmt.Sprintf("unmarshal from %s err: %s\n", "tserver.yaml", err))
 	}
 
-	if Semantics {
+	if FromK8SDB {
 		ok := AdapterK8SDBTServerData(tafserver, request, release)
 		if !ok {
 			fmt.Println(fmt.Sprintf("cannot find tserver: %s.%s in k8s db.", request.ServerApp, request.ServerName))
@@ -346,3 +349,4 @@ func writeTServerFile(request BuildRequest, release ReleaseImageItem) {
 		}
 	}
 }
+

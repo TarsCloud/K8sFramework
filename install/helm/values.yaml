@@ -1,0 +1,38 @@
+global:
+  registry:
+    ## 此处填写内网地址的仓库,比如阿里云的内网仓库地址与公网仓库地址是不一样的
+    url: registry-vpc.cn-hangzhou.aliyuncs.com
+    user: image
+    password: image@password
+
+tafDB:
+  ## 此处填写数据库内网地址
+  host: 172.30.200.2
+  port: 3306
+  user: root
+  password: taf2020
+  name: taf_db
+
+statDB:
+  ## 此处填写数据库内网地址
+  host: 172.30.200.2
+  port: 3306
+  user: root
+  password: taf2020
+  name: taf_stat
+
+propertyDB:
+  ## 此处填写数据库内网地址
+  host: 172.30.200.2
+  port: 3306
+  user: root
+  password: taf2020
+  name: taf_property
+
+## nodeBind.framework 指定  除 taflog 以外的 taf 框架核心服务的 Pod运行节点
+## nodeBind.log 指定 taflog 的Pod 运行节点, 单独处理  taflog是因为 taflog 需要在宿主机上挂载磁盘空间存储远程日志
+nodeBind:
+  framework:
+    - worker-0001
+  log:
+    - worker-0001

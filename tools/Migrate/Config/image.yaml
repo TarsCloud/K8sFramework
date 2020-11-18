@@ -7,7 +7,7 @@ data:
   Namespace: taf
   DockerRegistryUrl: harbor-huawei.upchinaproduct.com/hwk8s
   DockerRegistryUser: admin
-  DockerRegistryPassword: UPHar#32211
+  DockerRegistryPassword: UPHar32211
   CppImageBase: harbor-huawei.upchinaproduct.com/hwk8s/taf.cppbase:10000
   JavaImageBase: harbor-huawei.upchinaproduct.com/hwk8s/taf.javabase:10000
   Node8ImageBase: harbor-huawei.upchinaproduct.com/hwk8s/taf.node8base:10000

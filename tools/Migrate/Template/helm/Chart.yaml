@@ -1,0 +1,12 @@
+apiVersion: v2
+name: helm
+version: 0.0.1
+kubeVersion: ">= 1.17.0 <= 1.19.0"
+type: application
+keywords: [ taf , helm ]
+dependencies:
+  - name: release
+    version: "0.0.1"
+  - name: config
+    version: "0.0.1"
+appVersion: v1

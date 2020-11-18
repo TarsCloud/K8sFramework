@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: taf-control-prepare
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+---
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{.Release.Namespace}}:taf-control-prepare
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+  - apiGroups: [ "" ]
+    resources: [ nodes ]
+    verbs: [ patch ]
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{.Release.Namespace}}:taf-control-prepare
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{.Release.Namespace}}:taf-control-prepare
+subjects:
+  - kind: ServiceAccount
+    name: taf-control-prepare
+    namespace: {{.Release.Namespace}}
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taf-control-prepare
+  namespace: {{.Release.Namespace}}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+data:
+  run.sh: |
+    #!/usr/bin/env bash
+
+    TokenValue=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+
+    NamespaceValue=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+
+    declare -a FrameworkNodes=(
+    {{- range $.Values.nodeBind.framework }}
+    {{ . }}
+    {{- end }}
+    )
+
+    declare -r LogNode="{{.Values.nodeBind.log}}"
+
+    for KEY in "${FrameworkNodes[@]}"; do
+      UpdateLabelCommand="curl -s -k -X PATCH \
+      -H 'Authorization: Bearer ${TokenValue}' \
+      -H 'Content-Type: application/merge-patch+json' \
+      -H 'Accept: application/json' \
+      -d '{\"metadata\":{\"labels\":{\"taf.io/node.${NamespaceValue}\":\"\",\"taf.io/ability.${NamespaceValue}\":\"\"}}}' \
+      'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/api/v1/nodes/${KEY}'"
+
+      echo "${UpdateLabelCommand}"
+      UpdateLabelCommandResponse=$(eval "${UpdateLabelCommand}")
+      echo "${UpdateLabelCommandResponse}"
+    done
+
+    UpdateLabelCommand="curl -s -k -X PATCH \
+    -H 'Authorization: Bearer ${TokenValue}' \
+    -H 'Content-Type: application/merge-patch+json' \
+    -H 'Accept: application/json' \
+    -d '{\"metadata\":{\"labels\":{\"taf.io/node.${NamespaceValue}\":\"\"}}}' \
+    'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/api/v1/nodes/${LogNode}'"
+
+    echo "${UpdateLabelCommand}"
+    UpdateLabelCommandResponse=$(eval "${UpdateLabelCommand}")
+    echo "${UpdateLabelCommandResponse}"
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: taf-control-prepare
+  namespace: {{.Release.Namespace}}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-9"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      name: taf-control-prepare
+    spec:
+      containers:
+        - name: taf-control-prepare
+          image: {{.Values.global.registry.url}}/helm.wait:10000
+          command: [ "/taf-control-prepare/run.sh" ]
+          volumeMounts:
+            - name: taf-control-prepare
+              mountPath: /taf-control-prepare
+      imagePullSecrets:
+        - name: taf-image-secret
+      volumes:
+        - configMap:
+            defaultMode: 440
+            name: taf-control-prepare
+          name: taf-control-prepare
+      serviceAccount: taf-control-prepare
+      restartPolicy: Never

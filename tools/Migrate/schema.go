@@ -102,3 +102,36 @@ type TTemplate struct {
 		Parent  string `yaml:"parent"`
 	} `yaml:"spec"`
 }
+
+type TConfig struct {
+	APIVersion string `yaml:"apiVersion"`
+	Kind       string `yaml:"kind"`
+	Metadata   struct {
+		Name      string `yaml:"name"`
+		Namespace string `yaml:"namespace"`
+	} `yaml:"metadata"`
+	ServerConfig struct {
+		App     string `yaml:"app"`
+		Server  string `yaml:"server"`
+		ConfigName     string `yaml:"configName"`
+		ConfigContent  string `yaml:"configContent"`
+		UpdatePerson	string `yaml:"updatePerson"`
+		UpdateTime		string `yaml:"updateTime"`
+		UpdateReason	string `yaml:"updateReason"`
+	} `yaml:"serverConfig"`
+}
+
+
+type HelmChart struct {
+	APIVersion   string   `yaml:"apiVersion"`
+	Name         string   `yaml:"name"`
+	Version      string   `yaml:"version"`
+	KubeVersion  string   `yaml:"kubeVersion"`
+	Type         string   `yaml:"type"`
+	Keywords     []string `yaml:"keywords"`
+	Dependencies []struct {
+		Name    string `yaml:"name"`
+		Version string `yaml:"version"`
+	} `yaml:"dependencies"`
+	AppVersion string `yaml:"appVersion"`
+}

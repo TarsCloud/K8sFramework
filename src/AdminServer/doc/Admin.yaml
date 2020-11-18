@@ -1,0 +1,1763 @@
+swagger: "2.0"
+info:
+  title: TAF-K8S Admin
+  description: Taf Admin接口文档
+  version: 1.0.0
+host: tafadmin.com
+basePath: /admin/v1alpha1/
+produces:
+  - application/json
+consumes:
+  - application/json
+schemes:
+  - http
+paths:
+  /trees:
+    get:
+      tags:
+        - tree
+        - k8s
+      summary: 拉取目录树， web=/tree
+      operationId: selectServerTree
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: "#/definitions/Business"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /defaults:
+    get:
+      tags:
+        - default
+        - k8s
+      summary: 拉取默认参数， web=/default
+      operationId: selectDefaultValue
+      responses:
+        200:
+          description: OK?
+          schema:
+            properties:
+              result:
+                properties:
+                  ServerServantElem:
+                    $ref: "#/definitions/ServerServantElem"
+                  ServerOption:
+                    $ref: "#/definitions/ServerOption"
+                  ServerK8S:
+                    $ref: "#/definitions/ServerK8S"
+                  K8SNodeSelectorKind:
+                    $ref: "#/definitions/ArrayString"
+                  ServerTypeOptional:
+                    $ref: "#/definitions/ArrayString"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /applications:
+    get:
+      tags:
+        - applications
+        - k8s
+      summary: 拉取应用列表，web=/application_select
+      operationId: selectApp
+      description: columns key=['AppName', 'AppMark', 'BusinessName', 'CreateTime', 'CreatePerson']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags:
+        - applications
+        - k8s
+      summary: 创建应用列表，web=/application_create
+      operationId: createApp
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - AppName
+                properties:
+                  AppName:
+                    type: string
+                    pattern: '^[a-zA-Z0-9]{1,24}\z'
+                  AppMark:
+                    type: string
+                  BusinessName:
+                    type: string
+                    pattern: '^[a-zA-Z0-9.:_-]{1,128}\z'
+                  CreatePerson:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    patch:
+      tags:
+        - applications
+        - k8s
+      summary: 更新应用列表，web=/application_update
+      operationId: updateApp
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - AppName
+                properties:
+                  AppName:
+                    type: string
+                    pattern: '^[a-zA-Z0-9]{1,24}\z'
+              target:
+                properties:
+                  AppMark:
+                    type: string
+                  BusinessName:
+                    type: string
+                    pattern: '^[a-zA-Z0-9.:_-]{1,128}\z'
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags:
+        - applications
+        - k8s
+      summary: 删除应用列表，web=/application_delete
+      operationId: deleteApp
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - AppName
+                properties:
+                  AppName:
+                    type: string
+                    pattern: '^[a-zA-Z0-9]{1,24}\z'
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /businesses:
+    get:
+      tags:
+        - business
+        - k8s
+      summary: 拉取业务列表，web=/business_select
+      operationId: selectBusiness
+      description: columns key=['BusinessName', 'BusinessShow', 'BusinessMark', 'BusinessOrder', 'CreateTime', 'CreatePerson'
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags:
+        - business
+        - k8s
+      summary: 创建业务列表，web=/business_create
+      operationId: createBusiness
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - BusinessName
+                  - BusinessShow
+                  - BusinessOrder
+                properties:
+                  BusinessName:
+                    type: string
+                    pattern: '^[a-zA-Z0-9.:_-]{1,128}\z'
+                  BusinessShow:
+                    type: string
+                  BusinessMark:
+                    type: string
+                  BusinessOrder:
+                    type: integer
+                    format: int32
+                    minimum: 1
+                    maximum: 100
+                  CreatePerson:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    patch:
+      tags:
+        - business
+        - k8s
+      summary: 更新业务列表，web=/business_update
+      operationId: updateBusiness
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - BusinessName
+                properties:
+                  BusinessName:
+                    type: string
+                    pattern: '^[a-zA-Z0-9.:_-]{1,128}\z'
+              target:
+                properties:
+                  BusinessShow:
+                    type: string
+                  BusinessMark:
+                    type: string
+                  BusinessOrder:
+                    type: integer
+                    format: int32
+                    minimum: 1
+                    maximum: 100
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags:
+        - business
+        - k8s
+      summary: 删除业务列表，web=/business_delete
+      operationId: deleteBusiness
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - BusinessName
+                properties:
+                  BusinessName:
+                    type: string
+                    pattern: '^[a-zA-Z0-9.:_-]{1,128}\z'
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /businesses/apps:
+    get:
+      tags:
+        - business
+        - k8s
+      summary: 拉取业务对应的App列表，web=/business_list_app
+      operationId: doListBusinessApp
+      parameters:
+        - name: BusinessName
+          in: query
+          type: string
+          description: json.encode([]string)
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/BusinessGroupElem"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags:
+        - business
+        - k8s
+      summary: 创建业务对应的App列表，web=/business_add_app
+      operationId: doAddBusinessApp
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                properties:
+                  BusinessName:
+                    type: string
+                    pattern: '^[a-zA-Z0-9.:_-]{1,128}\z'
+                  AppName:
+                    type: array
+                    items:
+                      type: string
+                      pattern: '^[a-zA-Z0-9]{1,24}\z'
+
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /configs:
+    get:
+      tags:
+        - config
+        - k8s
+      summary: 拉取配置，web=/server_config_select
+      operationId: selectServerConfig
+      description: columns key=['ServerId', 'PodSeq', 'ConfigId', 'ConfigName', 'ConfigVersion', 'ConfigContent',
+        'CreatePerson', 'CreateTime', 'ConfigMark']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags:
+        - config
+        - k8s
+      summary: 创建配置，web=/server_config_create
+      operationId: createServerConfig
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                $ref: "#/definitions/ConfigMeta"
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    patch:
+      tags:
+        - config
+        - k8s
+      summary: 更新配置，web=/server_config_update
+      operationId: updateServerConfig
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - ConfigId
+                properties:
+                  ConfigId:
+                    type: string
+              target:
+                properties:
+                  ConfigContent:
+                    type: string
+                  ConfigMark:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags:
+        - config
+        - k8s
+      summary: 删除配置，web=/server_config_delete
+      operationId: deleteServerConfig
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - ConfigId
+                properties:
+                  ConfigId:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    put:
+      tags:
+        - config
+        - k8s
+      summary: 替换配置，web=/server_config_hist_back
+      operationId: doActiveHistoryConfig
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - HistoryId
+                properties:
+                  HistoryId:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /configs/join:
+    get:
+      tags:
+        - config
+        - k8s
+      summary: 拉取配置，web=/merged_node_config
+      operationId: doPreviewConfigContent
+      parameters:
+        - name: ServerApp
+          in: query
+          type: string
+        - name: ServerName
+          in: query
+          type: string
+        - name: ConfigName
+          in: query
+          type: string
+        - name: PodSeq
+          in: query
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              result:
+                type: string
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /configs/versions:
+    get:
+      tags:
+        - config
+        - k8s
+      summary: 拉取历史配置，web=/server_config_history_select
+      operationId: selectServerConfigHistory
+      description: columns key=['ServerId', 'HistoryId', 'ConfigId', 'ConfigName', 'ConfigVersion', 'ConfigContent',
+        'CreatePerson', 'CreateTime', 'ConfigMark']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+        - $ref: "#/parameters/Order"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags:
+        - config
+        - k8s
+      summary: 删除历史配置，web=/server_config_history_delete
+      operationId: deleteServerConfigHistory
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                properties:
+                  HistoryId:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /notifies:
+    get:
+      tags:
+        - notify
+        - mysql
+      summary: 拉取notify，web=/server_notify_list
+      operationId: SelectNotify
+      description: columns key=['NotifyId', 'AppServer', 'PodName',
+        'NotifyLevel', 'NotifyMessage', 'NotifyTime', 'NotifyThread', 'NotifySource']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+        - $ref: "#/parameters/Order"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /deploys:
+    get:
+      tags:
+        - deploy
+        - k8s
+      summary: 拉取部署列表，web=/deploy_select
+      operationId: selectDeploy
+      description: columns key=['DeployId', 'ServerApp', 'ServerName', 'ServerMark', 'ServerK8S', 'ServerServant',
+        'ServerK8S', 'ServerOption', 'RequestPerson', 'RequestTime']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+        - $ref: "#/parameters/Order"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags:
+        - deploy
+        - k8s
+      summary: 创建服务部署，web=/deploy_create
+      operationId: createDeploy
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                $ref: "#/definitions/DeployMeta"
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    patch:
+      tags:
+        - deploy
+        - k8s
+      summary: 更新服务部署，web=/deploy_update
+      operationId: updateDeploy
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - DeployId
+                properties:
+                  DeployId:
+                    type: string
+              target:
+                properties:
+                  ServerK8S:
+                    $ref: "#/definitions/ServerK8S"
+                  ServerOption:
+                    $ref: "#/definitions/ServerOption"
+                  ServerServant:
+                    $ref: "#/definitions/MapServant"
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags:
+        - deploy
+        - k8s
+      summary: 删除服务部署，web=/deploy_delete
+      operationId: deleteDeploy
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - DeployId
+                properties:
+                  DeployId:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /approvals:
+    get:
+      tags:
+        - approval
+        - k8s
+      summary: 拉取审批列表，web=/approval_select
+      operationId: selectApproval
+      description: columns key=['ServerApp', 'ServerName', 'ServerServant', 'ServerOption', 'ServerK8S',
+        'ApprovalPerson', 'ApprovalResult', 'ApprovalTime', 'ApprovalMark', 'RequestPerson', 'RequestTime', 'RequestMark']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+        - $ref: "#/parameters/Order"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags:
+        - approval
+        - k8s
+      summary: 创建服务审批，web=/approval_create
+      operationId: createApproval
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - DeployId
+                properties:
+                  DeployId:
+                    type: string
+                  ApprovalResult:
+                    type: boolean
+                  ApprovalMark:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /nodes:
+    get:
+      tags:
+        - node
+        - mysql
+      summary: 拉取节点列表，web=/node_select
+      operationId: selectNode
+      description: columns key=['NodeName', 'NodeAbility', 'NodePublic', 'NodeAddress', 'NodInfo']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /nodes/cluster:
+    get:
+      tags:
+        - node
+        - k8s
+      summary: 拉取集群节点列表，web=/node_list
+      operationId: doListClusterNode
+      description: columns key=['NodeName']
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              Data:
+                type: array
+                items:
+                  type: string
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /nodes/public:
+    patch:
+      tags:
+        - node
+        - k8s
+      summary: 启用集群节点，web=/node_start
+      operationId: doSetPublicNode
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                properties:
+                  NodeName:
+                    type: array
+                    items:
+                      type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags:
+        - node
+        - k8s
+      summary: 停用集群节点，web=/node_stop
+      operationId: doDeletePublicNode
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                properties:
+                  NodeName:
+                    type: array
+                    items:
+                      type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /affinities/nodes:
+    get:
+      tags:
+        - affinity
+        - k8s
+      summary: 通过节点名拉取亲和性，web=/affinity_list_node
+      operationId: doListAffinityGroupByNode
+      description: columns key=['ServerApp', 'NodeName']
+      parameters:
+        - name: NodeName
+          in: query
+          type: string
+          description: json.encode([]string)
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    patch:
+      tags:
+        - affinity
+        - k8s
+      summary: Node新增可部署的服务，web=/affinity_add_server
+      operationId: doAddNodeEnableServer
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                properties:
+                  NodeName:
+                    type: string
+                  ServerApp:
+                    type: array
+                    items:
+                      type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags:
+        - affinity
+        - k8s
+      summary: Node禁止部署的服务，web=/affinity_del_server
+      operationId: doDeleteNodeEnableServer
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                properties:
+                  NodeName:
+                    type: string
+                  ServerApp:
+                    type: array
+                    items:
+                      type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /affinities/servers:
+    get:
+      tags:
+        - affinity
+        - k8s
+      summary: 通过亲和性亲和性拉取服务名，web=/affinity_list_server
+      operationId: doListAffinityGroupByAbility
+      description: columns key=['ServerApp', 'NodeName']
+      parameters:
+        - name: ServerApp
+          in: query
+          type: string
+          description: json.encode([]string)
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    patch:
+      tags:
+        - affinity
+        - k8s
+      summary: 服务新增可部署的Node，web=/affinity_add_node
+      operationId: doAddServerEnableNode
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                properties:
+                  ServerApp:
+                    type: string
+                  NodeName:
+                    type: array
+                    items:
+                      type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags:
+        - affinity
+        - k8s
+      summary: 服务禁止可部署的Node，web=/affinity_del_node
+      operationId: doDeleteServerEnableNode
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                properties:
+                  ServerApp:
+                    type: string
+                  NodeName:
+                    type: array
+                    items:
+                      type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /templates:
+    get:
+      tags:
+        - template
+        - k8s
+      summary: 拉取服务模板，web=/template_select
+      operationId: selectTemplate
+      description: columns key=['TemplateId', 'TemplateName', 'TemplateParent', 'TemplateContent']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags:
+        - template
+        - k8s
+      summary: 创建服务模板，web=/template_create
+      operationId: createTemplate
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - TemplateName
+                  - TemplateParent
+                  - TemplateContent
+                properties:
+                  TemplateName:
+                    type: string
+                  TemplateParent:
+                    type: string
+                  TemplateContent:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    patch:
+      tags:
+        - template
+        - k8s
+      summary: 更新服务模板，web=/template_update
+      operationId: updateTemplate
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - TemplateId
+                properties:
+                  TemplateId:
+                    type: string
+              target:
+                properties:
+                  TemplateParent:
+                    type: string
+                  TemplateContent:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags:
+        - template
+        - k8s
+      summary: 删除服务模板，web=/template_delete
+      operationId: deleteTemplate
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - TemplateId
+                properties:
+                  TemplateId:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /servers:
+    get:
+      tags:
+        - server
+        - k8s
+      summary: 拉取服务，web=/server_list
+      operationId: selectServer
+      description: columns key=['ServerId', 'ServerApp', 'ServerName', 'ServerType']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    patch:
+      tags:
+        - server
+        - k8s
+      summary: 更新服务，web=/server_update
+      operationId: updateServer
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - ServerId
+                properties:
+                  ServerId:
+                    type: string
+              target:
+                properties:
+                  ServerType:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags:
+        - server
+        - k8s
+      summary: 下线服务，web=/server_undeploy
+      operationId: deleteServer
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - ServerId
+                properties:
+                  ServerId:
+                    type: array
+                    items:
+                      type: string
+
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /servers/options:
+    get:
+      tags:
+        - server-option
+        - k8s
+      summary: 获取私有模板，web=/server_option_select
+      operationId: selectServerOption
+      description: columns key=['ServerId', 'ServerTemplate', 'ServerProfile', 'ServerImportant', 'AsyncThread']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    patch:
+      tags:
+        - server-option
+        - k8s
+      summary: 更新私有模板，web=/server_option_update
+      operationId: updateServerOption
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - ServerId
+                properties:
+                  ServerId:
+                    type: string
+              target:
+                $ref: "#/definitions/ServerOption"
+              Confirmation:
+                type: boolean
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /servers/options/templates:
+    get:
+      tags:
+        - server-option
+        - k8s
+      summary: 获取合并模板，web=/server_option_template
+      operationId: doPreviewTemplateContent
+      parameters:
+        - name: ServerId
+          type: string
+          in: query
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              result:
+                type: string
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /servers/servants:
+    get:
+      tags:
+        - server-servant
+        - k8s
+      summary: 拉取服务servants，web=/server_adapter_select
+      operationId: selectServerAdapter
+      description: columns key=['ServerId', 'AdapterId', 'Name', 'Threads', 'Connections',
+        'Port', 'Capacity', 'Timeout', 'IsTaf', 'IsTcp',]
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags:
+        - server-servant
+        - k8s
+      summary: 创建服务servants，web=/server_adapter_create
+      operationId: createServerAdapter
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - ServerId
+                properties:
+                  ServerId:
+                    type: string
+                  Servant:
+                    $ref: "#/definitions/MapServant"
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    patch:
+      tags:
+        - server-servant
+        - k8s
+      summary: 更新服务servants，web=/server_adapter_update
+      operationId: updateServerAdapter
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - AdapterId
+                properties:
+                  AdapterId:
+                    type: string
+              target:
+                $ref: "#/definitions/ServerServantElem"
+              Confirmation:
+                type: boolean
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags:
+        - server-servant
+        - k8s
+      summary: 删除服务servants，web=/server_adapter_delete
+      operationId: deleteServerAdapter
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - AdapterId
+                properties:
+                  AdapterId:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+
+  /servers/k8s:
+    get:
+      tags:
+        - server-k8s
+        - k8s
+      summary: 获取k8s属性，web=/server_k8s_select
+      operationId: selectK8S
+      description: columns key=['ServerId', 'ServerApp', 'ServerName', 'Replicas', 'NodeSelector', 'HostIpc', 'HostNetwork', 'HostPort']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    patch:
+      tags:
+        - server-k8s
+        - k8s
+      summary: 更新k8s属性，web=/server_k8s_update
+      operationId: updateK8S
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - ServerId
+                properties:
+                  ServerId:
+                    type: string
+              target:
+                $ref: "#/definitions/ServerK8S"
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /servers/alivePods:
+    get:
+      tags:
+        - server-pod
+        - k8s
+      summary: 获取当前Pod，web=/pod_list
+      operationId: SelectPodAlive
+      description: columns key=['PodId', 'PodName', 'PodIp', 'NodeIp','ServerId', 'ServerApp', 'ServerName', 'ServiceVersion',
+        'SettingState', 'PresentState', 'PresentMessage', 'CreateTime', 'UpdateTime']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+        - $ref: "#/parameters/Order"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /servers/perishedPods:
+    get:
+      tags:
+        - server-pod
+        - k8s
+      summary: 获取当前Pod，web=/pod_list_history
+      operationId: SelectPodPerished
+      description: not be implemented
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+        - $ref: "#/parameters/Order"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /servers/releases:
+    get:
+      tags:
+        - release
+        - k8s
+      summary: 获取当前server的版本，web=/patch_enabled
+      operationId: selectServiceEnabled
+      description: columns key=['ServerId', 'ServerApp', 'ServerName', 'ServiceVersion', 'ServiceImage', 'EnablePerson', 'EnableTime']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /releases:
+    get:
+      tags:
+        - release
+        - k8s
+      summary: 获取server已发布版本列表，web=/patch_list
+      operationId: selectServicePool
+      description: columns key=['ServiceId', 'ServerId', 'ServerApp', 'ServerName', 'ServiceVersion', 'ServiceImage']
+      parameters:
+        - $ref: "#/parameters/Filter"
+        - $ref: "#/parameters/Limiter"
+        - $ref: "#/parameters/Order"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/SelectResult"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags:
+        - release
+        - k8s
+      summary: 创建server发布的版本，web=/patch_upload_status中的ServicePoolCreate()调用
+      operationId: createServicePool
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - ServerId
+                  - ServerType
+                  - ServiceImage
+                properties:
+                  ServerId:
+                    type: string
+                  ServerType:
+                    type: string
+                  ServiceImage:
+                    type: string
+                  ServiceMark:
+                    type: string
+                  ActivePerson:
+                    type: string
+                  ActiveReason:
+                    type: string
+
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    put:
+      tags:
+        - release
+        - k8s
+      summary: 发布服务版本，web=/patch_publish
+      operationId: doEnableService
+      parameters:
+        - name: Params
+          in: body
+          schema:
+            properties:
+              metadata:
+                required:
+                  - ServerId
+                  - ServiceId
+                  - Replicas
+                properties:
+                  ServerId:
+                    type: string
+                  ServiceId:
+                    type: string
+                  Replicas:
+                    type: integer
+                    format: int32
+                  EnableMark:
+                    type: string
+      responses:
+        200:
+          $ref: "#/responses/Standard200ResultResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /hostPorts:
+    get:
+      tags:
+        - agent
+      summary: 获取或判断集群内指定Node的可用端口
+      operationId: selectAvailHostPort
+      parameters:
+        - name: NodeName
+          in: query
+          type: string
+        - name: Port
+          in: query
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              result:
+                type: string
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  /shell:
+    get:
+      schemes:
+        - ws
+      tags:
+        - shell
+      summary: kube shell进入到pod容器中
+      operationId: sshPodShell
+      parameters:
+        - name: History
+          in: query
+          type: boolean
+        - name: NodeIP
+          in: query
+          type: string
+        - name: AppName
+          in: query
+          type: string
+        - name: ServerName
+          in: query
+          type: string
+        - name: PodName
+          in: query
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              result:
+                type: string
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+definitions:
+  MapInt:
+    type: object
+    additionalProperties:
+      type: integer
+      format: int32
+  MapString:
+    type: object
+    additionalProperties:
+      type: string
+  MapInterface:
+    type: object
+    additionalProperties:
+      type: object
+  MapServant:
+    type: object
+    additionalProperties:
+      $ref: "#/definitions/ServerServantElem"
+  MapByteArray:
+    type: object
+    additionalProperties:
+      type: string
+      format: byte
+
+  ArrayString:
+    type: array
+    items:
+      type: string
+  ArrayMapInterface:
+    type: array
+    items:
+      $ref: "#/definitions/MapInterface"
+
+  SelectRequestFilter:
+    properties:
+      eq:
+        $ref: "#/definitions/MapInterface"
+      ne:
+        $ref: "#/definitions/MapInterface"
+      like:
+        $ref: "#/definitions/MapString"
+  SelectRequestLimiter:
+    properties:
+      offset:
+        type: integer
+        format: int32
+        minimum: 0
+      rows:
+        type: integer
+        format: int32
+        minimum: 1
+  SelectRequestOrderElem:
+    properties:
+      column:
+        type: string
+      order:
+        type: string
+        enum:
+          - asc
+          - desc
+  SelectRequestOrder:
+    type: array
+    items:
+      $ref: "#/definitions/SelectRequestOrderElem"
+  SelectResult:
+    properties:
+      Data:
+        $ref: "#/definitions/ArrayMapInterface"
+      Count:
+        $ref: "#/definitions/MapInt"
+
+  Error:
+    properties:
+      message:
+        type: string
+      code:
+        type: integer
+        format: int32
+  Count:
+    $ref: "#/definitions/MapInt"
+
+  BusinessGroupElem:
+    properties:
+      BusinessName:
+        type: string
+      BusinessShow:
+        type: string
+      App:
+        type: array
+        items:
+          type: string
+
+  ConfigMeta:
+    required:
+      - ConfigName
+      - ConfigContent
+    properties:
+      ConfigId:
+        type: string
+        readOnly: true
+      ServerApp:
+        type: string
+      ServerName:
+        type: string
+      ConfigName:
+        type: string
+      PodSeq:
+        type: string
+      ConfigContent:
+        type: string
+      ConfigVersion:
+        type: integer
+        format: int32
+        readOnly: true
+      ConfigMark:
+        type: string
+      CreatePerson:
+        type: string
+
+  ServerElem:
+    properties:
+      ServerId:
+        type: string
+      ServerName:
+        type: string
+  AppElem:
+    properties:
+      AppName:
+        type: string
+        pattern: '^[a-zA-Z0-9]{1,24}\z'
+      Server:
+        type: array
+        items:
+          $ref: "#/definitions/ServerElem"
+  Business:
+    properties:
+      BusinessName:
+        type: string
+        pattern: '^[a-zA-Z0-9.:_-]{1,128}\z'
+      BusinessShow:
+        type: string
+      App:
+        type: array
+        items:
+          $ref: "#/definitions/AppElem"
+
+  ServerServantElem:
+    properties:
+      Name:
+        type: string
+        pattern: '^[a-zA-Z1-9]{1,64}Obj\z'
+      Port:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 65535
+      Threads:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 50
+      Connections:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 30000000
+      Capacity:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 3000000
+      Timeout:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 1200000
+      IsTaf:
+        type: boolean
+        default: true
+      IsTcp:
+        type: boolean
+        default: true
+
+  ServerOption:
+    properties:
+      ServerSubType:
+        type: string
+        default: taf
+        enum:
+          - taf
+          - normal
+      ServerImportant:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 20
+      AsyncThread:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 20
+      ServerTemplate:
+        type: string
+        pattern: '[0-9a-zA-Z.-]{5,64}\z'
+      ServerProfile:
+        type: string
+
+  NodeSelectorElem:
+    properties:
+      Value:
+        description: 如果 Kind 为 NodeBind  则值为 NodeName 数组； 如果 Kind 为 AbilityPool 或   PublicPool ,则此值为空
+        type: array
+        items:
+          type: string
+  NodeSelector:
+    properties:
+      NodeBind:
+        $ref: '#/definitions/NodeSelectorElem'
+      AbilityPool:
+        $ref: '#/definitions/NodeSelectorElem'
+      PublicPool:
+        $ref: '#/definitions/NodeSelectorElem'
+      DaemonSet:
+        $ref: '#/definitions/NodeSelectorElem'
+  HostPortElem:
+    properties:
+      NameRef:
+        type: string
+      Port:
+        type: integer
+        format: int32
+
+  ServerK8S:
+    properties:
+      NotStacked:
+        type: boolean
+        default: true
+      Image:
+        type: string
+      Version:
+        type: string
+      Replicas:
+        type: integer
+        format: int32
+      NodeSelector:
+        $ref: "#/definitions/NodeSelector"
+      HostIpc:
+        type: boolean
+      HostNetwork:
+        type: boolean
+      HostPort:
+        type: array
+        items:
+          $ref: '#/definitions/HostPortElem'
+
+  DeployMeta:
+    required:
+      - ServerApp
+      - ServerName
+      - ServerK8S
+      - ServerOption
+      - ServerServant
+    properties:
+      ServerApp:
+        type: string
+      ServerName:
+        type: string
+      ServerMark:
+        type: string
+      ServerK8S:
+        $ref: "#/definitions/ServerK8S"
+      ServerOption:
+        $ref: "#/definitions/ServerOption"
+      ServerServant:
+        $ref: "#/definitions/MapServant"
+      RequestTime:
+        type: string
+        format: 'date-time'
+        readOnly: true
+      RequestPerson:
+        type: string
+        readOnly: true
+
+parameters:
+  Filter:
+    name: Filter
+    description: string=json.encode(SelectRequestFilter)
+    type: string
+    in: query
+  Limiter:
+    name: Limiter
+    description: string=json.encode(SelectRequestLimiter)
+    type: string
+    in: query
+  Order:
+    name: Order
+    description: string=json.encode(SelectRequestOrder)
+    type: string
+    in: query
+
+responses:
+  Standard200ResultResponse:
+      description: OK
+      schema:
+        properties:
+          result:
+            type: integer
+            format: int32
+            default: 0
+  Standard500ErrorResponse:
+    description: 内部错误
+    schema:
+      $ref: "#/definitions/Error"

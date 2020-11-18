@@ -1,0 +1,83 @@
+apiVersion: k8s.taf.io/v1alpha1
+kind: TRelease
+metadata:
+  name: taf-tafqueryproperty
+spec:
+  list:
+    - image: {{.Values.global.registry.url}}/taf.tafqueryproperty:10000
+      imagePullSecret: taf-image-secret
+      tag: "10000"
+      serverType: taf_cpp
+---
+
+apiVersion: k8s.taf.io/v1alpha1
+kind: TServer
+metadata:
+  name: taf-tafqueryproperty
+  namespace: {{.Release.Namespace}}
+  labels:
+    taf.io/ReleaseSource: taf-tafqueryproperty
+    taf.io/ReleaseTag: "10000"
+    taf.io/ServerApp: taf
+    taf.io/ServerName: tafqueryproperty
+    taf.io/SubType: taf
+    taf.io/Template: taf.default
+spec:
+  app: taf
+  server: tafqueryproperty
+  subType: taf
+  taf:
+    template: taf.cpp
+    profile: |
+      <taf>
+        <propertydb>
+          <db1>
+            dbname= taf_property
+            dbhost={{ .Values.propertyDB.host }}
+            dbport={{ .Values.propertyDB.port }}
+            dbname={{ .Values.propertyDB.name }}
+            dbuser={{ .Values.propertyDB.user }}
+            dbpass={{ .Values.propertyDB.password }}
+          </db1>
+        </propertydb>
+      </taf>
+    servants:
+      - name: QueryObj
+        port: 10000
+  k8s:
+    replicas: 1
+    nodeSelector:
+      abilityPool:
+        values: [ ]
+    env:
+      - name: Namespace
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
+      - name: PodName
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+      - name: PodIP
+        valueFrom:
+          fieldRef:
+            fieldPath: status.podIP
+      - name: ServerApp
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.labels['taf.io/ServerApp']
+    mounts:
+      - name: host-log-dir
+        source:
+          hostPath:
+            path: /usr/local/app/taf/app_log
+            type: DirectoryOrCreate
+        mountPath: /usr/local/app/taf/app_log
+        subPathExpr: $(Namespace).$(PodName)
+    readinessGate: taf.io/active
+  release:
+    source: taf-tafqueryproperty
+    tag: '10000'
+    image: {{.Values.global.registry.url}}/taf.tafqueryproperty:10000
+    imagePullSecret:  taf-image-secret
