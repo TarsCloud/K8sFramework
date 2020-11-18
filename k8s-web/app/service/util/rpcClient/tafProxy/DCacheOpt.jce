@@ -1,0 +1,872 @@
+
+module DCache
+{
+
+struct RouterParam
+{
+	0 require bool bRouter;						//是否安装Router服务
+	1 require string serverName;				//服务名， 如MqqRouterServer
+	2 require string appName;					//业务名称，即子菜单名称	added by spinnerxu@20101104
+	3 require vector<string> vtServerHost;		//IP地址集合,支持在不同机器上安装同一路由，bRouter为true时有效,,modified by spinnerxu@20110812
+	4 require string templateFile;				//服务用的taf模板文件名，bRouter为true时有效
+	5 require string dbName;					//数据库名
+	6 require string dbIp;						//数据库IP
+	7 require string dbPort;					//数据库Port
+	8 require string dbUser;					//数据库用户
+	9 require string dbPwd;						//数据库密码
+	10 require string remark;                  //备注added by spinnerxu@20101104
+};
+
+struct RouterConsistRes  
+{
+	0 require int	  iFlag;      //路由配置数据一致性检查，0:一致,1:不一致,-1:出错
+	1 require string sInfo;		//一致性信息
+};
+
+struct ProxyAddr
+{
+	0 require string ip;
+	1 require string idcArea;
+};
+
+struct ProxyParam
+{
+	0 require bool bProxy;						//是否安装Proxy服务
+	1 require string serverName;				//服务名， 如MqqProxyServer
+	2 require vector<ProxyAddr> vtServerAddr;	//IP地址，bProxy为true时有效
+	3 require string templateFile;				//服务用的taf模板文件名，bProxy为true时有效
+};
+
+struct transferProgress
+{
+    0 require int startPageNo;
+	1 require int endPageNo;
+	2 require int succPageNo;
+};
+
+struct CacheHostParam
+{
+	0 require string serverName;		//服务名， 如MqqCacheServer
+	1 require string serverIp;			//IP地址
+	2 require string templateFile;		//服务用的taf模板文件名
+	3 require string type;				//表明服务是主还是备， M/S	
+	4 require string bakSrcServerName;	//如果服务是备机，指定备份的源机，否则为空
+	5 require string idc;				//服务所在idc
+	6 require string prior;				//服务优先级
+	7 require string groupName;			//所属服务组
+	8 require string shmSize;			//服务开辟共享内存的大小,单位 G
+	9 require string shmKey;			//共享内存key
+};
+
+struct SingleKeyConfParam
+{
+	0 require string keyType;				//key的类型，支持int/long/string
+	1 require string avgDataSize;			//单条记录平均长度
+	2 require string readDbFlag;			//数据库是否可读.
+	3 require string enableErase;			//是否允许淘汰
+	4 require string eraseRadio;			//淘汰比率
+	5 require string saveOnlyKey;			//是否保存OnlyKey，Y/N
+	6 require string dbFlag;				//是否有数据库，Y/N
+	7 require string dbAccessIntfaceType;	//DbAccess接口类型，Byte/String
+	8 require string dbAccessServant;		//DbAccess的Servant名称
+	9 require string startExpireThread; 	// 是否启动淘汰线程 Y/N
+	10 require string expireDb;				//是否清除数据库
+};
+
+struct MultiKeyConfParam
+{
+
+
+	0 require string mkSize;				//主Key chunk大小
+	1 require string avgDataSize;			//单条记录平均长度
+	2 require string readDbFlag;			//数据库是否可读.
+	3 require string enableErase;			//是否允许淘汰
+	4 require string eraseRadio;			//淘汰比率
+	5 require string saveOnlyKey;			//是否保存OnlyKey，Y/N
+	6 require string dbFlag;				//是否有数据库，Y/N
+	7 require string dbAccessIntfaceType;	//DbAccess接口类型，Byte/String
+	8 require string dbAccessServant;		//DbAccess的Servant名称
+	9 require string startExpireThread; 	// 是否启动淘汰线程 Y/N
+	10 require string expireDb;				//是否清除数据库
+};
+
+struct RecordParam
+{
+	0 require string fieldName;		//字段名称
+	1 require string keyType;		//字段类型，mkey/ukey/value
+	2 require string dataType;		//数据类型，int/long/string/byte/float/double
+	3 require string property;		//字段属性，require/optional
+	4 require string defaultValue;	//字段默认值
+	5 require int maxLen;			//string类型的字段最大长度
+};
+
+struct DCacheUninstallInfo
+{
+	0 require int unType;				 //下线类型,0为单个Cache服务 1为按服务组,2为按模块,3为配额单服务下线
+	1 require string sModuleName;		 //模块名
+	2 require string sCacheServerName;	//cache服务名, 当unType!=0时可为空
+	3 require string sCacheGroupName;	//cache服务组名, 当unType!=1时可为空
+	4 require string sRouteDbName;		//路由数据库名
+	5 require string sRouteDbIP;		// 路由数据库Ip 
+	6 require string sRouterDbPort; 
+	7 require string sRouteDbUserName;
+	8 require string sRouterDbPwd;
+    9 require string sRouteDbCharset;
+	10 require string sPercent;			 //卸载进度
+	
+};
+
+struct DCacheReleaseInfo
+{
+    0 require string appname;				 //服务应用名
+	1 require string servername;		 //服务名
+	2 require string nodename;	//服IP地址
+	3 require string groupname;	//服务组名 cache发布填“DCacheServerGroup”，proxy填“ProxyServer.tgz”，router填“RouterServer.tgz”
+	4 require string version;		// 发布版本号 
+	5 require string user;  //发布用户
+    6 require string md5; //发布包的md5
+	7 require int status = 0;//发布线程状态管理，前台不用填写。
+	8 optional string sError;
+    9 optional string ostype;
+};
+
+enum eReStatus
+{
+    RELEASING,
+	REFINISH,
+	REERROR
+};
+
+struct eReleaseStatus
+{
+	0 require string sPercent;
+	1 require eReStatus status;
+	2 require string sError;
+};
+
+struct DBInfo
+{
+    0 require string ip;    //连接ip
+    1 require string user;  //用户名
+    2 require string pwd;   //密码
+    3 require string port;  //端口
+    4 require string charset;//字符集
+};
+
+struct DBAccessConf
+{
+    0 require bool isDigital;       //主key是否数字
+    1 require int DBNum;            //分库数量
+    2 require string DBPrefix;      //数据库前缀
+    3 require int tableNum;         //分表数量
+    4 require string tablePrefix;   //表前缀
+    5 require string tableEngine;   //表引擎
+    6 require string tableCharset;  //表字符集
+    7 require vector<DBInfo> vDBInfo;//DB实例信息
+};
+
+struct moduleParam
+{
+	0 require string fieldName;		//字段名称
+	1 require string keyType;		//字段类型，mkey/ukey/value
+	2 require string dataType;		//数据类型，int/long/string/byte/float/double
+	3 require string property;		//字段属性，require/optional
+	4 require string defaultValue;	        //字段默认值
+    5 require int maxLen;                   //最大长度
+	6 require string DBType;		//数据库字段类型
+    7 require string remark;                //字段备注
+    8 optional int tag;                     //字段tag
+    9 optional int changeType;              //修改类型，只在修改字段时设置。1为修改，2为新增
+};
+
+struct moduleServer
+{
+    0 require string serverName;  //服务名
+    1 require string idc;  //地区，sz为深圳;bj为北京;sh为上海;nj为南京;hk为香港;cd为成都
+    2 require string type;//类型，M为主机;S为备机;I为镜像主机;B为镜像备机
+};
+
+struct transferInfo
+{
+    0 require string appName;//应用名
+    1 require string moduleName;//模块名
+    2 require string srcGroupName;//迁移源组
+    3 require string destGroupNames;//迁移目的组
+    4 require int status;//状态，0为新增迁移任务，1为配置阶段完成，2为发布完成，3为正在迁移，4为完成，5为停止
+    5 require int progress;//迁移进度，单位为%
+    6 require int type;//迁移产生的为0，扩容产生的为1，路由整理产生的为2
+    7 require string beginTime;//产生迁移记录的时间，返回的是db里面存的时间
+};
+
+//切换信息结构体
+struct SwitchInfo
+{
+	0  require string sAppName;        //application name
+	1  require string sModuleName;     //module name
+	2  require string sGroupName;      //group name
+	3  require string sMasterServer;   //masterServer
+	4  require string sSlaveServer;    //slaveServer
+	5  require string sMirrorIdc;      //mirrorIdc
+	6  require string sMasterMirror;   //master mirror
+	7  require string sSlaveMirror;    //slave mirror
+	8  require string sSwitchTime;     //切换时间
+	9  require string sModifyTime;     //记录修改时间
+	10 require string sComment;        //备注
+	11 require string sDBFlag;         //是否带DB或文件,Y/N
+	12 require string sEnableErase;    //是否允许淘汰数,Y/N
+	13 require int    iSwitchType;     //切换类型:0主备切换,1镜像切换,2镜像无备机切换
+	14 require int    iSwitchResult;   //切换结果: 0正在切换,1切换成功,2未切换,3切换失败
+	15 require int    iGroupStatus;    //组的访问状态, 0标识读写，1标识只读,2镜像不可用
+	16 require string sMemsize;        //group下的cache内存大小,单位(MB)
+	17 optional string sSwitchProperty; //切换类型:'auto'自动切换, 'manual'手动切换
+};
+
+//条件操作
+enum CacheOp
+{
+    tEQ, // ==
+  	tNE, // !=
+   	tGT, // >
+   	tLT, // <
+   	tLE, // <=
+   	tGE, // >=
+    tLIMIT
+};
+
+//查询cache数据条件
+struct CacheCond
+{
+    0 require string fieldName;			//字段名称。当op为tLIMIT时，此字段不用填
+    1 require CacheOp op;   			//操作 ==/!=/</>/<=/>=
+    2 require string value;				//值。当op为tLIMIT时，此值为index:count
+};
+
+struct CacheData
+{
+    0 require string sData;         //数据
+    1 require int iDataSize;        //数据长度
+    2 require string sMd5;          //md5值
+};
+
+interface DCacheOpt
+{
+    /*
+	应用安装
+	*/
+//	int installApp(string appName, RouterParam stRouter, ProxyParam stProxy, string sTafVersion, bool bEnableGroup,bool bReplace, out string err);
+
+	/*
+	模块安装
+	*/
+//	int installSingleModule(string appName,string moduleName,  vector<CacheHostParam> vtCacheHost, SingleKeyConfParam stSingleKeyConf, string sTafVersion, bool bReplace, out RouterConsistRes rcRes, out string err);
+//	int installMulitModule(string appName,string moduleName,  vector<CacheHostParam> vtCacheHost, MultiKeyConfParam stMultiKeyConf, vector<RecordParam> vtRecord,  string sTafVersion,bool bReplace,out RouterConsistRes rcRes, out string err);
+	/*
+
+	/*
+	发布接口
+	*/
+	int releaseServer(vector<DCacheReleaseInfo> vecPatchInfo,out int releaseId, out string err);
+
+	int getReleaseProgress(int id,out string sPercent,out string err,out vector<DCacheReleaseInfo> vecPatchInfo);
+
+	/*
+	 *安装一期DCache（key-value）
+	 *参数说明：
+	 *@param serviceSetName 业务集名, 运维需要保存在后台
+	 *@param serviceName  业务名, 运维需要保存在后台
+	 *@bReplace：当安装时数据库记录冲突是是否replace，建议使用false，防止填写错误更改正在使用的配置
+	 *返回值：0 成功，其他失败
+	 */
+	int installSingleKey(string moduleName, string serviceSetName, string serviceName, RouterParam stRouter, ProxyParam stProxy, vector<CacheHostParam> vtCacheHost, SingleKeyConfParam stSingleKeyConf, string sTafVersion, bool bReplace, out RouterConsistRes rcRes, out string err);
+
+	/*
+	 *安装二期DCache（MultiKey）
+	 *参数说明：
+	 *@param serviceSetName 业务集名, 运维需要保存在后台
+	 *@param serviceName  业务名, 运维需要保存在后台
+	 *@bReplace：当安装时数据库记录冲突是是否replace，建议使用false，防止填写错误更改正在使用的配置
+	 *返回值：0 成功，其他失败
+	 */
+	int installMultiKey(string moduleName, string serviceSetName, string serviceName, RouterParam stRouter, ProxyParam stProxy, vector<CacheHostParam> vtCacheHost, MultiKeyConfParam stMultiKeyConf, vector<RecordParam> vtRecord,  string sTafVersion,bool bReplace,out RouterConsistRes rcRes, out string err);
+        
+    /*
+	 *获取模块信息
+	 *参数说明：
+	 *@param appName 应用名
+	 *@param moduleName 模块名
+	 *@param vtModuleRecord  模块的字段信息
+	 *@param err：错误信息
+	 *返回值：0 成功，其他失败
+	 */
+    int getModuleInfo(string appName, string moduleName, out vector<moduleParam> vtModuleRecord, out string err);
+        
+    /*
+	 *获取db的配置信息
+	 *参数说明：
+	 *@param dbaccessServerName dbaccess的服务名
+     *@param DBAccessConf 配置信息
+     *@param isSerializated 是否序列化
+	 *@param err：错误信息
+	 *返回值：0 成功，其他失败
+	 */
+    int getDBConfInfo(string dbaccessServerName, out DBAccessConf conf, out bool isSerializated,out string err);
+	
+    /*
+	 *获取db的配置信息
+	 *参数说明：
+	 *@param dbaccessServerName dbaccess的服务名
+     *@param dataNum 总数据条数
+	 *@param err：错误信息
+	 *返回值：0 成功，其他失败
+	 */
+    int getDBDataSize(string dbaccessServerName, out long dataNum, out string err);
+        
+    /*
+     *获取模块的服务信息
+     *参数说明：
+	 *@param appName 应用名
+	 *@param moduleName 模块名
+	 *@param nodeNum 节点数量
+	 *@param totalMemSize 总内存大小
+	 *@param memUsage 内存使用率,单位为%
+	 *@param hit 命中率,单位为%
+	 *@param dataNum 总数据大小
+	 *@param avgMemSize 平均单个服务内存大小
+	 *@param cacheType cache类型，1为一期，2为二期
+	 *@param info 主备镜像的信息
+	 *@param err：错误信息
+     *返回值：0 成功，其他失败
+     */
+    int getModuleStruct(string appName, string moduleName, out string idc, out int nodeNum, out string totalMemSize, out string avgMemSize, out int memUsage, out int hit, out int dataNum, out int cacheType, out vector<moduleServer> info,  out string err);
+        	
+    /*
+     *获取模块的服务信息
+     *参数说明：
+	 *@param cond 查询条件，<"appName", "CarelyeTest">表示查询应用名为CarelyeTest的迁移信息，索引值为tranferInfo中的成员
+     *@param index 数据的开始位置，index从0开始，不能小于0
+	 *@param number 获取数据的数量,-1表示取从index开始的全部数据
+	 *@param vInfo 正在迁移组的信息
+	 *@param totalNum 总的迁移组数量
+	 *@param err：错误信息
+     *返回值：0 成功，其他失败
+     */
+    int getTransferGroup(map<string,string> cond, int index, int number, out vector<transferInfo> vInfo, out int totalNum, out string err);
+                	
+    /*
+     *删除迁移任务
+     *参数说明：
+	 *@param appName 应用名
+	 *@param moduleName 模块名
+	 *@param srcGroup 迁移源组
+	 *@param type 删除的任务类型，0为迁移任务，1为扩容任务
+	 *@param err：错误信息
+     *返回值：0 成功，其他失败
+     */
+    int deleteTransferTask(string appName, string moduleName, string srcGroup, string destGroup, int type, out string err);
+
+    /*
+	 *安装一期DBAccess
+	 *参数说明：
+	 *@param appName 应用名
+	 *@param serverName 服务名
+	 *@param serverIp 服务ip
+	 *@param serverTemplate 服务模版
+	 *@param isSerializated 是否反序列存储
+	 *@param vtModuleRecord  模块的字段信息
+	 *@param conf  配置信息
+     *@bReplace：当安装时数据库记录冲突是是否replace，建议使用false，防止填写错误更改正在使用的配置
+	 *@param err：错误信息
+	 *返回值：0 成功，其他失败
+	 */
+    int installDBAccess(string appName, string serverName, vector<string> serverIp, string serverTemplate, bool isSerializated, vector<moduleParam> vtModuleRecord, DBAccessConf conf, bool bReplace,out string err);
+
+     /*
+	 *安装二期DBAccess
+	 *参数说明：
+	 *@param appName 应用名
+	 *@param serverName 服务名
+	 *@param serverIp 服务ip
+	 *@param serverTemplate 服务模版
+	 *@param vtModuleRecord  模块的字段信息
+	 *@param conf  配置信息
+     *@bReplace：当安装时数据库记录冲突是是否replace，建议使用false，防止填写错误更改正在使用的配置
+	 *@param err：错误信息
+	 *返回值：0 成功，其他失败
+	 */
+    int installWDBAccess(string appName, string serverName, vector<string> serverIp, string serverTemplate, vector<moduleParam> vtModuleRecord, DBAccessConf conf, bool bReplace,out string err);
+
+	/*
+	 *扩容DCache（包含一期和二期）
+	 *参数说明：
+	 *@param appName 应用名, 用来定位路由数据库
+	 *@param serviceSetName 业务集名, 运维需要保存在后台
+	 *@param serviceName  业务名, 运维需要保存在后台
+	 *@param expandType  1-为一期，2-为二期
+	 *@bReplace：当安装时数据库记录冲突是是否replace，建议使用false，防止填写错误更改正在使用的配置
+	 *返回值：0 成功，其他失败
+	 */
+	int expandDCache(string appName,string moduleName, string serviceSetName, string serviceName, vector<CacheHostParam> vtCacheHost, string sTafVersion, int expandType, bool bReplace, out RouterConsistRes rcRes,  out string err);
+
+    /*
+    *检测路由配置是否正确，检测规则可参考《DCache路由配置检查规则修订版.doc》
+    *参数说明:
+    *       所有参数为链接路由数据库所需参数,
+    */
+    string checkDCacheRouteConfig(string sHost, string sUser, string sPasswd, string sDatabase, string sCharSet, int iPort, int iFlag);
+
+	/*
+	*从数据库中重新加载路由配置信息
+	*参数说明:
+	*	sApp: taf应用名,设置为DCache即可
+	*      sRouterServerName: 路由服务名
+	*      sResult: 结果,成功时为空，失败时错误信息
+	*返回值:true 加载成功,false加载失败
+	*/
+	bool reloadRouterConfFromDB(string sApp,string sRouterServerName, out string sResult);
+
+	/*
+	*从数据库中重新加载路由配置信息
+	*参数说明:
+	*	sApp: taf应用名,设置为DCache即可
+	*      sRouterServerName: 路由服务名
+	*      sResult: 结果,成功时为空，失败时错误信息
+	*返回值:true 加载成功,false加载失败
+	*/
+	bool reloadRouterConfByModuleFromDB(string sApp,string moduleName, string sRouterServerName, out string sResult);
+
+	/**
+	*功能:下线taf服务
+	*@param sTafServerName: 待下线taf服务名称
+	*@param sIp: taf服务所在ip
+	*@param sError: 错误信息，当调用成功时为空，反之则存放调用失败原因
+	*@return int: 0时调用成功，非0则失败
+	*/
+	int uninstall4TafServer(string sTafServerName, string sIp, out string sError);
+
+	/**
+	*功能: 下线DCache
+	*@param uinstallInfo: 下线所需信息结构体,参见上文结构定义
+	*@param sError: 错误信息，当调用成功时为空，反之则存放调用失败原因
+	*@return int: 0时调用成功，非0则失败
+	*/
+	int uninstall4DCache(DCacheUninstallInfo uninstallInfo, out string sError);
+
+//	int getUninstallPercent(out DCacheUninstallInfo uninstallInfo, out string sError);
+
+	/**
+	*生成proxy,router cache三者间的对应关系
+	*/
+//	int generateTotalRelation4DCache(bool bReplace, out string sError);
+
+	/*
+	*功能：一键迁移:配置阶段接口，完成路由表的修改和服务的部署
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+	*@param   string sTafVersion：taf的版本
+	*@param   int serverType: 1表示一期cache 2表示二期cache
+	*@praram  isDestServerExist：指示目的服务组是否为已存在服务
+	*@praram  vtCacheHost： 迁移目的服务组的cache信息
+	*return int：0成功，非0失败
+	*/
+	int configureTransfer(string appName,string moduleName,string srcGroupName,string sTafVersion,int serverType,bool isDestServerExist,vector<CacheHostParam> vtCacheHost,out string err);
+
+	/*
+	*功能：一键迁移:发布阶段接口，完成服务的发布
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+	*@param  version：发布包的版本
+	*@param  user：发布者
+	*@praram  isDestServerExist：指示目的服务组是否为已存在服务
+	*@praram  vtCacheHost： 迁移目的服务组的cache信息
+	*return int：0成功，非0失败
+	*/
+	int releaseTransferServer(string appName,string moduleName,string srcGroupName,string version,string user,string md5,bool isDestServerExist,vector<CacheHostParam> vtCacheHost,out string err);
+
+	/*
+	*功能：一键迁移:发起迁移阶段接口，设置路由数据库的迁移记录，开始迁移
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+	*return int：0成功，非0失败
+	*/
+	int setTransferInRouterDB(string appName,string moduleName,string srcGroupName,out string err);
+
+	/*
+	*功能: 一键迁移:获取已发起迁移的进度
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+	*@param  vector<transferProgress> vtTransferProgress:迁移的进度信息 
+	*return int：0成功，非0失败
+	*/
+	int getTransferProgress(string appName,string moduleName,string srcGroupName,out vector<transferProgress> vtTransferProgress,out string err);
+
+	/*
+	*功能: 一键迁移:清除失败的迁移配置(包括服务的部署和路由数据库的的清除)
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+	*return int：0成功，非0失败
+	*/
+	int cleanTransferInfo(string appName,string moduleName,string srcGroupName,out string err);
+
+	/*
+	*功能: 一键迁移:停止已开始进行的迁移
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+	*return int：0成功，非0失败
+	*/
+	int stopTransfer(string appName,string moduleName,string srcGroupName,out string err);
+        
+	/*
+	*功能: 新一键迁移:停止已开始进行的迁移
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+	*@param  destGroupName：迁移源服务组
+	*return int：0成功，非0失败
+	*/
+	int stopTransferv2(string appName,string moduleName,string srcGroupName,string destGroupName,out string err);
+
+	/*
+	*功能:一键迁移:获取目前的整个迁移流程处于哪个阶段
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+	*return int：-1 表示没有这个迁移的流程,0表示有这个迁移流程但没有完成任何阶段,1表示这个迁移流程已完成了配置阶段,2表示这个迁移流程已完成了发布阶段,3表示已开始了迁移
+	*/
+	int getTransferInfo(string appName,string moduleName,string srcGroupName,out string err);
+        
+	/*
+	*功能：新一键迁移:配置阶段接口，完成路由表的修改和服务的部署
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+	*@param   string sTafVersion：taf的版本
+	*@param   int serverType: 1表示一期cache 2表示二期cache
+	*@praram  isDestServerExist：指示目的服务组是否为已存在服务
+	*@praram  vtCacheHost： 迁移目的服务组的cache信息
+	*return int：0成功，非0失败
+	*/
+	int configureTransferV2(string appName,string moduleName,string srcGroupName,string sTafVersion,int serverType,bool isDestServerExist,vector<CacheHostParam> vtCacheHost,out string err);
+
+	/*
+	*功能：新一键迁移:发起迁移阶段接口，设置路由数据库的迁移记录，开始迁移
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+	*return int：0成功，非0失败
+	*/
+	int setTransferInRouterDBV2(string appName,string moduleName,string srcGroupName, string destGroupName, out string err);
+
+	/*
+	*功能：新一键迁移:只设置路由db，不做数据迁移
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+	*return int：0成功，非0失败
+	*/
+	int TransferOnlySetRouterDBV2(string appName,string moduleName,string srcGroupName,string destGroupName,out string err);
+
+	/*
+	*功能：已存在服务的迁移接口
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  srcGroupName：迁移源服务组
+    *@param  destGroupName:目的组
+    *@param  bTransferData：是否迁移数据
+	*return int：0成功,-1失败.1参数错误,2超时
+	*/
+	int TransferDataExistGroup(string appName,string moduleName,string srcGroupName,string destGroupName, bool bTransferData, string userName, out string err);
+
+	/*
+	*功能：一键扩容:配置阶段接口，完成路由表的修改和服务的部署
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param   string sTafVersion：taf的版本
+	*@param   int serverType: 1表示一期cache 2表示二期cache
+	*@praram  vtCacheHost： 迁移目的服务组的cache信息
+	*return int：0成功，非0失败
+	*/
+	int configureExpand(string appName,string moduleName,string sTafVersion,int serverType,vector<CacheHostParam> vtCacheHost,out string err);
+
+	/*
+	*功能：一键扩容:发布阶段接口，完成服务的发布
+	*@param  moduleName：模块名
+	*@param  version：发布包的版本
+	*@param  user：发布者
+	*@praram  vtCacheHost： 迁移目的服务组的cache信息
+	*return int：0成功，非0失败
+	*/
+	int releaseExpandServer(string appName,string moduleName,string version,string user,string md5,vector<CacheHostParam> vtCacheHost,out string err);
+
+
+	/*
+	*功能：一键扩容:发起迁移阶段接口，设置路由数据库的迁移记录，开始迁移
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  destGroupNames：迁移目的服务组组名
+	*return int：0成功，非0失败
+	*/
+	int setTransferInRouterDBforExpand(string appName,string moduleName,vector<string> destGroupNames,out string err);
+
+	/*
+	*功能: 一键扩容:停止已开始进行的迁移
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*return int：0成功，非0失败
+	*/
+	int stopTransferForExpand(string appName,string moduleName,out string err);
+
+	/*
+	*功能: 一键扩容:获取已发起迁移的进度
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*@param  vector<transferProgress> vtTransferProgress:迁移的进度信息 
+	*return int：0成功，非0失败
+	*/
+	int getTransferProgressForExpand(string appName,string moduleName,out vector<transferProgress> vtTransferProgress,out string err);
+
+	/*
+	*功能:一键扩容:获取目前的整个迁移流程处于哪个阶段
+	*@param  moduleName：模块名
+	*return int：-1 表示没有这个迁移的流程,0表示有这个迁移流程但没有完成任何阶段,1表示这个迁移流程已完成了配置阶段,2表示这个迁移流程已完成了发布阶段,3表示已开始了迁移
+	*/
+	int getExpandInfo(string appName,string moduleName,out string err);
+
+	/*
+	*功能: 一键扩容:清除失败的迁移配置(包括服务的部署和路由数据库的的清除)
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*return int：0成功，非0失败
+	*/
+	int cleanExpandInfo(string appName,string moduleName,vector<string> destGroupNames,out string err);
+
+	/*
+	*功能: 一键扩容:重试失败的迁移记录(只针对调用停止以后的情况,即阶段4)
+	*@param  appName：应用名，用来定位路由数据库
+	*@param  moduleName：模块名
+	*return int：0成功，非0失败
+	*/
+	int reTryStopedExpand(string appName,string moduleName,out string err);
+
+	/**
+    功能: 恢复镜像在Router,proxy中的状态到正常状态
+    *@param sAppName:应用名称
+    *@param sModuleName:模块名
+    *@param sGroupName:组名
+    *@param sMirrorIdc:镜像所属机房
+    *@param sDBFlag:是否带DB或文件
+    *@param sEnableErase:是否允许淘汰数据
+    *@return int: 0时调用成功，非0则失败
+	*/
+	int recoverMirrorStat(string sAppName, string sModuleName, string sGroupName, string sMirrorIdc, string sDBFlag, string sEnableErase, out string err);
+
+	/**
+    *功能: 发起主备切换
+    *@param sAppName:应用名称
+    *@param sModuleName:模块名
+    *@param sGroupName:组名
+    *@param bForceSwitch:是否强制切换
+    *@param iDifBinlogTime:当非强制切换时，如果binlog时间差异小于或等于iDifBinlogTime,可以切换
+    *@return int: 0时调用成功，非0则失败
+	*/
+	int switchByGroup(string sAppName, string sModuleName, string sGroupName, bool bForceSwitch, int iDifBinlogTime, out string err);
+
+    /*
+    功能：获取自动切换或手动切换的结果
+    参数说明：
+	*@param cond 查询条件，<"appName", "CarelyeTest">表示查询应用名为CarelyeTest的切换信息，
+	*索引值为SwitchInfo中的成员:sAppNames,sModuleName,sGroupName,sMasterServer,sSlaveServer,sMirrorIdc,sMasterMirror,sSlaveMirror,sSwitchTime,iSwitchType,iSwitchResult,iGroupStatus,
+	*除sSwitchTime外其它为字符串值，sSwitchTime为时间范围，其条件格式为从小到大的时间且以"|"分隔:"2013-10-15 12:52:14|2014-10-15 12:52:14"
+	*@param index 数据的开始位置，index从0开始，不能小于0
+	*@param number 获取数据的数量,-1表示取从index开始的全部数据
+	*@param vInfo 切换组的信息
+	*@param totalNum 总的切换组数量
+	*@param err：错误信息
+    *返回值：0 成功，其他失败
+    */
+    int getSwitchInfo(map<string,string> cond, int index, int number, out vector<SwitchInfo> vInfo, out int totalNum, out string err);
+
+    /*
+    功能：获取一期dcache数据信息
+	*@param proxyObj: proxy的obj接口名
+	*@param moduleName: 模块名
+	*@param sKey: 查询的主key
+	*@param keyType: 主key类型，string/int/long
+	*@param cacheServerName: cache对象节点
+	*@param value: 查询的值
+	*@param valueSize: 值长度
+	*@param valueMd5: 返回值的md5信息
+	*@param ver: 数据版本
+	*@param iRet: 查询接口返回值
+	*@param consumeTime: 查询耗费时间
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int getTCacheData(string proxyObj, string moduleName, string sKey, string keyType, out string cacheServerName, out string value, out int valueSize, out string valueMd5, out int ver, out int iRet, out int consumeTime, out string err);
+
+    /*
+    功能：获取二期dcache数据信息
+	*@param proxyObj: proxy的obj接口名
+	*@param moduleName: 模块名
+	*@param sKey: 查询的主key
+	*@param cond: 查询的条件
+	*@param cacheServerName: cache对象节点
+	*@param vtData: 返回的数据字段。数据版本的字段名为@DataVer。例：获取第i条数据的版本 vtData[i]["@DataVer"].sData
+	*@param dataNum: 数据条数
+	*@param vDataSize: 每条数据的大小。最多返回30条
+	*@param totalSize: 总数据大小
+	*@param ret: 查询接口返回值
+	*@param consumeTime: 查询耗费时间
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int getMKCacheData(string proxyObj, string moduleName, string sKey, vector<CacheCond> cond, out string cacheServerName, out vector<map<string, CacheData> > vtData, out int dataNum, out vector<int> vDataSize, out int totalSize, out int iRet, out int consumeTime, out string err);
+
+
+    /*
+    功能：删除一期dcache数据，删db
+	*@param proxyObj: proxy的obj接口名
+	*@param moduleName: 模块名
+	*@param sKey: 查询的主key
+	*@param keyType: 主key类型，string/int/long
+	*@param ret: 查询接口返回值
+	*@param consumeTime: 耗费时间
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int delTCacheData(string proxyObj, string moduleName, string sKey, string keyType, out int iRet, out int consumeTime, out string err);
+
+    /*
+    功能：删除二期dcache数据，删db
+	*@param proxyObj: proxy的obj接口名
+	*@param moduleName: 模块名
+	*@param sKey: 查询的主key
+	*@param cond: 查询的条件
+	*@param ret: 查询接口返回值
+	*@param consumeTime: 查询耗费时间
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int delMKCacheData(string proxyObj, string moduleName, string sKey, vector<CacheCond> cond, out int iRet, out int consumeTime, out string err);
+
+    /*
+    功能：恢复数据
+	*@param sAppName: 应用名
+	*@param sServerName: 服务名
+	*@param serverType: 0主机；1备机；2镜像
+	*@param lastTime: 恢复时间点
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int dataRecover(string sAppName, string sServerName, int serverType, long lastTime, out string err);
+
+    /*
+    功能：清空db的数据
+	*@param sAppName: 应用名
+	*@param sModuleName: 模块名
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int cleanUpDB(string sAppName, string sModuleName, out string err);
+
+    /*
+    功能：查询清空db的数据进度
+	*@param sAppName: 应用名
+	*@param sModuleName: 模块名
+	*@param process: 100表示完成，0-99表示正在处理，-1表示清理出错
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int getCleanUpDBProgress(string sAppName, string sModuleName, out int process, out string err);
+
+    /*
+    功能：查询一期模块是否序列化
+	*@param sAppName: 应用名
+	*@param sModuleName: 模块名
+	*@param isSerializated: 是否序列话
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int cacheIsSerializated(string sAppName, string sModuleName, out bool isSerializated,out string err);
+
+    /*
+    功能：修改cache的字段信息
+	*@param sAppName: 应用名
+	*@param sModuleName: 模块名
+	*@param cacheType:服务类型，1为一期；2为二期
+	*@param vItem:字段信息
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int changeCacheItem(string sAppName, string sModuleName, int cacheType, vector<moduleParam> vItem, out string err);
+
+    /*
+    功能：查询修改cache字段进度
+	*@param sAppName: 应用名
+	*@param sModuleName: 模块名
+	*@param process: 100表示完成，0-99表示正在处理，-1表示修改出错
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int getCangeItemProgress(string sAppName, string sModuleName, out int process, out string err);
+
+    /*
+    功能：获取一期db数据信息
+	*@param dbaccessObj: dbaccess的obj接口名
+	*@param sKey: 查询的主key
+	*@param keyType: 主key类型，string/int/long
+    *@param ip: 实例ip
+    *@param port：实例端口
+	*@param dbName: 库
+    *@param tableName: 表
+	*@param value: 查询的值
+	*@param valueSize: 值长度
+	*@param valueMd5: 返回值的md5信息
+	*@param iRet: 查询接口返回值
+	*@param consumeTime: 查询耗费时间
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int getTDBData(string dbaccessObj, string sKey, string keyType, out string ip, out string port, out string dbName, out string tableName, out string value, out int valueSize, out string valueMd5, out int iRet, out int consumeTime, out string err);
+
+    /*
+    功能：获取二期db数据信息
+    *@param sAppName 应用名
+    *@param sAppName sModuleName 模块名
+	*@param dbaccessObj: dbaccess的obj接口名
+	*@param sKey: 查询的主key
+	*@param cond: 查询的条件
+    *@param ip: 实例ip
+    *@param port：实例端口
+	*@param dbName: 库
+    *@param tableName: 表
+	*@param vtData: 返回的数据字段。
+	*@param dataNum: 数据条数
+	*@param vDataSize: 每条数据的大小。最多返回30条
+	*@param totalSize: 总数据大小
+	*@param ret: 查询接口返回值
+	*@param consumeTime: 查询耗费时间
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int getMKDBData(string sAppName, string sModuleName, string dbaccessObj, string sKey, vector<CacheCond> cond, out string ip, out string port, out string dbName, out string tableName, out vector<map<string, CacheData> > vtData, out int dataNum, out vector<int> vDataSize, out int totalSize, out int iRet, out int consumeTime, out string err);
+
+        
+    /*
+    功能：恢复数据
+	*@param sAppName: 应用名
+	*@param moduleName: 模块名
+	*@param srcGroup: 源数据组
+	*@param destServerName: 目的服务
+    *@param lastTime: 恢复时间
+	*@param err:错误信息
+    *返回值：0 成功，其他失败
+    */
+    int restoreFromGroup(string appName, string moduleName, string srcGroup, string destServerName,long lastTime, out string err);
+
+  };
+
+}; 

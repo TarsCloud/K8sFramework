@@ -1,0 +1,165 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tafcontrol-init-db
+  namespace: {{.Release.Namespace}}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+data:
+  entrypoint: |
+    #!/usr/bin/env bash
+    mysql -h{{.Values.tafDB.host}} -P{{.Values.tafDB.port}} -u{{.Values.tafDB.user}} -p{{.Values.tafDB.password}} < /init-db/tafDB.sql ||exit 255
+    mysql -h{{.Values.statDB.host}} -P{{.Values.statDB.port}} -u{{.Values.statDB.user}} -p{{.Values.statDB.password}} < /init-db/statDB.sql ||exit 255
+    mysql -h{{.Values.propertyDB.host}} -P{{.Values.propertyDB.port}} -u{{.Values.propertyDB.user}} -p{{.Values.propertyDB.password}} < /init-db/propertyDB.sql ||exit 255
+  tafDB.sql: |
+    -- MySQL dump 10.17  Distrib 10.3.22-MariaDB, for debian-linux-gnu (x86_64)
+    --
+    -- ------------------------------------------------------
+    -- Server version	5.7.24-log
+
+    /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+    /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+    /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+    /*!40101 SET NAMES utf8mb4 */;
+    /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+    /*!40103 SET TIME_ZONE='+00:00' */;
+    /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+    /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+    /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+    /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+    --
+    -- Current Database: `{{.Values.tafDB.name}}`
+    --
+
+    CREATE DATABASE /*!32312 IF NOT EXISTS*/ `{{.Values.tafDB.name}}` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+
+    USE `{{.Values.tafDB.name}}`;
+
+    --
+    -- Table structure for table `t_server_notify`
+    --
+
+    DROP TABLE IF EXISTS `t_server_notify`;
+    /*!40101 SET @saved_cs_client     = @@character_set_client */;
+    /*!40101 SET character_set_client = utf8mb4 */;
+    CREATE TABLE `t_server_notify` (
+      `f_notify_id` int(11) NOT NULL AUTO_INCREMENT,
+      `f_app_server` varchar(64) NOT NULL,
+      `f_pod_name` varchar(64) NOT NULL DEFAULT '',
+      `f_notify_level` varchar(12) DEFAULT '',
+      `f_notify_message` text,
+      `f_notify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `f_notify_thread` varchar(16) DEFAULT '',
+      `f_notify_source` varchar(12) DEFAULT '',
+      PRIMARY KEY (`f_notify_id`),
+      KEY `f_app_server` (`f_app_server`,`f_pod_name`,`f_notify_level`),
+      KEY `f_notify_time` (`f_notify_time`)
+    ) ENGINE=MyISAM AUTO_INCREMENT=341 DEFAULT CHARSET=utf8mb4;
+    /*!40101 SET character_set_client = @saved_cs_client */;
+
+    --
+    -- Dumping data for table `t_server_notify`
+    --
+
+    LOCK TABLES `t_server_notify` WRITE;
+    /*!40000 ALTER TABLE `t_server_notify` DISABLE KEYS */;
+    /*!40000 ALTER TABLE `t_server_notify` ENABLE KEYS */;
+    UNLOCK TABLES;
+
+    /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+    /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+    /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+    /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+    /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+    /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+    /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+    /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+  statDB.sql: |
+    -- MySQL dump 10.17  Distrib 10.3.22-MariaDB, for debian-linux-gnu (x86_64)
+    --
+    -- ------------------------------------------------------
+    -- Server version	5.7.24-log
+
+    /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+    /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+    /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+    /*!40101 SET NAMES utf8mb4 */;
+    /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+    /*!40103 SET TIME_ZONE='+00:00' */;
+    /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+    /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+    /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+    /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+    --
+    -- Current Database: `{{.Values.statDB.name}}`
+    --
+
+    CREATE DATABASE /*!32312 IF NOT EXISTS*/ `{{.Values.statDB.name}}` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+
+    USE `{{.Values.statDB.name}}`;
+
+  propertyDB.sql: |
+    -- MySQL dump 10.17  Distrib 10.3.22-MariaDB, for debian-linux-gnu (x86_64)
+    --
+    -- ------------------------------------------------------
+    -- Server version	5.7.24-log
+
+    /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+    /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+    /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+    /*!40101 SET NAMES utf8mb4 */;
+    /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+    /*!40103 SET TIME_ZONE='+00:00' */;
+    /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+    /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+    /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+    /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+    --
+    -- Current Database: `{{.Values.propertyDB.name}}`
+    --
+
+    CREATE DATABASE /*!32312 IF NOT EXISTS*/ `{{.Values.propertyDB.name}}` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+
+    USE `{{.Values.propertyDB.name}}`;
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tafcontrol-init-db
+  namespace: {{.Release.Namespace}}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-9"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      name: tafcontrol-init-db
+    spec:
+      containers:
+        - name: tafcontrol-init-db
+          image: {{.Values.global.registry.url}}/mysqlclient
+          command: [ "sh" ,"-c", "/init-db/entrypoint" ]
+          volumeMounts:
+            - name: init-db
+              mountPath: /init-db
+      imagePullSecrets:
+        - name: taf-image-secret
+      volumes:
+        - configMap:
+            defaultMode: 440
+            name: tafcontrol-init-db
+          name: init-db
+      restartPolicy: Never

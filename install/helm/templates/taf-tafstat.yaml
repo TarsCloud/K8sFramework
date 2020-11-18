@@ -1,0 +1,101 @@
+apiVersion: k8s.taf.io/v1alpha1
+kind: TRelease
+metadata:
+  name: taf-tafstat
+spec:
+  list:
+    - image: {{.Values.global.registry.url}}/taf.tafstat:10000
+      imagePullSecret: taf-image-secret
+      tag: "10000"
+      serverType: taf_cpp
+---
+
+apiVersion: k8s.taf.io/v1alpha1
+kind: TServer
+metadata:
+  name: taf-tafstat
+  labels:
+    taf.io/ReleaseSource: taf-tafstat
+    taf.io/ReleaseTag: "10000"
+    taf.io/ServerApp: taf
+    taf.io/ServerName: tafstat
+    taf.io/SubType: taf
+    taf.io/Template: taf.default
+spec:
+  app: taf
+  server: tafstat
+  subType: taf
+  taf:
+    template: taf.cpp
+    profile: |
+      <taf>
+        sql=CREATE TABLE `${TABLE}`( `stattime` timestamp NOT NULL default CURRENT_TIMESTAMP,`f_date` date NOT NULL default '1970-01-01', `f_tflag` varchar(8) NOT NULL default '',`source_id` varchar(15) NOT NULL default '',`master_name` varchar(128) NOT NULL default '',`slave_name` varchar(128) NOT NULL default '',`interface_name` varchar(128) NOT NULL default '',`taf_version` varchar(16) NOT NULL default '',`master_ip` varchar(15) NOT NULL default '',`slave_ip` varchar(21) NOT NULL default '',`slave_port` int(10) NOT NULL default 0,`return_value` int(11) NOT NULL default 0,`succ_count` int(10) unsigned default NULL,`timeout_count` int(10) unsigned default NULL,`exce_count` int(10) unsigned default NULL,`interv_count` varchar(128) default NULL,`total_time` bigint(20) unsigned default NULL,`ave_time` int(10) unsigned default NULL,`maxrsp_time` int(10) unsigned default NULL,`minrsp_time` int(10) unsigned default NULL,PRIMARY KEY (`source_id`,`f_date`,`f_tflag`,`master_name`,`slave_name`,`interface_name`,`master_ip`,`slave_ip`,`slave_port`,`return_value`,`taf_version`),KEY `IDX_TIME` (`stattime`),KEY `IDC_MASTER` (`master_name`),KEY `IDX_INTERFACENAME` (`interface_name`),KEY `IDX_FLAGSLAVE` (`f_tflag`,`slave_name`), KEY `IDX_SLAVEIP` (`slave_ip`),KEY `IDX_SLAVE` (`slave_name`),KEY `IDX_RETVALUE` (`return_value`),KEY `IDX_MASTER_IP` (`master_ip`),KEY `IDX_F_DATE` (`f_date`)) ENGINE\=InnoDB DEFAULT CHARSET\=utf8
+        enWeighted=1
+        <masteripGroup>
+          taf.tafstat;1.1.1.1
+        </masteripGroup>
+        <hashmap>
+          masterfile=hashmap_master.txt
+          slavefile=hashmap_slave.txt
+          insertInterval=5
+          enableStatCount=0
+          size=256M
+          countsize=1M
+        </hashmap>
+        <reapSql>
+          interval=5
+          insertDbThreadNum=4
+        </reapSql>
+        <statdb>
+          <db1>
+            tbname=taf_stat_
+            dbhost={{ .Values.statDB.host }}
+            dbport={{ .Values.statDB.port }}
+            dbname={{ .Values.statDB.name }}
+            dbuser={{ .Values.statDB.user }}
+            dbpass={{ .Values.statDB.password }}
+            charset=utf8
+          </db1>
+        </statdb>
+      </taf>
+    servants:
+      - name: StatObj
+        port: 10000
+  k8s:
+    replicas: 1
+    nodeSelector:
+      abilityPool:
+        values: [ ]
+    env:
+      - name: Namespace
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
+      - name: PodName
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+      - name: PodIP
+        valueFrom:
+          fieldRef:
+            fieldPath: status.podIP
+      - name: ServerApp
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.labels['taf.io/ServerApp']
+    mounts:
+      - name: host-log-dir
+        source:
+          hostPath:
+            path: /usr/local/app/taf/app_log
+            type: DirectoryOrCreate
+        mountPath: /usr/local/app/taf/app_log
+        subPathExpr: $(Namespace).$(PodName)
+    readinessGate: taf.io/active
+  release:
+    source: taf-tafstat
+    tag: '10000'
+    image: {{.Values.global.registry.url}}/taf.tafstat:10000
+    imagePullSecret:  taf-image-secret
+    serverType: taf_cpp

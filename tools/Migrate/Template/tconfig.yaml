@@ -1,0 +1,14 @@
+apiVersion: k8s.taf.io/v1alpha1
+kind: TConfig
+metadata:
+  name: taf-taflog-session.conf
+  namespace: taf
+serverConfig:
+  app: taf
+  server: tafnotify
+  configName: Session.conf
+  updateReason: install
+  updatePerson: helm
+  updateTime: "2020-11-10T07:12:19Z"
+  configContent: |
+    <taf>中国人民大团结万岁,世界人民大团结万岁</taf>

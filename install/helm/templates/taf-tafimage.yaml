@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taf-tafimage
+  namespace: {{.Release.Namespace}}
+data:
+  DockerRegistryUrl: {{.Values.global.registry.url}}
+  DockerRegistryUser: {{.Values.global.registry.user}}
+  DockerRegistryPassword: {{.Values.global.registry.password}}
+  CppImageBase: {{.Values.global.registry.url}}/taf.cppbase:10000
+  JavaImageBase: {{.Values.global.registry.url}}/taf.javabase:10000
+  Node6ImageBase: {{.Values.global.registry.url}}/taf.node6base:10000
+  Node8ImageBase: {{.Values.global.registry.url}}/taf.node8base:10000
+  Node10ImageBase: {{.Values.global.registry.url}}/taf.node10base:10000
+---
+
+apiVersion: k8s.taf.io/v1alpha1
+kind: TRelease
+metadata:
+  name: taf-tafimage
+  namespace: {{.Release.Namespace}}
+spec:
+  list:
+    - image: {{.Values.global.registry.url}}/taf.tafimage:10000
+      imagePullSecret: taf-image-secret
+      tag: "10000"
+      serverType: taf_cpp
+---
+
+apiVersion: k8s.taf.io/v1alpha1
+kind: TServer
+metadata:
+  name: taf-tafimage
+  namespace: {{.Release.Namespace}}
+  labels:
+    taf.io/ReleaseSource: taf-tafimage
+    taf.io/ReleaseTag: "10000"
+    taf.io/ServerApp: taf
+    taf.io/ServerName: tafimage
+    taf.io/SubType: normal
+    taf.io/Template: taf.default
+spec:
+  app: taf
+  server: tafimage
+  subType: normal
+  normal:
+    ports:
+      - name: http
+        port: 80
+  k8s:
+    replicas: 1
+    nodeSelector:
+      abilityPool:
+        values: [ ]
+    mounts:
+      - name: docker-sock
+        source:
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+        mountPath: /var/run/docker.sock
+      - name: registry-env
+        source:
+          configMap:
+            name: taf-tafimage
+        mountPath: /etc/registry-env
+  release:
+    source: taf-tafimage
+    tag: '10000'
+    image: {{.Values.global.registry.url}}/taf.tafimage:10000
+    imagePullSecret: taf-image-secret
+    serverType: taf_cpp

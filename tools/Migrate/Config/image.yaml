@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taf-image
+  namespace: taf
+data:
+  Namespace: taf
+  DockerRegistryUrl: harbor-huawei.upchinaproduct.com/hwk8s
+  DockerRegistryUser: admin
+  DockerRegistryPassword: UPHar32211
+  CppImageBase: harbor-huawei.upchinaproduct.com/hwk8s/taf.cppbase:10000
+  JavaImageBase: harbor-huawei.upchinaproduct.com/hwk8s/taf.javabase:10000
+  Node8ImageBase: harbor-huawei.upchinaproduct.com/hwk8s/taf.node8base:10000
+  Node10ImageBase: harbor-huawei.upchinaproduct.com/hwk8s/taf.node10base:10000
+  NodeImageBase: harbor-huawei.upchinaproduct.com/hwk8s/taf.nodebase:10000

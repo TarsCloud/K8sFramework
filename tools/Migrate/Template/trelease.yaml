@@ -1,0 +1,21 @@
+# 字段映射
+# (1)t_server，构建基本信息，包括f_server_id，key.name=lower(f_server_app)-lower(f_server_name)
+# (2)t_service_pool，拉取TRelease数据
+
+apiVersion: k8s.taf.io/v1alpha1
+kind: TRelease
+metadata:
+  # key-name
+  name: semantics-semword2vecserver
+  # 写死，脚本批量替换
+  namespace: taf
+spec:
+  list:
+    # f_service_pool.f_service_image: replace前缀
+    - image: harbor-huawei.upchinaproduct.com/hwk8s/semantics.semword2vecserver
+      # 写死
+      imagePullSecret: taf-image-secret
+      # f_service_pool.f_service_image: 提取:后缀
+      tag: "a1600151889142595367"
+      # server type
+      serverType: taf.cpp
