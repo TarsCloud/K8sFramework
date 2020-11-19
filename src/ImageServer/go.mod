@@ -1,4 +1,4 @@
-module tafimage
+module tarsimage
 
 go 1.14
 

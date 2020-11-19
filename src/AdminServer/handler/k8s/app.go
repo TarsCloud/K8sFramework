@@ -6,10 +6,10 @@ import (
 	"golang.org/x/net/context"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/applications"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/applications"
 )
 
 type CreateAppHandler struct {}
@@ -26,7 +26,7 @@ func (s *CreateAppHandler) Handle(params applications.CreateAppParams) middlewar
 		return applications.NewCreateAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("Duplicated App: %s Already Existed.", *metadata.AppName)})
 	}
 
-	tTree.Apps = append(tTree.Apps, crdv1alpha1.TTreeApps{Name: *metadata.AppName, BusinessRef: metadata.BusinessName,
+	tTree.Apps = append(tTree.Apps, crdv1alpha1.TTreeApp{Name: *metadata.AppName, BusinessRef: metadata.BusinessName,
 		CreatePerson: metadata.CreatePerson, CreateTime: k8sMetaV1.Now(), Mark: metadata.AppMark})
 
 	if err = updateTTreeSpec(namespace, tTree); err != nil {
@@ -41,7 +41,7 @@ type SelectAppHandler struct {}
 func (s *SelectAppHandler) Handle(params applications.SelectAppParams) middleware.Responder {
 	namespace := K8sOption.Namespace
 
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
 	if err != nil {
 		return applications.NewSelectAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
@@ -58,7 +58,7 @@ func (s *SelectAppHandler) Handle(params applications.SelectAppParams) middlewar
 
 	// Admin临时版本，Template特化已有web实现
 	if selectParams.Filter != nil {
-		filterItems = make([]crdv1alpha1.TTreeApps, 0, len(allItems))
+		filterItems = make([]crdv1alpha1.TTreeApp, 0, len(allItems))
 		for _, elem := range allItems {
 			if selectParams.Filter.Eq != nil {
 				return applications.NewSelectAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: "Eq Is Not Supported."})
@@ -126,7 +126,7 @@ func (s *DeleteAppHandler) Handle(params applications.DeleteAppParams) middlewar
 	}
 
 	// 检测server是否存在，如果存在拒绝删除
-	requirements := BuildTafAppSelector(*metadata.AppName)
+	requirements := BuildTarsAppSelector(*metadata.AppName)
 	_, err = K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
 	if err == nil {
 		return applications.NewDeleteAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("Must Clear All TServer With %s.", *metadata.AppName)})
@@ -168,7 +168,7 @@ func (s *UpdateAppHandler) Handle(params applications.UpdateAppParams) middlewar
 }
 
 func getAppNameIndex(namespace, appName string) (*crdv1alpha1.TTree, int, error)  {
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
 	if err != nil {
 		return nil, -1, err
 	}

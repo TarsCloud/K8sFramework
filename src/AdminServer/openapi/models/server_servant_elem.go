@@ -27,8 +27,8 @@ type ServerServantElem struct {
 	// Minimum: 1
 	Connections int32 `json:"Connections,omitempty"`
 
-	// is taf
-	IsTaf *bool `json:"IsTaf,omitempty"`
+	// is tars
+	IsTars *bool `json:"IsTars,omitempty"`
 
 	// is Tcp
 	IsTCP *bool `json:"IsTcp,omitempty"`

@@ -8,13 +8,13 @@
 #define FILE_FUN   __FILENAME__<<":"<<__FUNCTION__<<":"<<__LINE__<<"|"
 #define FILE_FUN_STR  TC_Common::tostr(__FILENAME__)+":"+TC_Common::tostr(__FUNCTION__)+":"+TC_Common::tostr(__LINE__)+"|"
 
-constexpr char SERVERTYPE_TARS_CPP[] = "taf_cpp";
-constexpr char SERVERTYPE_TARS_NODE[] = "taf_node";
-constexpr char SERVERTYPE_TARS_NODE_PKG[] = "taf_node_pkg";
-constexpr char SERVERTYPE_TARS_JAVA_WAR[] = "taf_java_war";
-constexpr char SERVERTYPE_TARS_JAVA_JAR[] = "taf_java_jar";
-constexpr char SERVERTYPE_TARS_DNS[] = "taf_dns";
-constexpr char SERVERTYPE_NOT_TARS[] = "not_taf";
+constexpr char SERVERTYPE_TARS_CPP[] = "tars_cpp";
+constexpr char SERVERTYPE_TARS_NODE[] = "tars_node";
+constexpr char SERVERTYPE_TARS_NODE_PKG[] = "tars_node_pkg";
+constexpr char SERVERTYPE_TARS_JAVA_WAR[] = "tars_java_war";
+constexpr char SERVERTYPE_TARS_JAVA_JAR[] = "tars_java_jar";
+constexpr char SERVERTYPE_TARS_DNS[] = "tars_dns";
+constexpr char SERVERTYPE_NOT_TARS[] = "not_tars";
 
 
 /*

@@ -5,14 +5,14 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"io/ioutil"
 	"os"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/default_operations"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/default_operations"
 )
 
 // 默认Selector类型
 var K8SNodeSelectorKind = models.ArrayString{"AbilityPool", "PublicPool", "NodeBind"}
 // 默认Server类型
-var ServerTypeOptional = models.ArrayString{"taf_cpp", "taf_java_war", "taf_java_jar", "taf_node", "taf_node8", "taf_node10", "taf_node_pkg", "not_taf"}
+var ServerTypeOptional = models.ArrayString{"tars_cpp", "tars_java_war", "tars_java_jar", "tars_nodejs", "not_tars"}
 // 默认K8S参数
 var ServerK8S = models.ServerK8S{
 	HostIpc: false, HostNetwork: false, Replicas: 0,
@@ -24,11 +24,11 @@ var ServerK8S = models.ServerK8S{
 // 默认私有模板参数
 var asyncThread int32 = 3
 var serverImportant int32 = 5
-var serverSubType = "taf"
-var ServerOption = models.ServerOption{AsyncThread: &asyncThread, ServerImportant: &serverImportant, ServerSubType: &serverSubType, ServerTemplate: "taf.default", ServerProfile: ""}
+var serverSubType = "tars"
+var ServerOption = models.ServerOption{AsyncThread: &asyncThread, ServerImportant: &serverImportant, ServerSubType: &serverSubType, ServerTemplate: "tars.default", ServerProfile: ""}
 // 默认Servant参数
 var isTrue = true
-var ServerServantElem = models.ServerServantElem{IsTaf: &isTrue, IsTCP: &isTrue, Threads: 3, Port: 10000, Timeout: 60000, Capacity: 10000, Connections: 10000}
+var ServerServantElem = models.ServerServantElem{IsTars: &isTrue, IsTCP: &isTrue, Threads: 3, Port: 10000, Timeout: 60000, Capacity: 10000, Connections: 10000}
 
 // Handler处理
 const DefaultConfigMapPath = "/etc/default-env/"

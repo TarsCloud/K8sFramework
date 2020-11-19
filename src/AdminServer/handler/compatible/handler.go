@@ -8,11 +8,11 @@ import (
 	k8sCoreV1 "k8s.io/api/core/v1"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sort"
-	"tafadmin/handler/k8s"
-	"tafadmin/handler/mysql"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/affinity"
-	"tafadmin/openapi/restapi/operations/node"
+	"tarsadmin/handler/k8s"
+	"tarsadmin/handler/mysql"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/affinity"
+	"tarsadmin/openapi/restapi/operations/node"
 )
 
 var nodeColumnsSqlColumnsMap = mysql.RequestColumnSqlColumnMap{
@@ -81,8 +81,8 @@ func (s *DoSetPublicNodeHandler) Handle(params node.DoSetPublicNodeParams) middl
 		}
 
 		k8sNodeCopy := k8sNode.DeepCopy()
-		if _, ok := k8sNode.Labels[k8s.TafPublicNodeLabel]; !ok {
-			k8sNodeCopy.Labels[k8s.TafPublicNodeLabel] = ""
+		if _, ok := k8sNode.Labels[k8s.TarsPublicNodeLabel]; !ok {
+			k8sNodeCopy.Labels[k8s.TarsPublicNodeLabel] = ""
 		}
 
 		if _, err := nodeInterface.Update(context.TODO(), k8sNodeCopy, k8sMetaV1.UpdateOptions{}); err != nil {
@@ -114,8 +114,8 @@ func (s *DoDeletePublicNodeHandler) Handle(params node.DoDeletePublicNodeParams)
 		}
 
 		k8sNodeCopy := k8sNode.DeepCopy()
-		if _, ok := k8sNode.Labels[k8s.TafPublicNodeLabel]; ok {
-			delete(k8sNodeCopy.Labels, k8s.TafPublicNodeLabel)
+		if _, ok := k8sNode.Labels[k8s.TarsPublicNodeLabel]; ok {
+			delete(k8sNodeCopy.Labels, k8s.TarsPublicNodeLabel)
 		}
 
 		if _, err := nodeInterface.Update(context.TODO(), k8sNodeCopy, k8sMetaV1.UpdateOptions{}); err != nil {
@@ -183,7 +183,7 @@ func (s *DoAddServerEnableNodeHandler) Handle(params affinity.DoAddServerEnableN
 }
 func deleteNodeAbility(nodeName string, serverApp ...string) error {
 	if !nodeLabelRecord.hadNode(nodeName) {
-		return fmt.Errorf("%s Is Not Taf Node. ", nodeName)
+		return fmt.Errorf("%s Is Not Tars Node. ", nodeName)
 	}
 
 	nodeInterface := k8s.K8sOption.K8SClientSet.CoreV1().Nodes()
@@ -199,7 +199,7 @@ func deleteNodeAbility(nodeName string, serverApp ...string) error {
 
 	k8sNodeCopy := k8sNode.DeepCopy()
 	for _, v := range serverApp {
-		abilityLabel := k8s.TafAbilityNodeLabelPrefix + v
+		abilityLabel := k8s.TarsAbilityNodeLabelPrefix + v
 		if _, ok := k8sNode.Labels[abilityLabel]; ok {
 			deletedAnyLabel = true
 			delete(k8sNodeCopy.Labels, abilityLabel)
@@ -284,7 +284,7 @@ func (s *DoListAffinityGroupByAbilityHandler) Handle(params affinity.DoListAffin
 
 func addNodeAbility(nodeName string, serverApp ...string) error {
 	if !nodeLabelRecord.hadNode(nodeName) {
-		return fmt.Errorf("%s Is Not Taf Node. ", nodeName)
+		return fmt.Errorf("%s Is Not Tars Node. ", nodeName)
 	}
 
 	nodeInterface := k8s.K8sOption.K8SClientSet.CoreV1().Nodes()
@@ -300,7 +300,7 @@ func addNodeAbility(nodeName string, serverApp ...string) error {
 
 	k8sNodeCopy := k8sNode.DeepCopy()
 	for _, v := range serverApp {
-		abilityLabel := k8s.TafAbilityNodeLabelPrefix + v
+		abilityLabel := k8s.TarsAbilityNodeLabelPrefix + v
 		if _, ok := k8sNode.Labels[abilityLabel]; !ok {
 			addAnyLabel = true
 			k8sNodeCopy.Labels[abilityLabel] = ""

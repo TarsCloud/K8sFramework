@@ -2,8 +2,8 @@ package mysql
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/notify"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/notify"
 )
 
 var notifyColumnsSqlColumnsMap = RequestColumnSqlColumnMap{

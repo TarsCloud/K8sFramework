@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"tafadmin/openapi/models"
+	"tarsadmin/openapi/models"
 )
 
 type SelectParams struct {

@@ -3,17 +3,17 @@ package test
 import (
 	"encoding/json"
 	"fmt"
-	"tafadmin/handler/compatible"
-	"tafadmin/handler/k8s"
-	"tafadmin/handler/mysql"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/affinity"
-	"tafadmin/openapi/restapi/operations/release"
-	"tafadmin/openapi/restapi/operations/server"
-	"tafadmin/openapi/restapi/operations/server_k8s"
-	"tafadmin/openapi/restapi/operations/server_option"
-	"tafadmin/openapi/restapi/operations/server_pod"
-	"tafadmin/openapi/restapi/operations/server_servant"
+	"tarsadmin/handler/compatible"
+	"tarsadmin/handler/k8s"
+	"tarsadmin/handler/mysql"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/affinity"
+	"tarsadmin/openapi/restapi/operations/release"
+	"tarsadmin/openapi/restapi/operations/server"
+	"tarsadmin/openapi/restapi/operations/server_k8s"
+	"tarsadmin/openapi/restapi/operations/server_option"
+	"tarsadmin/openapi/restapi/operations/server_pod"
+	"tarsadmin/openapi/restapi/operations/server_servant"
 	"testing"
 )
 
@@ -60,7 +60,7 @@ func TestSelectServicePoolHandler_Handle(t *testing.T) {
 func TestCreateServicePoolHandler_Handle(t *testing.T) {
 	var params release.CreateServicePoolParams
 	serverID := "Semantics-AnalyserServer"
-	serverType := "taf.cpp"
+	serverType := "tars.cpp"
 	serviceImage:= "registry.cn-hangzhou.aliyuncs.com/dtool/semantics.analyserserver:a1600911633405313000"
 
 	params.Params.Metadata = &release.CreateServicePoolParamsBodyMetadata{
@@ -159,8 +159,8 @@ func TestUpdateServerOptionHandler_Handle(t *testing.T) {
 	depolyMeta :=  CreateDeployMeta()
 
 	serverImportant := int32(5)
-	serverProfile := "<taf>\n\n</taf>"
-	depolyMeta.ServerOption.ServerTemplate = "taf.default"
+	serverProfile := "<tars>\n\n</tars>"
+	depolyMeta.ServerOption.ServerTemplate = "tars.default"
 	depolyMeta.ServerOption.ServerImportant = &serverImportant
 	depolyMeta.ServerOption.ServerProfile = serverProfile
 
@@ -228,9 +228,9 @@ func TestDoListAffinityGroupByNodeHandler_Handle(t *testing.T) {
 
 func init()  {
 	var err error
-	mysql.TafDb, err = loadTafDBDev()
+	mysql.TarsDb, err = loadTarsDBDev()
 	if err != nil {
-		fmt.Println(fmt.Sprintf("load taf_db error: %v", err))
+		fmt.Println(fmt.Sprintf("load tars_db error: %v", err))
 	}
 
 	k8sNamespace, k8sConfig, err := loadK8SDev()

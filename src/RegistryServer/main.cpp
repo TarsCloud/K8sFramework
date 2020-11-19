@@ -1,7 +1,7 @@
 ﻿#include "RegistryServer.h"
 #include <iostream>
 
-using namespace taf;
+using namespace tars;
 
 int main(int argc, char *argv[]) {
     try {

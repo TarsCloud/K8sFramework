@@ -1,9 +1,9 @@
 swagger: "2.0"
 info:
   title: TAF-K8S Admin
-  description: Taf Admin接口文档
+  description: Tars Admin接口文档
   version: 1.0.0
-host: tafadmin.com
+host: tarsadmin.com
 basePath: /admin/v1alpha1/
 produces:
   - application/json
@@ -1116,7 +1116,7 @@ paths:
       summary: 拉取服务servants，web=/server_adapter_select
       operationId: selectServerAdapter
       description: columns key=['ServerId', 'AdapterId', 'Name', 'Threads', 'Connections',
-        'Port', 'Capacity', 'Timeout', 'IsTaf', 'IsTcp',]
+        'Port', 'Capacity', 'Timeout', 'IsTars', 'IsTcp',]
       parameters:
         - $ref: "#/parameters/Filter"
         - $ref: "#/parameters/Limiter"
@@ -1624,7 +1624,7 @@ definitions:
         format: int32
         minimum: 1
         maximum: 1200000
-      IsTaf:
+      IsTars:
         type: boolean
         default: true
       IsTcp:
@@ -1635,9 +1635,9 @@ definitions:
     properties:
       ServerSubType:
         type: string
-        default: taf
+        default: tars
         enum:
-          - taf
+          - tars
           - normal
       ServerImportant:
         type: integer

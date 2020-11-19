@@ -1,3 +1,6 @@
-gen_server(taf tafnode)
+include_directories(../RegistryServer)
+include_directories(/usr/local/tars/cpp/include/servant)
 
-add_dependencies(tafnode tafregistry)
+gen_server(tars tarsnode)
+
+add_dependencies(tarsnode tarsregistry)

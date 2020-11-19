@@ -33,7 +33,7 @@ type ServerOption struct {
 	ServerProfile string `json:"ServerProfile,omitempty"`
 
 	// server sub type
-	// Enum: [taf normal]
+	// Enum: [tars normal]
 	ServerSubType *string `json:"ServerSubType,omitempty"`
 
 	// server template
@@ -105,7 +105,7 @@ var serverOptionTypeServerSubTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["taf","normal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["tars","normal"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -115,8 +115,8 @@ func init() {
 
 const (
 
-	// ServerOptionServerSubTypeTaf captures enum value "taf"
-	ServerOptionServerSubTypeTaf string = "taf"
+	// ServerOptionServerSubTypeTars captures enum value "tars"
+	ServerOptionServerSubTypeTars string = "tars"
 
 	// ServerOptionServerSubTypeNormal captures enum value "normal"
 	ServerOptionServerSubTypeNormal string = "normal"

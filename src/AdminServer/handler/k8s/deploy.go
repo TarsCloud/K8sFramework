@@ -8,12 +8,12 @@ import (
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"sort"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/deploy"
-	"tafadmin/openapi/restapi/operations/server_pod"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/deploy"
+	"tarsadmin/openapi/restapi/operations/server_pod"
 )
 
 type CreateDeployHandler struct {}
@@ -117,10 +117,10 @@ func (s *SelectDeployHandler) Handle(params deploy.SelectDeployParams) middlewar
 		elem["ServerName"] = item.Apply.Server
 
 		elem["ServerK8S"] = ConvertOperatorK8SToAdminK8S(item.Apply.K8S)
-		elem["ServerServant"] = ConvertOperatorServantToAdminK8S(item.Apply.Taf.Servants)
+		elem["ServerServant"] = ConvertOperatorServantToAdminK8S(item.Apply.Tars.Servants)
 		elem["ServerOption"] = ConvertOperatorOptionToAdminK8S(item.Apply)
 
-		elem["RequestPerson"] = "taf-admin"
+		elem["RequestPerson"] = "tars-admin"
 		elem["ServerMark"] = "default empty"
 
 		result.Data = append(result.Data, elem)
@@ -179,7 +179,7 @@ func buildTDeploy(namespace string, metadata *models.DeployMeta) *crdv1alpha1.TD
 	}
 
 	// 通过管理平台的部署都是TAF服务
-	serverSubType := "taf"
+	serverSubType := "tars"
 	metadata.ServerOption.ServerSubType = &serverSubType
 
 	deployName := fmt.Sprintf("%s-%s-%s", util.GetTServerName(util.GetServerId(*metadata.ServerApp, *metadata.ServerName)), RandStringRunes(10), RandStringRunes(5))
@@ -241,7 +241,7 @@ func ConvertOperatorServantToAdminK8S(operatorServant []crdv1alpha1.TServant) mo
 			serverServant[servant.Name] = models.ServerServantElem{
 				Capacity: servant.Capacity,
 				Connections: servant.Connection,
-				IsTaf: &servant.IsTaf,
+				IsTars: &servant.IsTars,
 				IsTCP: &servant.IsTcp,
 				Name: servant.Name,
 				Port: servant.Port,
@@ -255,15 +255,15 @@ func ConvertOperatorServantToAdminK8S(operatorServant []crdv1alpha1.TServant) mo
 }
 
 func ConvertOperatorOptionToAdminK8S(operatorTServerSpec crdv1alpha1.TServerSpec) models.ServerOption {
-	asyncThread := operatorTServerSpec.Taf.AsyncThread
+	asyncThread := operatorTServerSpec.Tars.AsyncThread
 	serverImportant := operatorTServerSpec.Important
 	serverSubType := string(operatorTServerSpec.SubType)
 
 	return models.ServerOption{
 		AsyncThread: &asyncThread,
 		ServerImportant: &serverImportant,
-		ServerProfile: operatorTServerSpec.Taf.Profile,
-		ServerTemplate: operatorTServerSpec.Taf.Template,
+		ServerProfile: operatorTServerSpec.Tars.Profile,
+		ServerTemplate: operatorTServerSpec.Tars.Template,
 		ServerSubType: &serverSubType,
 	}
 }

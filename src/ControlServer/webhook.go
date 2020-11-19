@@ -23,7 +23,7 @@ func NewWebhook(k8sOption *K8SOption, watcher *Watcher) *Webhook {
 		validating: Validating{
 			k8sOption:               k8sOption,
 			watcher:                 watcher,
-			controlAccount:          fmt.Sprintf("system:serviceaccount:%s:%s", k8sOption.namespace, TafControlServiceAccount),
+			controlAccount:          fmt.Sprintf("system:serviceaccount:%s:%s", k8sOption.namespace, TarsControlServiceAccount),
 			garbageCollectorAccount: "system:serviceaccount:kube-system:generic-garbage-collector",
 		},
 	}

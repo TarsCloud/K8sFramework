@@ -7,12 +7,12 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"strconv"
 	"strings"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/release"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/release"
 )
 
 type SelectServiceEnabledHandler struct {}
@@ -38,7 +38,7 @@ func (s *SelectServiceEnabledHandler) Handle(params release.SelectServiceEnabled
 
 	allServerItems := make([]*crdv1alpha1.TServer, 0, 10)
 	if listAll {
-		requirements := BuildSubTypeTafSelector()
+		requirements := BuildSubTypeTarsSelector()
 		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
 		if err != nil {
 			return release.NewSelectServiceEnabledInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -196,20 +196,20 @@ func (s *CreateServicePoolHandler) Handle(params release.CreateServicePoolParams
 		return release.NewCreateServicePoolInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
 	if tServer.Spec.SubType != crdv1alpha1.TAF {
-		return release.NewCreateServicePoolInternalServerError().WithPayload(&models.Error{Code: -1, Message: "NonTaf Is Not Supported."})
+		return release.NewCreateServicePoolInternalServerError().WithPayload(&models.Error{Code: -1, Message: "NonTars Is Not Supported."})
 	}
 
 	newTServerRelease := &crdv1alpha1.TServerRelease{
 		Source: tServer.Name,
 		ServerType: *metadata.ServerType,
 		Image: *metadata.ServiceImage,
-		ImagePullSecret: "taf-image-secret",
+		ImagePullSecret: "tars-image-secret",
 		ActivePerson: metadata.ActivePerson,
 		ActiveReason: metadata.ActiveReason,
 		ActiveTime: k8sMetaV1.Now(),
 	}
 
-	// 更新TRelease，Taf服务一一对应
+	// 更新TRelease，Tars服务一一对应
 	bCreate := false
 	releaseId := tServer.Name
 	tRelease, err := K8sWatcher.tReleaseLister.TReleases(namespace).Get(util.GetTServerName(releaseId))
@@ -268,7 +268,7 @@ func (s *DoEnableServiceHandler) Handle(params release.DoEnableServiceParams) mi
 		return release.NewDoEnableServiceInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
 	if tServer.Spec.SubType != crdv1alpha1.TAF {
-		return release.NewDoEnableServiceInternalServerError().WithPayload(&models.Error{Code: -1, Message: "NonTaf Is Not Supported."})
+		return release.NewDoEnableServiceInternalServerError().WithPayload(&models.Error{Code: -1, Message: "NonTars Is Not Supported."})
 	}
 
 	// TAF服务的TRelease和TServer一一对应

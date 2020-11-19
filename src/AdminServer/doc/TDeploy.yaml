@@ -2,10 +2,10 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   # name must match the spec fields below, and be in the form: <plural>.<group>
-  name: tdeploys.k8s.taf.io
+  name: tdeploys.k8s.tars.io
 spec:
   # group name to use for REST API: /apis/<group>/<version>
-  group: k8s.taf.io
+  group: k8s.tars.io
   # list of versions supported by this CustomResourceDefinition
   versions:
     - name: v1alpha1
@@ -33,8 +33,8 @@ spec:
                   default: 3
                 subType:
                   type: string
-                  enum: [ taf,normal ]
-                taf:
+                  enum: [ tars,normal ]
+                tars:
                   type: object
                   properties:
                     template:
@@ -82,7 +82,7 @@ spec:
                             minimum: 0
                             maximum: 6000000
                             default: 60000
-                          isTaf:
+                          isTars:
                             type: boolean
                             default: true
                           isTcp:
@@ -365,7 +365,7 @@ spec:
                       default: Parallel
                     readinessGate:
                       type: string
-                      enum: [ "" ,taf.io/active ]
+                      enum: [ "" ,tars.io/active ]
                     replicas:
                       type: integer
                       minimum: 0
@@ -373,7 +373,7 @@ spec:
                   required: [ replicas,nodeSelector ]
               required: [ app, server, subType ]
               oneOf:
-                - required: [ taf , k8s ]
+                - required: [ tars , k8s ]
                 - required: [ normal , k8s ]
             approve:
               type: object

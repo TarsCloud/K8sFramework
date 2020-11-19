@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"tafadmin/openapi/models"
+	"tarsadmin/openapi/models"
 )
 
 // CreateDeployOKCode is the HTTP code returned for type CreateDeployOK

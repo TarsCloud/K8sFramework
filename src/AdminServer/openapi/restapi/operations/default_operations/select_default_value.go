@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"tafadmin/openapi/models"
+	"tarsadmin/openapi/models"
 )
 
 // SelectDefaultValueHandlerFunc turns a function with the right signature into a select default value handler

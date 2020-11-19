@@ -1,18 +1,18 @@
 ﻿#include "ConfigImp.h"
-#include "servant/taf_logger.h"
+#include "servant/RemoteLogger.h"
 #include "ConfigServer.h"
 
-using namespace taf;
+using namespace tars;
 
 //多配置文件的分割符
 constexpr char MultiConfigSeparator[] = "\r\n\r\n";
 
 static int extractPodSeqFromHost(const std::string &sApp, const std::string &sServer, const std::string &host) {
-    std::vector<std::string> v = taf::TC_Common::sepstr<string>(host, "-");
+    std::vector<std::string> v = tars::TC_Common::sepstr<string>(host, "-");
     if (v.size() != 3) {
         return -1;
     }
-    if (v[0] != taf::TC_Common::lower(sApp) || (v[1]) != taf::TC_Common::lower(sServer)) {
+    if (v[0] != tars::TC_Common::lower(sApp) || (v[1]) != tars::TC_Common::lower(sServer)) {
         return -1;
     }
     size_t pos = {};
@@ -21,12 +21,12 @@ static int extractPodSeqFromHost(const std::string &sApp, const std::string &sSe
 }
 
 static int extractPodSeqFromHost(const std::string &sAppServer, const std::string &host) {
-    std::vector<std::string> v = taf::TC_Common::sepstr<string>(host, "-");
+    std::vector<std::string> v = tars::TC_Common::sepstr<string>(host, "-");
     if (v.size() != 3) {
         return -1;
     }
     std::string sAppServerFromHost = v[0] + "." + v[1];
-    if (sAppServerFromHost != taf::TC_Common::lower(sAppServer)) {
+    if (sAppServerFromHost != tars::TC_Common::lower(sAppServer)) {
         return -1;
     }
     size_t pos = {};
@@ -39,19 +39,19 @@ static int extractPodSeqFromHost(const std::string &sAppServer, const std::strin
 }
 
 void ConfigImp::initialize() {
-    const TC_Config &serverConf = ConfigServer::getConfig();
+    const TC_Config &serverConf = g_app.getConfig();
     TC_DBConf tcDBConf;
-    tcDBConf.loadFromMap(serverConf.getDomainMap("/taf/db"));
-    LOG->debug() << "db conf:" << TC_Common::tostr(serverConf.getDomainMap("/taf/db")) << endl;
+    tcDBConf.loadFromMap(serverConf.getDomainMap("/tars/db"));
+    LOG->debug() << "db conf:" << TC_Common::tostr(serverConf.getDomainMap("/tars/db")) << endl;
     _mysqlConfig.init(tcDBConf);
 }
 
-int ConfigImp::ListConfig(const string &app, const string &server, vector<string> &vf, taf::JceCurrentPtr current) {
+int ConfigImp::ListConfig(const string &app, const string &server, vector<string> &vf, tars::CurrentPtr current) {
     LOG->debug() << "ListConfig|" << app << "." << server << "|" << endl;
 
     std::string sAppServer = app + (server.empty() ? "" : "." + server);
 
-    string sSql = "select distinct f_config_name from t_config where f_app_server='" + taf::TC_Mysql::escapeString(sAppServer) + "'";
+    string sSql = "select distinct f_config_name from t_config where f_app_server='" + tars::TC_Mysql::escapeString(sAppServer) + "'";
 
     try {
         std::lock_guard<std::mutex> lockGuard(_mutex);
@@ -68,19 +68,19 @@ int ConfigImp::ListConfig(const string &app, const string &server, vector<string
     return 0;
 }
 
-int ConfigImp::loadConfigByHost(const std::string &appServerName, const std::string &fileName, const string &host, string &config, taf::JceCurrentPtr current) {
+int ConfigImp::loadConfigByHost(const std::string &appServerName, const std::string &fileName, const string &host, string &config, tars::CurrentPtr current) {
     int podSeq = extractPodSeqFromHost(appServerName, host);
     return loadConfigByPodSeq(appServerName, fileName, podSeq, config);
 }
 
-int ConfigImp::loadConfig(const std::string &app, const std::string &server, const std::string &fileName, string &config, taf::JceCurrentPtr current) {
+int ConfigImp::loadConfig(const std::string &app, const std::string &server, const std::string &fileName, string &config, tars::CurrentPtr current) {
     std::string sAppServer = app + (server.empty() ? "" : "." + server);
     std::string hostName = current->getContext()["SERVER_HOST_NAME"];
     int podSeq = extractPodSeqFromHost(app, server, hostName);
     return loadConfigByPodSeq(sAppServer, fileName, podSeq, config);
 }
 
-int ConfigImp::checkConfig(const std::string &appServerName, const std::string &fileName, const string &host, string &result, taf::JceCurrentPtr current) {
+int ConfigImp::checkConfig(const std::string &appServerName, const std::string &fileName, const string &host, string &result, tars::CurrentPtr current) {
 
     int podSeq = extractPodSeqFromHost(appServerName, host);
     int ret = loadConfigByPodSeq(appServerName, fileName, podSeq, result);
@@ -101,7 +101,7 @@ int ConfigImp::checkConfig(const std::string &appServerName, const std::string &
     return 0;
 }
 
-int ConfigImp::ListConfigByInfo(const ConfigInfo &configInfo, vector<string> &vf, taf::JceCurrentPtr current) {
+int ConfigImp::ListConfigByInfo(const ConfigInfo &configInfo, vector<string> &vf, tars::CurrentPtr current) {
     LOG->debug() << "ListAllConfigByInfo|" << configInfo.appname << "|" << configInfo.servername << endl;
     if (configInfo.bAppOnly) {
         return ListConfig(configInfo.appname, "", vf, current);
@@ -109,7 +109,7 @@ int ConfigImp::ListConfigByInfo(const ConfigInfo &configInfo, vector<string> &vf
     return ListConfig(configInfo.appname, configInfo.servername, vf, current);
 }
 
-int ConfigImp::loadConfigByInfo(const ConfigInfo &configInfo, string &config, taf::JceCurrentPtr current) {
+int ConfigImp::loadConfigByInfo(const ConfigInfo &configInfo, string &config, tars::CurrentPtr current) {
     LOG->debug() << "loadConfigByInfo|" << configInfo.appname << "|" << configInfo.servername << "|" << configInfo.filename << endl;
     int podSeq = -1;
     if (!configInfo.host.empty()) {
@@ -132,7 +132,7 @@ int ConfigImp::loadConfigByInfo(const ConfigInfo &configInfo, string &config, ta
 }
 
 
-taf::Int32 ConfigImp::ListAllConfigByInfo(const taf::GetConfigListInfo &configInfo, vector<std::string> &vf, taf::JceCurrentPtr current) {
+tars::Int32 ConfigImp::ListAllConfigByInfo(const tars::GetConfigListInfo &configInfo, vector<std::string> &vf, tars::CurrentPtr current) {
     LOG->debug() << "ListAllConfigByInfo|" << configInfo.appname << "|" << configInfo.servername << endl;
     if (configInfo.bAppOnly) {
         return ListConfig(configInfo.appname, "", vf, current);
@@ -140,7 +140,7 @@ taf::Int32 ConfigImp::ListAllConfigByInfo(const taf::GetConfigListInfo &configIn
     return ListConfig(configInfo.appname, configInfo.servername, vf, current);
 }
 
-int ConfigImp::checkConfigByInfo(const ConfigInfo &configInfo, string &result, taf::JceCurrentPtr current) {
+int ConfigImp::checkConfigByInfo(const ConfigInfo &configInfo, string &result, tars::CurrentPtr current) {
     int podSeq = extractPodSeqFromHost(configInfo.appname, configInfo.servername, configInfo.host);
     std::string sAppServer = configInfo.appname + (configInfo.servername.empty() ? "" : "." + configInfo.servername);
     int ret = loadConfigByPodSeq(sAppServer, configInfo.filename, podSeq, result);
@@ -164,8 +164,8 @@ int ConfigImp::checkConfigByInfo(const ConfigInfo &configInfo, string &result, t
 int ConfigImp::loadConfigByPodSeq(const string &appServerName, const string &filename, int podSeq, string &result) {
     std::ostringstream stream;
     stream << "select f_config_content from t_config where 1=1";
-    stream << " and f_app_server=" << "'" << taf::TC_Mysql::escapeString(appServerName) << "'";
-    stream << " and f_config_name=" << "'" << taf::TC_Mysql::escapeString(filename) << "'";
+    stream << " and f_app_server=" << "'" << tars::TC_Mysql::escapeString(appServerName) << "'";
+    stream << " and f_config_name=" << "'" << tars::TC_Mysql::escapeString(filename) << "'";
     stream << " and (f_pod_seq=-1 or f_pod_seq=" << podSeq << ")";
     stream << " order by f_pod_seq";
 

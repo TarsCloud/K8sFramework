@@ -3,11 +3,11 @@ package k8s
 import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"math/rand"
 	"regexp"
 	"strings"
-	"tafadmin/openapi/models"
+	"tarsadmin/openapi/models"
 	"time"
 )
 
@@ -57,12 +57,12 @@ func BuildDoubleEqualSelector(filter *models.SelectRequestFilter, keyLabel map[s
 	return requirements
 }
 
-func BuildSubTypeTafSelector() []labels.Requirement {
+func BuildSubTypeTarsSelector() []labels.Requirement {
 	requirement, _ := labels.NewRequirement(TSubTypeLabel, selection.DoubleEquals, []string{string(crdv1alpha1.TAF)})
 	return []labels.Requirement{*requirement}
 }
 
-func BuildTafAppSelector(appName string) []labels.Requirement {
+func BuildTarsAppSelector(appName string) []labels.Requirement {
 	requirements := make([]labels.Requirement, 0, 2)
 
 	r1, _ := labels.NewRequirement(TSubTypeLabel, selection.DoubleEquals, []string{string(crdv1alpha1.TAF)})

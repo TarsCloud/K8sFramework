@@ -3,7 +3,7 @@
 
 void ConfigServer::initialize() {
     //滚动日志也打印毫秒
-    TafRollLogger::getInstance()->logger()->modFlag(TC_DayLogger::HAS_MTIME);
+    LocalRollLogger::getInstance()->logger()->modFlag(TC_DayLogger::HAS_MTIME);
     //增加对象
     addServant<ConfigImp>(ServerConfig::Application + "." + ServerConfig::ServerName + ".ConfigObj");
 

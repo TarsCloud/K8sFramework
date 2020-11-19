@@ -22,13 +22,13 @@ void NodeServer::initialize() {
         addServant<ServerImp>(ServerConfig::Application + "." + ServerConfig::ServerName + ".ServerObj");
         TC_Config &gConf = NodeServer::getConfig();
 
-        string sNotifyProxyName = gConf.get("/taf/application/server<notify>", FIXED_NOTIFY_PROXY_NAME);
+        string sNotifyProxyName = gConf.get("/tars/application/server<notify>", FIXED_NOTIFY_PROXY_NAME);
         ProxyManger::instance().setNotifyObjName(sNotifyProxyName);
 
-        string sQueryProxyName = gConf.get("/taf/application/client<locator>", FIXED_QUERY_PROXY_NAME);
+        string sQueryProxyName = gConf.get("/tars/application/client<locator>", FIXED_QUERY_PROXY_NAME);
         ProxyManger::instance().setQueryObjName(sQueryProxyName);
 
-        string sRegistryProxyName = gConf.get("/taf/node<registryObj>", FIXED_REGISTRY_PROXY_NAME);
+        string sRegistryProxyName = gConf.get("/tars/node<registryObj>", FIXED_REGISTRY_PROXY_NAME);
         ProxyManger::instance().setRegistryObjName(sRegistryProxyName);
 
     } catch (TC_Exception &ex) {

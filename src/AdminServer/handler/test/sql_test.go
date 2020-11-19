@@ -7,19 +7,19 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"tafadmin/handler/k8s"
-	"tafadmin/handler/mysql"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/applications"
-	"tafadmin/openapi/restapi/operations/approval"
-	"tafadmin/openapi/restapi/operations/config"
-	"tafadmin/openapi/restapi/operations/deploy"
+	"tarsadmin/handler/k8s"
+	"tarsadmin/handler/mysql"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/applications"
+	"tarsadmin/openapi/restapi/operations/approval"
+	"tarsadmin/openapi/restapi/operations/config"
+	"tarsadmin/openapi/restapi/operations/deploy"
 	"testing"
 )
 
-func loadTafDBDev() (*sql.DB, error) {
+func loadTarsDBDev() (*sql.DB, error) {
 	dbHost := "172.16.8.229"
-	dbName := "taf_db"
+	dbName := "tars_db"
 	dbPort := "3306"
 	dbPass := "8788"
 	dbUser := "root"
@@ -31,7 +31,7 @@ func loadK8SDev() (string, *rest.Config, error) {
 	if err != nil {
 		return "", nil, fmt.Errorf("Get K8SConfig Value Error , Did You Run Program In K8S ? ")
 	}
-	return "taf", k8sConfig, nil
+	return "tars", k8sConfig, nil
 }
 
 func ConstructSelectParams() (models.SelectRequestFilter, models.SelectRequestLimiter, models.SelectRequestOrder) {
@@ -73,7 +73,7 @@ func TestSelectAppHandler_Handle(t *testing.T) {
 func TestUpdateAppHandler_Handle(t *testing.T) {
 	var params applications.UpdateAppParams
 
-	name := "taf"
+	name := "tars"
 	params.Params.Metadata = &applications.UpdateAppParamsBodyMetadata{AppName: &name}
 	params.Params.Target = &applications.UpdateAppParamsBodyTarget{BusinessName: "FRAMEWORK", AppMark: "jaminTest"}
 
@@ -129,22 +129,22 @@ func CreateDeployMeta() *models.DeployMeta {
 
 	asyncThread := int32(3)
 	serverImportant := int32(10)
-	serverSubType := "taf"
+	serverSubType := "tars"
 
 	serverOption := models.ServerOption{
 		AsyncThread: &asyncThread,
 		ServerImportant: &serverImportant,
 		ServerProfile: "",
 		ServerSubType: &serverSubType,
-		ServerTemplate: "taf.cpp",
+		ServerTemplate: "tars.cpp",
 	}
 
-	isTaf, isTcp := true, true
+	isTars, isTcp := true, true
 	serverServant := models.MapServant{
 		"AnalyserObj": {
 			Capacity: 10000,
 			Connections: 10000,
-			IsTaf: &isTaf,
+			IsTars: &isTars,
 			IsTCP: &isTcp,
 			Name: "AnalyserObj",
 			Port: 10000,
@@ -183,7 +183,7 @@ func TestUpdateDeployHandler_Handle(t *testing.T) {
 	params.Params.Metadata = &deploy.UpdateDeployParamsBodyMetadata{
 		DeployID: &deployId,
 	}
-	isTaf, isTcp := true, true
+	isTars, isTcp := true, true
 	deployMeta.ServerServant["TestUpdateObj"] = models.ServerServantElem{
 			Capacity: 10000,
 			Connections: 10000,
@@ -192,7 +192,7 @@ func TestUpdateDeployHandler_Handle(t *testing.T) {
 			Threads: 1,
 			Timeout: 60000,
 			IsTCP: &isTcp,
-			IsTaf: &isTaf,
+			IsTars: &isTars,
 	}
 	params.Params.Target = &deploy.UpdateDeployParamsBodyTarget{
 		ServerServant: deployMeta.ServerServant,
@@ -242,9 +242,9 @@ func TestSelectDeployHandler_Handle(t *testing.T) {
 
 func init()  {
 	var err error
-	mysql.TafDb, err = loadTafDBDev()
+	mysql.TarsDb, err = loadTarsDBDev()
 	if err != nil {
-		fmt.Println(fmt.Sprintf("load taf_db error: %v", err))
+		fmt.Println(fmt.Sprintf("load tars_db error: %v", err))
 	}
 
 	k8sNamespace, k8sConfig, err := loadK8SDev()

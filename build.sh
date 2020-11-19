@@ -56,10 +56,12 @@ if ! docker build -t tars.builder -f build/tars.builder.Dockerfile build; then
   end
 fi
 
-if ! docker run -i -v "${PWD}"/src:/tars-k8s-src -v "${PWD}"/build/files/tars.cpp.bootstrap.sh:/tars-k8s-src/TafCpp/bootstrap.sh -v "${PWD}"/build/files/binary:/tars-k8s-binary tars.builder; then
+if ! docker run -i -v "${PWD}"/:/tars-src -v "${PWD}"/build/files/tars.cpp.bootstrap.sh:/tars-src/bootstrap.sh -v "${PWD}"/build/files/binary:/tars-k8s-binary tars.builder; then
   LOG_ERROR "Build Source Error"
   exit 255
   end
 fi
 ### 构建 Docker 镜像,并在镜像中编译代码
 
+
+# docker run -i -v "${PWD}"/src:/tars-k8s-src -v "${PWD}"/build/files/tars.cpp.bootstrap.sh:/tars-k8s-src/TarsFramework/bootstrap.sh -v "${PWD}"/build/files/binary:/tars-k8s-binary tars.builder

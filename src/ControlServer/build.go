@@ -6,7 +6,7 @@ import (
 	k8sCoreV1 "k8s.io/api/core/v1"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	crdV1Alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
 	"strings"
 )
 
@@ -19,11 +19,11 @@ func buildPodAffinity(server *crdV1Alpha1.TServer) *k8sCoreV1.Affinity {
 					{
 						MatchExpressions: []k8sCoreV1.NodeSelectorRequirement{
 							{
-								Key:      TafNodeLabelPrefix + server.Namespace,
+								Key:      TarsNodeLabelPrefix + server.Namespace,
 								Operator: k8sCoreV1.NodeSelectorOpExists,
 							},
 							{
-								Key:      TafAbilityNodeLabelPrefix + server.Spec.App,
+								Key:      TarsAbilityNodeLabelPrefix + server.Spec.App,
 								Operator: k8sCoreV1.NodeSelectorOpExists,
 							},
 						},
@@ -38,11 +38,11 @@ func buildPodAffinity(server *crdV1Alpha1.TServer) *k8sCoreV1.Affinity {
 					{
 						MatchExpressions: []k8sCoreV1.NodeSelectorRequirement{
 							{
-								Key:      TafNodeLabelPrefix + server.Namespace,
+								Key:      TarsNodeLabelPrefix + server.Namespace,
 								Operator: k8sCoreV1.NodeSelectorOpExists,
 							},
 							{
-								Key:      TafAbilityNodeLabelPrefix + server.Spec.App,
+								Key:      TarsAbilityNodeLabelPrefix + server.Spec.App,
 								Operator: k8sCoreV1.NodeSelectorOpExists,
 							},
 						},
@@ -57,11 +57,11 @@ func buildPodAffinity(server *crdV1Alpha1.TServer) *k8sCoreV1.Affinity {
 					{
 						MatchExpressions: []k8sCoreV1.NodeSelectorRequirement{
 							{
-								Key:      TafNodeLabelPrefix + server.Namespace,
+								Key:      TarsNodeLabelPrefix + server.Namespace,
 								Operator: k8sCoreV1.NodeSelectorOpExists,
 							},
 							{
-								Key:      TafPublicNodeLabel,
+								Key:      TarsPublicNodeLabel,
 								Operator: k8sCoreV1.NodeSelectorOpExists,
 							},
 						},
@@ -76,7 +76,7 @@ func buildPodAffinity(server *crdV1Alpha1.TServer) *k8sCoreV1.Affinity {
 					{
 						MatchExpressions: []k8sCoreV1.NodeSelectorRequirement{
 							{
-								Key:      TafNodeLabelPrefix + server.Namespace,
+								Key:      TarsNodeLabelPrefix + server.Namespace,
 								Operator: k8sCoreV1.NodeSelectorOpExists,
 							},
 						},
@@ -128,8 +128,8 @@ func buildContainerPort(server *crdV1Alpha1.TServer) []k8sCoreV1.ContainerPort {
 	var containerPorts []k8sCoreV1.ContainerPort
 
 	hostPorts := server.Spec.K8S.HostPorts
-	if server.Spec.Taf != nil {
-		servants := server.Spec.Taf.Servants
+	if server.Spec.Tars != nil {
+		servants := server.Spec.Tars.Servants
 		containerPorts = make([]k8sCoreV1.ContainerPort, 0, len(servants))
 		for i := range hostPorts {
 			for j := range servants {
@@ -307,7 +307,7 @@ func buildStatefulSet(server *crdV1Alpha1.TServer) *k8sAppsV1.StatefulSet {
 
 func buildServicePortsFromTServant(server *crdV1Alpha1.TServer) []k8sCoreV1.ServicePort {
 
-	serverServant := server.Spec.Taf.Servants
+	serverServant := server.Spec.Tars.Servants
 	ports := make([]k8sCoreV1.ServicePort, 0, len(serverServant)+1)
 	for _, v := range serverServant {
 		var port k8sCoreV1.ServicePort
@@ -322,7 +322,7 @@ func buildServicePortsFromTServant(server *crdV1Alpha1.TServer) []k8sCoreV1.Serv
 		ports = append(ports, port)
 	}
 
-	if !server.Spec.Taf.Foreground {
+	if !server.Spec.Tars.Foreground {
 		ports = append(ports, k8sCoreV1.ServicePort{
 			Protocol:   k8sCoreV1.ProtocolTCP,
 			Port:       NodeServantPort,
@@ -378,7 +378,7 @@ func buildService(server *crdV1Alpha1.TServer) *k8sCoreV1.Service {
 			Type:      k8sCoreV1.ServiceTypeClusterIP,
 		},
 	}
-	if server.Spec.Taf != nil {
+	if server.Spec.Tars != nil {
 		service.Spec.Ports = buildServicePortsFromTServant(server)
 	} else if server.Spec.Normal != nil {
 		service.Spec.Ports = buildServicePortsFromNPorts(server)
@@ -441,7 +441,7 @@ func buildTEndpoint(server *crdV1Alpha1.TServer) *crdV1Alpha1.TEndpoint {
 			Server:    server.Spec.Server,
 			SubType:   server.Spec.SubType,
 			Important: server.Spec.Important,
-			Taf:       server.Spec.Taf,
+			Tars:       server.Spec.Tars,
 			Normal:    server.Spec.Normal,
 			HostPorts: server.Spec.K8S.HostPorts,
 		},
@@ -491,13 +491,13 @@ func syncTEndpoint(server *crdV1Alpha1.TServer, endpoint *crdV1Alpha1.TEndpoint)
 	endpoint.Spec.Server = server.Spec.Server
 	endpoint.Spec.SubType = server.Spec.SubType
 	endpoint.Spec.Important = server.Spec.Important
-	endpoint.Spec.Taf = server.Spec.Taf
+	endpoint.Spec.Tars = server.Spec.Tars
 	endpoint.Spec.Normal = server.Spec.Normal
 	endpoint.Spec.HostPorts = server.Spec.K8S.HostPorts
 }
 
 func syncService(server *crdV1Alpha1.TServer, service *k8sCoreV1.Service) {
-	if server.Spec.Taf != nil {
+	if server.Spec.Tars != nil {
 		service.Spec.Ports = buildServicePortsFromTServant(server)
 	} else if server.Spec.Normal != nil {
 		service.Spec.Ports = buildServicePortsFromNPorts(server)

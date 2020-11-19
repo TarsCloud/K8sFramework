@@ -5,7 +5,7 @@
 #include <servant/NodeF.h>
 #include "util/tc_common.h"
 
-using namespace taf;
+using namespace tars;
 using namespace std;
 
 class ServerImp : public ServerF {
@@ -40,13 +40,13 @@ public:
     * 退出
     */
 
-    int keepActiving(const taf::ServerInfo &serverInfo, taf::JceCurrentPtr current) override;
+    int keepActiving(const tars::ServerInfo &serverInfo, tars::CurrentPtr current) override;
 
-    int keepAlive(const taf::ServerInfo &serverInfo, taf::JceCurrentPtr current) override;
+    int keepAlive(const tars::ServerInfo &serverInfo, tars::CurrentPtr current) override;
 
-    int reportVersion(const string &app, const string &serverName, const string &version, taf::JceCurrentPtr current) override;
+    int reportVersion(const string &app, const string &serverName, const string &version, tars::CurrentPtr current) override;
 
-    taf::UInt32 getLatestKeepAliveTime(taf::CurrentPtr current) override;
+    tars::UInt32 getLatestKeepAliveTime(tars::CurrentPtr current) override;
 };
 
 

@@ -4,7 +4,7 @@ import (
 	k8sAppsV1 "k8s.io/api/apps/v1"
 	k8sCoreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
-	crdV1Alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
 )
 
 func equalServicePort(l, r []k8sCoreV1.ServicePort) bool {
@@ -395,7 +395,7 @@ func equalContainerPorts(l, r []k8sCoreV1.ContainerPort) bool {
 	return true
 }
 
-func equalTafServants(l, r []crdV1Alpha1.TServant) bool {
+func equalTarsServants(l, r []crdV1Alpha1.TServant) bool {
 	if len(l) != len(r) {
 		return false
 	}
@@ -416,7 +416,7 @@ func equalTafServants(l, r []crdV1Alpha1.TServant) bool {
 		if l[i].Port != r[i].Port {
 			return false
 		}
-		if l[i].IsTaf != r[i].IsTaf {
+		if l[i].IsTars != r[i].IsTars {
 			return false
 		}
 		if l[i].IsTcp != r[i].IsTcp {
@@ -427,7 +427,7 @@ func equalTafServants(l, r []crdV1Alpha1.TServant) bool {
 	return true
 }
 
-func equalTaf(l, r *crdV1Alpha1.TServerTaf) bool {
+func equalTars(l, r *crdV1Alpha1.TServerTars) bool {
 
 	if l == nil {
 		if r == nil {
@@ -455,7 +455,7 @@ func equalTaf(l, r *crdV1Alpha1.TServerTaf) bool {
 		return false
 	}
 
-	if !equalTafServants(l.Servants, r.Servants) {
+	if !equalTarsServants(l.Servants, r.Servants) {
 		return false
 	}
 
@@ -575,7 +575,7 @@ func equalTServerAndTEndpoint(server *crdV1Alpha1.TServer, endpoint *crdV1Alpha1
 
 	switch server.Spec.SubType {
 	case crdV1Alpha1.TAF:
-		return equalTaf(server.Spec.Taf, endpoint.Spec.Taf)
+		return equalTars(server.Spec.Tars, endpoint.Spec.Tars)
 	case crdV1Alpha1.Normal:
 		return equalNormal(server.Spec.Normal, endpoint.Spec.Normal)
 	}
@@ -601,7 +601,7 @@ func equalTServerAndService(server *crdV1Alpha1.TServer, service *k8sCoreV1.Serv
 		return false
 	}
 
-	if server.Spec.Taf != nil {
+	if server.Spec.Tars != nil {
 		targetPorts := buildServicePortsFromTServant(server)
 		if !equalServicePort(targetPorts, serviceSpec.Ports) {
 			return false

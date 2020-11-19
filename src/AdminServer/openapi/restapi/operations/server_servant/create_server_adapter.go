@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	"tafadmin/openapi/models"
+	"tarsadmin/openapi/models"
 )
 
 // CreateServerAdapterHandlerFunc turns a function with the right signature into a create server adapter handler

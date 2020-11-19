@@ -6,12 +6,12 @@ import (
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"sort"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/approval"
-	"tafadmin/openapi/restapi/operations/server_pod"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/approval"
+	"tarsadmin/openapi/restapi/operations/server_pod"
 )
 
 type CreateApprovalHandler struct {}
@@ -31,7 +31,7 @@ func (s *CreateApprovalHandler) Handle(params approval.CreateApprovalParams) mid
 
 	tDeployCopy := tDeploy.DeepCopy()
 	tDeployCopy.Approve = &crdv1alpha1.TDeployApprove{
-		Person: "taf-admin",
+		Person: "tars-admin",
 		Time:   k8sMetaV1.Now(),
 		Reason: metadata.ApprovalMark,
 		Result: metadata.ApprovalResult,
@@ -39,7 +39,7 @@ func (s *CreateApprovalHandler) Handle(params approval.CreateApprovalParams) mid
 
 	if metadata.ApprovalResult {
 		serverK8S := ConvertOperatorK8SToAdminK8S(tDeployCopy.Apply.K8S)
-		serverServant := ConvertOperatorServantToAdminK8S(tDeployCopy.Apply.Taf.Servants)
+		serverServant := ConvertOperatorServantToAdminK8S(tDeployCopy.Apply.Tars.Servants)
 		serverOption := ConvertOperatorOptionToAdminK8S(tDeployCopy.Apply)
 
 		if err = CreateServer(tDeployCopy.Apply.App, tDeployCopy.Apply.Server, serverServant, &serverK8S, &serverOption); err != nil {
@@ -140,10 +140,10 @@ func (s *SelectApprovalHandler) Handle(params approval.SelectApprovalParams) mid
 		elem["ServerName"] = item.Apply.Server
 
 		elem["ServerK8S"] = ConvertOperatorK8SToAdminK8S(item.Apply.K8S)
-		elem["ServerServant"] = ConvertOperatorServantToAdminK8S(item.Apply.Taf.Servants)
+		elem["ServerServant"] = ConvertOperatorServantToAdminK8S(item.Apply.Tars.Servants)
 		elem["ServerOption"] = ConvertOperatorOptionToAdminK8S(item.Apply)
 
-		elem["RequestPerson"] = "taf-admin"
+		elem["RequestPerson"] = "tars-admin"
 		elem["ServerMark"] = "default empty"
 
 		elem["ApprovalTime"] = k8sMetaV1.Now()

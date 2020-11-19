@@ -6,8 +6,8 @@ import (
 	"github.com/elgris/sqrl"
 	"strconv"
 	"strings"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
 )
 
 
@@ -18,7 +18,7 @@ type SqlColumn struct {
 
 type RequestColumnSqlColumnMap map[string]SqlColumn
 
-var TafDb *sql.DB
+var TarsDb *sql.DB
 
 func SelectQueryResult(from string, Filter, Limiter, Order *string, SqlColumnMap RequestColumnSqlColumnMap) (*models.SelectResult, error) {
 	selectParams, err := util.ParseSelectQuery(Filter, Limiter, Order)
@@ -27,7 +27,7 @@ func SelectQueryResult(from string, Filter, Limiter, Order *string, SqlColumnMap
 	}
 
 	var result *models.SelectResult
-	if result, err = execSelectSql(TafDb, from, selectParams, SqlColumnMap, nil); err != nil {
+	if result, err = execSelectSql(TarsDb, from, selectParams, SqlColumnMap, nil); err != nil {
 		return nil, err
 	}
 

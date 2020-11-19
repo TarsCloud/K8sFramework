@@ -2,10 +2,10 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   # name must match the spec fields below, and be in the form: <plural>.<group>
-  name: tconfigs.k8s.taf.io
+  name: tconfigs.k8s.tars.io
 spec:
   # group name to use for REST API: /apis/<group>/<version>
-  group: k8s.taf.io
+  group: k8s.tars.io
   versions:
     - name: v1alpha1
       # Each version can be enabled/disabled by Served flag.
@@ -66,14 +66,14 @@ spec:
     shortNames:
       - tc
 ---
-apiVersion: k8s.taf.io/v1alpha1
+apiVersion: k8s.tars.io/v1alpha1
 kind: TConfig
 metadata:
-  name: taf-taflog-session.conf-3
-  namespace: taf
+  name: tars-tarslog-session.conf-3
+  namespace: tars
 serverConfig:
-  app: taf
-  server: tafnotify
+  app: tars
+  server: tarsnotify
   configName: Session.conf
   configContent: |
-    <taf>中国人民大团结万岁,世界人民大团结万岁</taf>
+    <tars>中国人民大团结万岁,世界人民大团结万岁</tars>

@@ -5,10 +5,10 @@ import (
 	"golang.org/x/net/context"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/server_k8s"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/server_k8s"
 )
 
 type SelectServerK8SHandler struct {}
@@ -34,7 +34,7 @@ func (s *SelectServerK8SHandler) Handle(params server_k8s.SelectK8SParams) middl
 
 	filterItems := make([]*crdv1alpha1.TServer, 0, 10)
 	if listAll {
-		requirements := BuildSubTypeTafSelector()
+		requirements := BuildSubTypeTarsSelector()
 		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
 		if err != nil {
 			return server_k8s.NewSelectK8SInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})

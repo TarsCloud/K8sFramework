@@ -10,17 +10,17 @@ import (
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"strconv"
 	"strings"
-	"tafadmin/handler/mysql"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/config"
-	"tafadmin/openapi/restapi/operations/server_pod"
-	"tafadmin/openapi/restapi/operations/template"
+	"tarsadmin/handler/mysql"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/config"
+	"tarsadmin/openapi/restapi/operations/server_pod"
+	"tarsadmin/openapi/restapi/operations/template"
 
-	tafConf "github.com/TarsCloud/TarsGo/tars/util/conf"
+	tarsConf "github.com/TarsCloud/TarsGo/tars/util/conf"
 )
 
 var configHistoryColumnsSqlColumnsMap = mysql.RequestColumnSqlColumnMap{
@@ -215,7 +215,7 @@ func (s *UpdateServerConfigHandler) Handle(params config.UpdateServerConfigParam
 
 	target := params.Params.Target
 
-	conf := tafConf.New()
+	conf := tarsConf.New()
 	if err := conf.InitFromString(target.ConfigContent); err != nil {
 		return config.NewUpdateServerConfigInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
@@ -299,7 +299,7 @@ func (s *SelectServerConfigHistoryHandler) Handle(params config.SelectServerConf
 }
 
 type DeleteServerConfigHistoryHandler struct {
-	tafDb *sql.DB
+	tarsDb *sql.DB
 }
 
 func (s *DeleteServerConfigHistoryHandler) Handle(params config.DeleteServerConfigHistoryParams) middleware.Responder {
@@ -307,7 +307,7 @@ func (s *DeleteServerConfigHistoryHandler) Handle(params config.DeleteServerConf
 	metadata := params.Params.Metadata
 
 	DeleteConfigHistoryResourceSql1 := "delete from t_config_history where f_history_id=?"
-	if _, err := mysql.TafDb.Exec(DeleteConfigHistoryResourceSql1, metadata.HistoryID); err != nil {
+	if _, err := mysql.TarsDb.Exec(DeleteConfigHistoryResourceSql1, metadata.HistoryID); err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		fmt.Println(fmt.Sprintf("file %s , Line: %d , Err: %s ", file, line, err.Error()))
 		return config.NewDeleteServerConfigHistoryInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -325,14 +325,14 @@ func (s *DoActiveHistoryConfigHandler) Handle(params config.DoActiveHistoryConfi
 	metadata := params.Params.Metadata
 
 	updateConfigSql1 := "insert into t_config_history (f_app_server, f_config_name, f_config_version, f_config_content,f_config_id,f_create_person,f_create_time, f_config_mark,f_pod_seq) select f_app_server,f_config_name,f_config_version,f_config_content,f_config_id,f_create_person,f_create_time,f_config_mark,f_pod_seq from t_config where f_config_id = (select f_config_id from t_config_history where f_history_id=?) ON DUPLICATE KEY UPDATE f_history_id=f_history_id"
-	if _, err := mysql.TafDb.Exec(updateConfigSql1, metadata.HistoryID); err != nil {
+	if _, err := mysql.TarsDb.Exec(updateConfigSql1, metadata.HistoryID); err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		fmt.Println(fmt.Sprintf("file %s , Line: %d , Err: %s ", file, line, err.Error()))
 		return config.NewDoActiveHistoryConfigInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
 
 	updateConfigSql2 := "update t_config a inner join t_config_history b using (f_config_id) set a.f_config_version=b.f_config_version,a.f_config_content=b.f_config_content,a.f_create_person=b.f_create_person,a.f_config_content=b.f_config_content, a.f_create_time=b.f_create_time,a.f_config_mark=b.f_config_mark,a.f_pod_seq=b.f_pod_seq where b.f_history_id=?"
-	if _, err := mysql.TafDb.Exec(updateConfigSql2, metadata.HistoryID); err != nil {
+	if _, err := mysql.TarsDb.Exec(updateConfigSql2, metadata.HistoryID); err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		fmt.Println(fmt.Sprintf("file %s , Line: %d , Err: %s ", file, line, err.Error()))
 		return config.NewDoActiveHistoryConfigInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -371,7 +371,7 @@ func buildTConfig(namespace string, metadata *models.ConfigMeta) (*crdv1alpha1.T
 		},
 	}
 
-	conf := tafConf.New()
+	conf := tarsConf.New()
 	if err := conf.InitFromString(*metadata.ConfigContent); err != nil {
 		return nil, fmt.Errorf("Bad Schema : Bad Params.Metadata.ConfigContent Value. ")
 	}
@@ -389,7 +389,7 @@ func buildTConfig(namespace string, metadata *models.ConfigMeta) (*crdv1alpha1.T
 			ConfigContent: *metadata.ConfigContent,
 			PodSeq: &metadata.PodSeq,
 			UpdateTime: k8sMetaV1.Now(),
-			UpdatePerson: "TafAdmin",
+			UpdatePerson: "TarsAdmin",
 			UpdateReason: "Create",
 		}
 	} else if metadata.ServerName != "" {
@@ -405,7 +405,7 @@ func buildTConfig(namespace string, metadata *models.ConfigMeta) (*crdv1alpha1.T
 			ConfigContent: *metadata.ConfigContent,
 			PodSeq: nil,
 			UpdateTime: k8sMetaV1.Now(),
-			UpdatePerson: "TafAdmin",
+			UpdatePerson: "TarsAdmin",
 			UpdateReason: "Create",
 		}
 	} else if metadata.ServerApp != "" {
@@ -416,7 +416,7 @@ func buildTConfig(namespace string, metadata *models.ConfigMeta) (*crdv1alpha1.T
 			ConfigName: *metadata.ConfigName,
 			ConfigContent: *metadata.ConfigContent,
 			UpdateTime: k8sMetaV1.Now(),
-			UpdatePerson: "TafAdmin",
+			UpdatePerson: "TarsAdmin",
 			UpdateReason: "Create",
 		}
 	} else {

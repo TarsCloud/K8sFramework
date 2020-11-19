@@ -1,7 +1,7 @@
 
 #include "K8SListWatchSession.h"
 #include <unordered_map>
-#include <servant/taf_logger.h>
+#include <servant/RemoteLogger.h>
 #include "rapidjson/document.h"
 #include "asio/read.hpp"
 #include "rapidjson/pointer.h"

@@ -1,15 +1,16 @@
-module tafadmin
+module tarsadmin
 
 require (
 	github.com/go-sql-driver/mysql v1.5.0
-	k8s.io/client-go v0.18.6
-	tafadmin/handler v0.0.0
+	k8s.io/client-go v11.0.0+incompatible
+	tarsadmin/handler v0.0.0
 )
 
 replace (
-	k8s.taf.io/crd v0.0.1 => ./k8s.taf.io/crd/
-	tafadmin/handler v0.0.0 => ./handler
-	tafadmin/openapi v0.0.0 => ./openapi
+	k8s.io/client-go => k8s.io/client-go v0.18.2
+	k8s.tars.io/crd v0.0.1 => ../k8s.tars.io/crd/
+	tarsadmin/handler v0.0.0 => ./handler
+	tarsadmin/openapi v0.0.0 => ./openapi
 )
 
 go 1.14

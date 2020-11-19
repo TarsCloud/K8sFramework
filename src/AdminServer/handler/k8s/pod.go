@@ -3,11 +3,11 @@ package k8s
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"sort"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/server_pod"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/server_pod"
 )
 
 

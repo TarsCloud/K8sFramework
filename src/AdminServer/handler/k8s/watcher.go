@@ -15,10 +15,10 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/klog"
-	crdClientSet "k8s.taf.io/crd/clientset/versioned"
-	crdScheme "k8s.taf.io/crd/clientset/versioned/scheme"
-	crdInformers "k8s.taf.io/crd/informers/externalversions"
-	crdLister "k8s.taf.io/crd/listers/crd/v1alpha1"
+	crdClientSet "k8s.tars.io/crd/clientset/versioned"
+	crdScheme "k8s.tars.io/crd/clientset/versioned/scheme"
+	crdInformers "k8s.tars.io/crd/informers/externalversions"
+	crdLister "k8s.tars.io/crd/listers/crd/v1alpha1"
 	"time"
 )
 
@@ -67,7 +67,7 @@ func StartWatcher(namespace string, config *rest.Config) (*K8SOption, *Watcher, 
 	eventBroadcaster.StartLogging(klog.Infof)
 	eventBroadcaster.StartRecordingToSink(&k8sCoreV1Typed.EventSinkImpl{Interface: k8sClient.CoreV1().Events(namespace)})
 
-	controllerAgentName := fmt.Sprintf("taf-operator")
+	controllerAgentName := fmt.Sprintf("tars-operator")
 	recorder := eventBroadcaster.NewRecorder(k8sSchema.Scheme, k8sCoreV1.EventSource{Component: controllerAgentName})
 
 	k8sOption := &K8SOption{Namespace: namespace, config: config,

@@ -5,29 +5,29 @@ import (
 	"fmt"
 	"github.com/go-openapi/loads"
 	"k8s.io/client-go/rest"
-	"tafadmin/handler/compatible"
-	"tafadmin/handler/k8s"
-	"tafadmin/handler/mysql"
-	"tafadmin/openapi/restapi"
-	"tafadmin/openapi/restapi/operations"
+	"tarsadmin/handler/compatible"
+	"tarsadmin/handler/k8s"
+	"tarsadmin/handler/mysql"
+	"tarsadmin/openapi/restapi"
+	"tarsadmin/openapi/restapi/operations"
 )
 
-func loadSwagger() (*restapi.Server, *operations.TafadminOpenapiAPI) {
+func loadSwagger() (*restapi.Server, *operations.TarsadminOpenapiAPI) {
 	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("swagger loads error: %s\n", err))
 	}
 
-	api := operations.NewTafadminOpenapiAPI(swaggerSpec)
+	api := operations.NewTarsadminOpenapiAPI(swaggerSpec)
 	server := restapi.NewServer(api)
 
 	return server, api
 }
 
-func StartServer(namespace string, config *rest.Config, tafDb *sql.DB, port int) error {
+func StartServer(namespace string, config *rest.Config, tarsDb *sql.DB, port int) error {
 	var err error
 
-	mysql.TafDb = tafDb
+	mysql.TarsDb = tarsDb
 
 	// start common watcher
 	if k8s.K8sOption, k8s.K8sWatcher, err = k8s.StartWatcher(namespace, config); err != nil {
@@ -44,7 +44,7 @@ func StartServer(namespace string, config *rest.Config, tafDb *sql.DB, port int)
 	server.Host = "0.0.0.0"
 	server.Port = port
 
-	adminHandler := tafAdminHandler{}
+	adminHandler := tarsAdminHandler{}
 	server.SetHandler(adminHandler.ConfigureAPI(api))
 	return server.Serve()
 }

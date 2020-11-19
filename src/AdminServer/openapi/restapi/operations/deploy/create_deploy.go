@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"tafadmin/openapi/models"
+	"tarsadmin/openapi/models"
 )
 
 // CreateDeployHandlerFunc turns a function with the right signature into a create deploy handler

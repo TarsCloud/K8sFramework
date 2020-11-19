@@ -10,7 +10,7 @@ import (
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
-	crdV1Alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
 	"net/http"
 	"strings"
 )
@@ -102,8 +102,8 @@ func validTServer(newTServer *crdV1Alpha1.TServer, option *K8SOption, watcher *W
 	var portNames map[string]interface{}
 	var portValues map[int32]interface{}
 
-	if newTServer.Spec.Taf != nil {
-		servants := newTServer.Spec.Taf.Servants
+	if newTServer.Spec.Tars != nil {
+		servants := newTServer.Spec.Tars.Servants
 
 		if servants == nil || len(servants) < 1 {
 			return fmt.Errorf("servants should not empty")
@@ -136,7 +136,7 @@ func validTServer(newTServer *crdV1Alpha1.TServer, option *K8SOption, watcher *W
 			portValues[servants[i].Port] = nil
 		}
 
-		templateName := newTServer.Spec.Taf.Template
+		templateName := newTServer.Spec.Tars.Template
 		_, err := watcher.tTemplateLister.TTemplates(option.namespace).Get(templateName)
 		if err != nil {
 			if !errors.IsNotFound(err) {
@@ -233,9 +233,9 @@ func immutableTServer(newTServer *crdV1Alpha1.TServer, oldTServer *crdV1Alpha1.T
 		return fmt.Errorf("the value of /spec/subType cannot be changed")
 	}
 
-	if oldTServer.Spec.Taf != nil {
-		if newTServer.Spec.Taf == nil {
-			return fmt.Errorf("the value of /spec/taf cannot be changed")
+	if oldTServer.Spec.Tars != nil {
+		if newTServer.Spec.Tars == nil {
+			return fmt.Errorf("the value of /spec/tars cannot be changed")
 		}
 	}
 

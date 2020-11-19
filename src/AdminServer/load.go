@@ -10,26 +10,26 @@ import (
 )
 
 func LoadEnv() (*sql.DB, string, *rest.Config, error) {
-	fmt.Printf("run tafadmin. dev: %t, conf: %s\n", *dev, *config)
+	fmt.Printf("run tarsadmin. dev: %t, conf: %s\n", *dev, *config)
 
-	var tafDb *sql.DB
+	var tarsDb *sql.DB
 	var k8sNamespace string
 	var k8sConfig *rest.Config
 	var err error
 
 	if !*dev {
-		tafDb, err = loadTafDB()
+		tarsDb, err = loadTarsDB()
 		if err != nil {
-			return nil, "", nil, fmt.Errorf("Open TafDb Error: %s\n", err.Error())
+			return nil, "", nil, fmt.Errorf("Open TarsDb Error: %s\n", err.Error())
 		}
 		k8sNamespace, k8sConfig, err = loadK8S()
 		if err != nil {
 			return nil, "", nil, fmt.Errorf("Load K8S Error: %s\n", err.Error())
 		}
 	} else {
-		tafDb, err = loadTafDBDev()
+		tarsDb, err = loadTarsDBDev()
 		if err != nil {
-			return nil, "", nil, fmt.Errorf("Open TafDbDev Error: %s\n", err.Error())
+			return nil, "", nil, fmt.Errorf("Open TarsDbDev Error: %s\n", err.Error())
 		}
 		k8sNamespace, k8sConfig, err = loadK8SDev(*config, *namespace)
 		if err != nil {
@@ -37,19 +37,19 @@ func LoadEnv() (*sql.DB, string, *rest.Config, error) {
 		}
 	}
 
-	return tafDb, k8sNamespace, k8sConfig, nil
+	return tarsDb, k8sNamespace, k8sConfig, nil
 }
 
-func loadTafDBDev() (*sql.DB, error) {
+func loadTarsDBDev() (*sql.DB, error) {
 	/*
 	dbHost := "116.63.36.58"
-	dbName := "taf_db"
+	dbName := "tars_db"
 	dbPort := "3306"
 	dbPass := "sT3fg5aQm"
 	dbUser := "root"
 	 */
 	dbHost := "172.16.8.229"
-	dbName := "taf_db"
+	dbName := "tars_db"
 	dbPort := "3306"
 	dbPass := "8788"
 	dbUser := "root"
@@ -67,7 +67,7 @@ func loadK8SDev(confPath, namespace string) (string, *rest.Config, error) {
 	return k8sNamespace, k8sConfig, nil
 }
 
-func loadTafDB() (*sql.DB, error) {
+func loadTarsDB() (*sql.DB, error) {
 	dbHost := os.Getenv("_DB_HOST_")
 	dbName := os.Getenv("_DB_NAME_")
 	dbPort := os.Getenv("_DB_PORT_")

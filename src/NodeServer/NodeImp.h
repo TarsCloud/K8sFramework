@@ -3,7 +3,7 @@
 // #include <Registry.h>
 #include "Node.h"
 
-using namespace taf;
+using namespace tars;
 using namespace std;
 
 class NodeImp : public Node {
@@ -37,7 +37,7 @@ public:
     * @param out result  失败说明
     * @return  int 0成功  非0失败
     */
-    int addFile(const string &application, const string &serverName, const string &file, string &result, JceCurrentPtr current) override;
+    int addFile(const string &application, const string &serverName, const string &file, string &result, CurrentPtr current) override;
 
     /**
     * 启动指定服务
@@ -45,7 +45,7 @@ public:
     * @param serverName  服务名
     * @return  int
     */
-    int startServer(const string &application, const string &serverName, string &result, JceCurrentPtr current) override;
+    int startServer(const string &application, const string &serverName, string &result, CurrentPtr current) override;
 
     /**
     * 停止指定服务
@@ -53,7 +53,7 @@ public:
     * @param serverName  服务名
     * @return  int
     */
-    int stopServer(const string &application, const string &serverName, string &result, JceCurrentPtr current) override;
+    int stopServer(const string &application, const string &serverName, string &result, CurrentPtr current) override;
 
     /**
     * 重启指定服务
@@ -62,7 +62,7 @@ public:
     * @param seconds  重启等待时间
     * @return  int
     */
-   int restartServer(const std::string &application, const std::string &serverName, std::string &result, taf::JceCurrentPtr current) override;
+   int restartServer(const std::string &application, const std::string &serverName, std::string &result, tars::CurrentPtr current) override;
 
     /**
      * 通知服务
@@ -73,6 +73,6 @@ public:
      *
      * @return int
      */
-    int notifyServer(const string &application, const string &serverName, const string &command, string &result, JceCurrentPtr current) override;
+    int notifyServer(const string &application, const string &serverName, const string &command, string &result, CurrentPtr current) override;
 };
 

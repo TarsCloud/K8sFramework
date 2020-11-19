@@ -33,7 +33,7 @@ func NewSelectServerAdapter(ctx *middleware.Context, handler SelectServerAdapter
 
 拉取服务servants，web=/server_adapter_select
 
-columns key=['ServerId', 'AdapterId', 'Name', 'Threads', 'Connections', 'Port', 'Capacity', 'Timeout', 'IsTaf', 'IsTcp',]
+columns key=['ServerId', 'AdapterId', 'Name', 'Threads', 'Connections', 'Port', 'Capacity', 'Timeout', 'IsTars', 'IsTcp',]
 
 */
 type SelectServerAdapter struct {

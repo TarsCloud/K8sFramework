@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "QueryF.h"
+#include "servant/QueryF.h"
 
-using namespace taf;
+using namespace tars;
 
 enum FUNID
 {
@@ -45,7 +45,7 @@ public:
      *
      * @return  返回所有该对象的活动endpoint列表
      */
-    vector<EndpointF> findObjectById(const std::string &id, taf::JceCurrentPtr current) override;
+    vector<EndpointF> findObjectById(const std::string &id, tars::CurrentPtr current) override;
 
     /**根据id获取所有对象,包括活动和非活动对象
      *
@@ -54,9 +54,9 @@ public:
      * @param inactiveEp 非存活endpoint列表
      * @return:  0-成功  others-失败
      */
-    taf::Int32
-    findObjectById4Any(const std::string &id, vector<taf::EndpointF> &activeEp, vector<taf::EndpointF> &inactiveEp,
-                       taf::JceCurrentPtr current) override;
+    tars::Int32
+    findObjectById4Any(const std::string &id, vector<tars::EndpointF> &activeEp, vector<tars::EndpointF> &inactiveEp,
+                       tars::CurrentPtr current) override;
 
     /** 根据id获取对象所有endpoint列表
      *
@@ -66,8 +66,8 @@ public:
      * @return:  0-成功  others-失败
      */
     Int32 findObjectById4All(const std::string &id,
-                             vector<taf::EndpointF> &activeEp, vector<taf::EndpointF> &inactiveEp,
-                             taf::JceCurrentPtr current) override;
+                             vector<tars::EndpointF> &activeEp, vector<tars::EndpointF> &inactiveEp,
+                             tars::CurrentPtr current) override;
 
     /** 根据id获取对象同组endpoint列表
     *
@@ -77,8 +77,8 @@ public:
     * @return:  0-成功  others-失败
     */
     Int32 findObjectByIdInSameGroup(const std::string &id,
-                                    vector<taf::EndpointF> &activeEp, vector<taf::EndpointF> &inactiveEp,
-                                    taf::JceCurrentPtr current) override;
+                                    vector<tars::EndpointF> &activeEp, vector<tars::EndpointF> &inactiveEp,
+                                    tars::CurrentPtr current) override;
 
     /** 根据id获取对象指定归属地的endpoint列表
      *
@@ -88,9 +88,9 @@ public:
      * @return:  0-成功  others-失败
      */
     Int32
-    findObjectByIdInSameStation(const std::string &id, const std::string &sStation, vector<taf::EndpointF> &activeEp,
-                                vector<taf::EndpointF> &inactiveEp,
-                                taf::JceCurrentPtr current) override;
+    findObjectByIdInSameStation(const std::string &id, const std::string &sStation, vector<tars::EndpointF> &activeEp,
+                                vector<tars::EndpointF> &inactiveEp,
+                                tars::CurrentPtr current) override;
 
     /** 根据id获取对象同set endpoint列表
     *
@@ -100,12 +100,12 @@ public:
     * @param inactiveEp 非存活endpoint列表
     * @return:  0-成功  others-失败
     */
-    Int32 findObjectByIdInSameSet(const std::string &id, const std::string &setId, vector<taf::EndpointF> &activeEp,
-                                  vector<taf::EndpointF> &inactiveEp,
-                                  taf::JceCurrentPtr current) override;
+    Int32 findObjectByIdInSameSet(const std::string &id, const std::string &setId, vector<tars::EndpointF> &activeEp,
+                                  vector<tars::EndpointF> &inactiveEp,
+                                  tars::CurrentPtr current) override;
 
  private:
-  void doDaylog(FUNID eFnId,const string& id,const vector<taf::EndpointF> &activeEp,
-                    const vector<taf::EndpointF> &inactiveEp, const taf::CurrentPtr& current,
+  void doDaylog(FUNID eFnId,const string& id,const vector<tars::EndpointF> &activeEp,
+                    const vector<tars::EndpointF> &inactiveEp, const tars::CurrentPtr& current,
                     const std::ostringstream& os,const string& sSetid="");
 };

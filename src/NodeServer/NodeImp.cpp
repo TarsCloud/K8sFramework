@@ -8,7 +8,7 @@
 void NodeImp::initialize() {
 }
 
-int NodeImp::startServer(const string &application, const string &serverName, string &result, JceCurrentPtr current) {
+int NodeImp::startServer(const string &application, const string &serverName, string &result, CurrentPtr current) {
 //    TLOG_DEBUG("startServer:" << application << "," << serverName << endl);
     auto pServerObjectPtr = ServerManger::instance().getServer(application, serverName);
     if (pServerObjectPtr == nullptr) {
@@ -18,7 +18,7 @@ int NodeImp::startServer(const string &application, const string &serverName, st
     return pServerObjectPtr->startServer(result);
 }
 
-int NodeImp::stopServer(const string &application, const string &serverName, string &result, JceCurrentPtr current) {
+int NodeImp::stopServer(const string &application, const string &serverName, string &result, CurrentPtr current) {
 //    TLOG_DEBUG("stopServer:" << application << "," << serverName << endl);
     auto pServerObjectPtr = ServerManger::instance().getServer(application, serverName);
     if (pServerObjectPtr == nullptr) {
@@ -28,7 +28,7 @@ int NodeImp::stopServer(const string &application, const string &serverName, str
     return pServerObjectPtr->stopServer(result);
 }
 
-int NodeImp::restartServer(const std::string &application, const std::string &serverName, std::string &result, taf::JceCurrentPtr current) {
+int NodeImp::restartServer(const std::string &application, const std::string &serverName, std::string &result, tars::CurrentPtr current) {
 //    TLOG_DEBUG("restartServer:" << application << "," << serverName << endl);
     auto pServerObjectPtr = ServerManger::instance().getServer(application, serverName);
     if (pServerObjectPtr == nullptr) {
@@ -38,7 +38,7 @@ int NodeImp::restartServer(const std::string &application, const std::string &se
     return pServerObjectPtr->restartServer(result);
 }
 
-int NodeImp::notifyServer(const string &application, const string &serverName, const string &sMsg, string &result, JceCurrentPtr current) {
+int NodeImp::notifyServer(const string &application, const string &serverName, const string &sMsg, string &result, CurrentPtr current) {
 //    TLOG_DEBUG("notifyServer:" << application << "," << serverName << endl);
     auto pServerObjectPtr = ServerManger::instance().getServer(application, serverName);
     if (pServerObjectPtr == nullptr) {
@@ -48,7 +48,7 @@ int NodeImp::notifyServer(const string &application, const string &serverName, c
     return pServerObjectPtr->notifyServer(sMsg, result);
 }
 
-int NodeImp::addFile(const string &application, const string &serverName, const string &file, string &result, JceCurrentPtr current) {
+int NodeImp::addFile(const string &application, const string &serverName, const string &file, string &result, CurrentPtr current) {
 //    TLOG_DEBUG("addFile:" << application << "." << serverName << ":" << file << endl);
     if (file.empty()) {
         result = FILE_FUN_STR + "file is empty" + file;

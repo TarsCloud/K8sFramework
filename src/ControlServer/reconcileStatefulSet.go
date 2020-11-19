@@ -10,7 +10,7 @@ import (
 	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/workqueue"
-	crdV1Alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
 	"time"
 )
 

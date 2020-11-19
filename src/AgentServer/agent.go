@@ -72,7 +72,7 @@ func StartHTTPServer()  {
 
 	err := srv.ListenAndServe()
 	if err != nil {
-		fmt.Println(fmt.Sprintf("taf-agent exited with %s.", err))
+		fmt.Println(fmt.Sprintf("tars-agent exited with %s.", err))
 	}
 }
 

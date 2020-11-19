@@ -3,7 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include <utility>
-#include <servant/taf_logger.h>
+#include <servant/RemoteLogger.h>
 
 // A custom implementation of the Clock concept from the standard C++ library.
 struct time_t_clock {

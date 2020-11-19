@@ -29,11 +29,11 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Taf Admin接口文档",
+    "description": "Tars Admin接口文档",
     "title": "TAF-K8S Admin",
     "version": "1.0.0"
   },
-  "host": "tafadmin.com",
+  "host": "tarsadmin.com",
   "basePath": "/admin/v1alpha1/",
   "paths": {
     "/affinities/nodes": {
@@ -1934,7 +1934,7 @@ func init() {
     },
     "/servers/servants": {
       "get": {
-        "description": "columns key=['ServerId', 'AdapterId', 'Name', 'Threads', 'Connections', 'Port', 'Capacity', 'Timeout', 'IsTaf', 'IsTcp',]",
+        "description": "columns key=['ServerId', 'AdapterId', 'Name', 'Threads', 'Connections', 'Port', 'Capacity', 'Timeout', 'IsTars', 'IsTcp',]",
         "tags": [
           "server-servant",
           "k8s"
@@ -2654,9 +2654,9 @@ func init() {
         },
         "ServerSubType": {
           "type": "string",
-          "default": "taf",
+          "default": "tars",
           "enum": [
-            "taf",
+            "tars",
             "normal"
           ]
         },
@@ -2680,7 +2680,7 @@ func init() {
           "maximum": 30000000,
           "minimum": 1
         },
-        "IsTaf": {
+        "IsTars": {
           "type": "boolean",
           "default": true
         },
@@ -2766,11 +2766,11 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Taf Admin接口文档",
+    "description": "Tars Admin接口文档",
     "title": "TAF-K8S Admin",
     "version": "1.0.0"
   },
-  "host": "tafadmin.com",
+  "host": "tarsadmin.com",
   "basePath": "/admin/v1alpha1/",
   "paths": {
     "/affinities/nodes": {
@@ -5187,7 +5187,7 @@ func init() {
     },
     "/servers/servants": {
       "get": {
-        "description": "columns key=['ServerId', 'AdapterId', 'Name', 'Threads', 'Connections', 'Port', 'Capacity', 'Timeout', 'IsTaf', 'IsTcp',]",
+        "description": "columns key=['ServerId', 'AdapterId', 'Name', 'Threads', 'Connections', 'Port', 'Capacity', 'Timeout', 'IsTars', 'IsTcp',]",
         "tags": [
           "server-servant",
           "k8s"
@@ -6347,9 +6347,9 @@ func init() {
         },
         "ServerSubType": {
           "type": "string",
-          "default": "taf",
+          "default": "tars",
           "enum": [
-            "taf",
+            "tars",
             "normal"
           ]
         },
@@ -6373,7 +6373,7 @@ func init() {
           "maximum": 30000000,
           "minimum": 1
         },
-        "IsTaf": {
+        "IsTars": {
           "type": "boolean",
           "default": true
         },

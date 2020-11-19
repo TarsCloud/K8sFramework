@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"tafadmin/openapi/models"
+	"tarsadmin/openapi/models"
 )
 
 // CreateServerConfigHandlerFunc turns a function with the right signature into a create server config handler

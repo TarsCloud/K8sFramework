@@ -1,5 +1,5 @@
 
-#include "servant/taf_logger.h"
+#include "servant/RemoteLogger.h"
 #include "K8SClient.h"
 
 class K8SClientSession {

@@ -8,11 +8,11 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/applications"
-	"tafadmin/openapi/restapi/operations/server"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/applications"
+	"tarsadmin/openapi/restapi/operations/server"
 )
 
 type SelectServerHandler struct {}
@@ -39,7 +39,7 @@ func (s *SelectServerHandler) Handle(params server.SelectServerParams) middlewar
 
 	allItems := make([]*crdv1alpha1.TServer, 0, 10)
 	if listAll {
-		requirements := BuildSubTypeTafSelector()
+		requirements := BuildSubTypeTarsSelector()
 		allItems, err = K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
 		if err != nil {
 			return server.NewSelectServerInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -195,7 +195,7 @@ func buildTServer(namespace, serverApp, serverName string, serverServant models.
 				Thread: obj.Threads,
 				Connection: obj.Connections,
 				Capacity: obj.Capacity,
-				IsTaf: *obj.IsTaf,
+				IsTars: *obj.IsTars,
 				IsTcp: *obj.IsTCP,
 				Timeout: obj.Timeout,
 			})
@@ -232,7 +232,7 @@ func buildTServer(namespace, serverApp, serverName string, serverServant models.
 			ValueFrom: &k8sCoreV1.EnvVarSource{
 				FieldRef: &k8sCoreV1.ObjectFieldSelector {
 					APIVersion: "v1",
-					FieldPath: "metadata.labels['taf.io/ServerApp']",
+					FieldPath: "metadata.labels['tars.io/ServerApp']",
 				},
 			},
 		},
@@ -251,11 +251,11 @@ func buildTServer(namespace, serverApp, serverName string, serverServant models.
 	Mounts := []crdv1alpha1.TK8SMount{
 		{
 			Name: "host-log-dir",
-			MountPath: "/usr/local/app/taf/app_log",
+			MountPath: "/usr/local/app/tars/app_log",
 			SubPathExpr: "$(Namespace).$(PodName)",
 			Source: k8sCoreV1.VolumeSource{
 				HostPath: &k8sCoreV1.HostPathVolumeSource {
-					Path: "/usr/local/app/taf/app_log",
+					Path: "/usr/local/app/tars/app_log",
 					Type: &HostPathType,
 				},
 			},
@@ -292,7 +292,7 @@ func buildTServer(namespace, serverApp, serverName string, serverServant models.
 			Server: serverName,
 			SubType: crdv1alpha1.TServerSubType(*serverOption.ServerSubType),
 			Important: *serverOption.ServerImportant,
-			Taf: &crdv1alpha1.TServerTaf{
+			Tars: &crdv1alpha1.TServerTars{
 				Template: serverOption.ServerTemplate,
 				Profile: serverOption.ServerProfile,
 				Foreground: false,

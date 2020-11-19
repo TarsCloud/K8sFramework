@@ -11,7 +11,7 @@ import (
 // 定时器，启动的时候执行一次，以后每天晚上12点执行
 func StartCronTabTask() {
 	// 清理log和core
-	dirs := []string{"/usr/local/app/taf/app_log/", "/usr/local/app/taf/app_log/"}
+	dirs := []string{"/usr/local/app/tars/app_log/", "/usr/local/app/tars/app_log/"}
 	patterns := []string{"*.log", "core.*"}
 	walkDirRemove(dirs, patterns)
 	// .....其他

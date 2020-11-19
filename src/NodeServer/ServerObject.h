@@ -9,12 +9,12 @@
 #include "util/tc_config.h"
 #include "servant/AdminF.h"
 #include "servant/NodeF.h"
-#include "servant/taf_logger.h"
+#include "servant/RemoteLogger.h"
 #include "util.h"
 #include "TimerTaskQueue.h"
 #include "ContainerDetail.h"
 
-using namespace taf;
+using namespace tars;
 using namespace std;
 
 class ServerObject : public std::enable_shared_from_this<ServerObject> {
@@ -116,7 +116,7 @@ public:
 
     void updateServerState();  // 用于周期性的被动上报
 
-    static void updateServerState(taf::ServerState settingState, ServerState presentState); //用于在状态变化时，主动上报;
+    static void updateServerState(tars::ServerState settingState, ServerState presentState); //用于在状态变化时，主动上报;
 
 private:
     //以_开头的函数都不加锁, 由调用方保证安全.

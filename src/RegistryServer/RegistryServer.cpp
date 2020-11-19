@@ -17,14 +17,14 @@ void RegistryServer::initialize() {
         auto TEndpointsWatcher = std::make_shared<K8SListWatchSession>(
                 IOContext::instance().getIOContext());
         std::string tendpointsWatchUrl =
-                std::string("/apis/k8s.taf.io/v1alpha1/namespaces/") + K8SRuntimeParams::interface().bindNamespace() + "/tendpoints";
+                std::string("/apis/k8s.tars.io/v1alpha1/namespaces/") + K8SRuntimeParams::interface().bindNamespace() + "/tendpoints";
         TEndpointsWatcher->setResourceUrl(tendpointsWatchUrl);
         TEndpointsWatcher->setCallBack(handleEndpointsEvent);
         TEndpointsWatcher->prepare();
 
         auto TTemplateWatcher = std::make_shared<K8SListWatchSession>(IOContext::instance().getIOContext());
         std::string podsWatchUrl =
-                std::string("/apis/k8s.taf.io/v1alpha1/namespaces/") + K8SRuntimeParams::interface().bindNamespace() + "/ttemplates";
+                std::string("/apis/k8s.tars.io/v1alpha1/namespaces/") + K8SRuntimeParams::interface().bindNamespace() + "/ttemplates";
         TTemplateWatcher->setResourceUrl(podsWatchUrl);
         TTemplateWatcher->setCallBack(handleTemplateEvent);
         TTemplateWatcher->prepare();
@@ -66,12 +66,12 @@ void RegistryServer::initialize() {
               << "/status";
     const std::string url = strStream.str();
     strStream.str("");
-    strStream << R"({"status":{"conditions":[{"type":"taf.io/active","status":"True","reason":"Active/Active"}]}})";
+    strStream << R"({"status":{"conditions":[{"type":"tars.io/active","status":"True","reason":"Active/Active"}]}})";
     K8SClient::instance().postTask(StrategicMergePatch, url, strStream.str());
 
     try {
-        constexpr char FIXED_QUERY_SERVANT[] = "taf.tafregistry.QueryObj";
-        constexpr char FIXED_REGISTRY_SERVANT[] = "taf.tafregistry.RegistryObj";
+        constexpr char FIXED_QUERY_SERVANT[] = "tars.tarsregistry.QueryObj";
+        constexpr char FIXED_REGISTRY_SERVANT[] = "tars.tarsregistry.RegistryObj";
         addServant<QueryImp>(FIXED_QUERY_SERVANT);
         addServant<RegistryImp>(FIXED_REGISTRY_SERVANT);
     }

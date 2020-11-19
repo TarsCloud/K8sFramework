@@ -3,17 +3,17 @@ package k8s
 import (
 	"bytes"
 	"fmt"
-	tafConf "github.com/TarsCloud/TarsGo/tars/util/conf"
+	tarsConf "github.com/TarsCloud/TarsGo/tars/util/conf"
 	"github.com/go-openapi/runtime/middleware"
 	"golang.org/x/net/context"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"runtime"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/server"
-	"tafadmin/openapi/restapi/operations/server_option"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/server"
+	"tarsadmin/openapi/restapi/operations/server_option"
 )
 
 type SelectServerOptionHandler struct {}
@@ -39,7 +39,7 @@ func (s *SelectServerOptionHandler) Handle(params server_option.SelectServerOpti
 
 	filterItems := make([]*crdv1alpha1.TServer, 0, 10)
 	if listAll {
-		requirements := BuildSubTypeTafSelector()
+		requirements := BuildSubTypeTarsSelector()
 		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
 		if err != nil {
 			return server_option.NewSelectServerOptionInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -77,9 +77,9 @@ func (s *SelectServerOptionHandler) Handle(params server_option.SelectServerOpti
 		elem["ServerApp"] = item.Spec.App
 		elem["ServerName"] = item.Spec.Server
 		elem["ServerImportant"] = item.Spec.Important
-		elem["ServerTemplate"] = item.Spec.Taf.Template
-		elem["ServerProfile"] = item.Spec.Taf.Profile
-		elem["AsyncThread"] = item.Spec.Taf.AsyncThread
+		elem["ServerTemplate"] = item.Spec.Tars.Template
+		elem["ServerProfile"] = item.Spec.Tars.Profile
+		elem["AsyncThread"] = item.Spec.Tars.AsyncThread
 		result.Data = append(result.Data, elem)
 	}
 
@@ -98,15 +98,15 @@ func (s *UpdateServerOptionHandler) Handle(params server_option.UpdateServerOpti
 		return server_option.NewUpdateServerOptionInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
 
-	if equalServerOption(tServer.Spec.Taf, tServer.Spec.Important, params.Params.Target) {
+	if equalServerOption(tServer.Spec.Tars, tServer.Spec.Important, params.Params.Target) {
 		return server_option.NewUpdateServerOptionInternalServerError().WithPayload(&models.Error{Code: -1, Message: "No Need To Update Duplicated Option. "})
 	}
 
 	tServerCopy := tServer.DeepCopy()
 	tServerCopy.Spec.Important = *params.Params.Target.ServerImportant
-	tServerCopy.Spec.Taf.Template = params.Params.Target.ServerTemplate
-	tServerCopy.Spec.Taf.Profile = params.Params.Target.ServerProfile
-	tServerCopy.Spec.Taf.AsyncThread = *params.Params.Target.AsyncThread
+	tServerCopy.Spec.Tars.Template = params.Params.Target.ServerTemplate
+	tServerCopy.Spec.Tars.Profile = params.Params.Target.ServerProfile
+	tServerCopy.Spec.Tars.AsyncThread = *params.Params.Target.AsyncThread
 
 	tServerInterface := K8sOption.CrdClientSet.CrdV1alpha1().TServers(namespace)
 	if _, err = tServerInterface.Update(context.TODO(), tServerCopy, k8sMetaV1.UpdateOptions{}); err != nil {
@@ -126,8 +126,8 @@ func (s *DoPreviewTemplateContentHandler) Handle(params server_option.DoPreviewT
 		return server_option.NewDoPreviewTemplateContentInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
 
-	profile := []byte(tServer.Spec.Taf.Profile)
-	templateName := tServer.Spec.Taf.Template
+	profile := []byte(tServer.Spec.Tars.Profile)
+	templateName := tServer.Spec.Tars.Template
 
 	allTemplateContent := make([][]byte, 0, 10)
 	allTemplateContent = append(allTemplateContent, profile)
@@ -168,7 +168,7 @@ func (s *DoPreviewTemplateContentHandler) Handle(params server_option.DoPreviewT
 		return s
 	}
 	allTemplateContent = reverseSliceFun(allTemplateContent)
-	conf := tafConf.New()
+	conf := tarsConf.New()
 	afterJoinTemplateContent := bytes.Join(allTemplateContent, nil)
 
 	if err := conf.InitFromBytes(afterJoinTemplateContent); err != nil {
@@ -180,17 +180,17 @@ func (s *DoPreviewTemplateContentHandler) Handle(params server_option.DoPreviewT
 	return server_option.NewDoPreviewTemplateContentOK().WithPayload(&server_option.DoPreviewTemplateContentOKBody{Result: conf.ToString()})
 }
 
-func equalServerOption(serverTaf *crdv1alpha1.TServerTaf, serverImportant int32, newOption *models.ServerOption) bool {
-	if serverTaf.Template != newOption.ServerTemplate {
+func equalServerOption(serverTars *crdv1alpha1.TServerTars, serverImportant int32, newOption *models.ServerOption) bool {
+	if serverTars.Template != newOption.ServerTemplate {
 		return false
 	}
-	if serverTaf.Profile != newOption.ServerProfile {
+	if serverTars.Profile != newOption.ServerProfile {
 		return false
 	}
 	if serverImportant != *newOption.ServerImportant {
 		return false
 	}
-	if serverTaf.AsyncThread != *newOption.AsyncThread {
+	if serverTars.AsyncThread != *newOption.AsyncThread {
 		return false
 	}
 	return true

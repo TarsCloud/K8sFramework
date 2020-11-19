@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	k8sAdmissionV1 "k8s.io/api/admission/v1"
-	crdV1Alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
 	"net/http"
 )
 
@@ -21,7 +21,7 @@ func mutatingCreateTDeploy(requestAdmissionView *k8sAdmissionV1.AdmissionReview)
 	var patchContents = make([][]byte, 0, 10)
 	patchContents = append(patchContents, []byte{'['})
 
-	patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/taf.io~1Approve\",\"value\":\"Pending\"}")))
+	patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/tars.io~1Approve\",\"value\":\"Pending\"}")))
 	patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"remove\",\"path\":\"/approve\"}")))
 	patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"remove\",\"path\":\"/deployed\"}")))
 
@@ -41,9 +41,9 @@ func mutatingUpdateTDeploy(requestAdmissionView *k8sAdmissionV1.AdmissionReview)
 
 	if tdeploy.Approve != nil {
 		if !tdeploy.Approve.Result {
-			patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/taf.io~1Approve\",\"value\":\"Reject\"}")))
+			patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/tars.io~1Approve\",\"value\":\"Reject\"}")))
 		} else {
-			patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/taf.io~1Approve\",\"value\":\"Approved\"}")))
+			patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/tars.io~1Approve\",\"value\":\"Approved\"}")))
 		}
 	}
 
@@ -64,15 +64,15 @@ func mutatingCreateTServer(requestAdmissionView *k8sAdmissionV1.AdmissionReview)
 	var patchContents = make([][]byte, 0, 10)
 	patchContents = append(patchContents, []byte{'['})
 
-	patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/taf.io~1ServerApp\", \"value\": \"%s\"}", server.Spec.App)))
+	patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/tars.io~1ServerApp\", \"value\": \"%s\"}", server.Spec.App)))
 
-	patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/taf.io~1ServerName\", \"value\": \"%s\"}", server.Spec.Server)))
+	patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/tars.io~1ServerName\", \"value\": \"%s\"}", server.Spec.Server)))
 
-	patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/taf.io~1SubType\", \"value\": \"%s\"}", server.Spec.SubType)))
+	patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/tars.io~1SubType\", \"value\": \"%s\"}", server.Spec.SubType)))
 
-	if server.Spec.Taf != nil {
-		patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/taf.io~1Template\", \"value\": \"%s\"}", server.Spec.Taf.Template)))
-		if !server.Spec.Taf.Foreground && server.Spec.K8S.ReadinessGate == nil {
+	if server.Spec.Tars != nil {
+		patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/tars.io~1Template\", \"value\": \"%s\"}", server.Spec.Tars.Template)))
+		if !server.Spec.Tars.Foreground && server.Spec.K8S.ReadinessGate == nil {
 			patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\":\"/spec/k8s/readinessGate\",\"value\":\"%s\"}", TPodReadinessGate)))
 		}
 	}
@@ -80,8 +80,8 @@ func mutatingCreateTServer(requestAdmissionView *k8sAdmissionV1.AdmissionReview)
 	if server.Spec.Release == nil {
 		patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\":\"/spec/k8s/replicas\",\"value\": %d}", 0)))
 	} else {
-		patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/taf.io~1ReleaseSource\", \"value\": \"%s\"}", server.Spec.Release.Source)))
-		patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/taf.io~1ReleaseTag\", \"value\": \"%s\"}", server.Spec.Release.Tag)))
+		patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/tars.io~1ReleaseSource\", \"value\": \"%s\"}", server.Spec.Release.Source)))
+		patchContents = append(patchContents, []byte(fmt.Sprintf(",{\"op\": \"add\", \"path\": \"/metadata/labels/tars.io~1ReleaseTag\", \"value\": \"%s\"}", server.Spec.Release.Tag)))
 	}
 
 	if len(server.Spec.K8S.HostPorts) > 0 || server.Spec.K8S.HostIPC {
@@ -106,12 +106,12 @@ func mutatingCreateTConfig(requestAdmissionView *k8sAdmissionV1.AdmissionReview)
 	patchContents = append(patchContents, []byte{'['})
 
 	if tconfig.ServerConfig != nil {
-		patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/taf.io~1ServerApp\",\"value\":%s}", tconfig.ServerConfig.App)))
-		patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/taf.io~1ServerName\",\"value\":%s}", tconfig.ServerConfig.Server)))
+		patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/tars.io~1ServerApp\",\"value\":%s}", tconfig.ServerConfig.App)))
+		patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/tars.io~1ServerName\",\"value\":%s}", tconfig.ServerConfig.Server)))
 	}
 
 	if tconfig.AppConfig != nil {
-		patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/taf.io~1ServerApp\",\"value\":%s}", tconfig.ServerConfig.App)))
+		patchContents = append(patchContents, []byte(fmt.Sprintf("{\"op\":\"add\",\"path\":\"/metadata/labels/tars.io~1ServerApp\",\"value\":%s}", tconfig.ServerConfig.App)))
 	}
 
 	if len(patchContents) == 1 {

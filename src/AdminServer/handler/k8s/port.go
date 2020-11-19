@@ -5,8 +5,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"io/ioutil"
 	"net/http"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/agent"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/agent"
 )
 
 type SelectAvailHostPortHandler struct {}
@@ -18,11 +18,11 @@ func (s *SelectAvailHostPortHandler) Handle(params agent.SelectAvailHostPortPara
 	}
 	containers := pod.Spec.Containers
 	if len(containers) <= 0 {
-		return agent.NewSelectAvailHostPortInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("%s.%s Has No Container.", *params.NodeName, TafAgentDaemonSetName)})
+		return agent.NewSelectAvailHostPortInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("%s.%s Has No Container.", *params.NodeName, TarsAgentDaemonSetName)})
 	}
 	ports := containers[0].Ports
 	if len(ports) <= 0 {
-		return agent.NewSelectAvailHostPortInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("%s.%s Has No Host Port.", *params.NodeName, TafAgentDaemonSetName)})
+		return agent.NewSelectAvailHostPortInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("%s.%s Has No Host Port.", *params.NodeName, TarsAgentDaemonSetName)})
 	}
 
 	hostIp := pod.Status.HostIP

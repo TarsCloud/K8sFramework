@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 
-cd /tars-k8s-src/TafCpp || exit 255
+cd /tars-src/TarsFramework || exit 255
 
-sh ./bootstrap.sh || exit 255
+sh ../bootstrap.sh || exit 255
 
-cp build_release/tars-cpp-framework/servers/tarslog/bin/tarslog /tars-k8s-binary || exit 255
+cp build_release/servers/tarslog/bin/tarslog /tars-k8s-binary || exit 255
 
-cp build_release/tars-cpp-framework/servers/tarsstat/bin/tarsstat /tars-k8s-binary || exit 255
+cp build_release/servers/tarsstat/bin/tarsstat /tars-k8s-binary || exit 255
 
-cp build_release/tars-cpp-framework/servers/tarsquerystat/bin/tarsquerystat /tars-k8s-binary || exit 255
+cp build_release/servers/tarsquerystat/bin/tarsquerystat /tars-k8s-binary || exit 255
 
-cp build_release/tars-cpp-framework/servers/tarsproperty/bin/tarsproperty /tars-k8s-binary || exit 255
-cp build_release/tars-cpp-framework/servers/tarsqueryproperty/bin/tarsqueryproperty /tars-k8s-binary || exit 255
+cp build_release/servers/tarsproperty/bin/tarsproperty /tars-k8s-binary || exit 255
+cp build_release/servers/tarsqueryproperty/bin/tarsqueryproperty /tars-k8s-binary || exit 255
 
-cd /tars-k8s-src || exit 255
-cmake . || exit 255
+cd ../src || exit 255
+mkdir build_tmp || exit 255
+cd build_tmp || exit 255
+cmake .. || exit 255
 make -j4 || exit 255
 
 cp bin/tarsadmin /tars-k8s-binary || exit 255

@@ -10,9 +10,9 @@ import (
 	k8sSchema "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/remotecommand"
 	"net/http"
-	"tafadmin/handler/websocket"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/shell"
+	"tarsadmin/handler/websocket"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/shell"
 )
 
 type SSHPodShellHandler struct {}
@@ -32,12 +32,12 @@ func (s *SSHPodShellHandler) Handle(params shell.SSHPodShellParams) middleware.R
 
 		podName := *params.PodName
 
-		sh := fmt.Sprintf("#!/bin/sh\n\ndir=/usr/local/app/taf/app_log/%s/%s\n\nif [ -d $dir ]; then\n  cd $dir\nfi\n\nif [ ! -f /bin/bash ]; then\n  sh\nelse\n  bash\nfi\n",
+		sh := fmt.Sprintf("#!/bin/sh\n\ndir=/usr/local/app/tars/app_log/%s/%s\n\nif [ -d $dir ]; then\n  cd $dir\nfi\n\nif [ ! -f /bin/bash ]; then\n  sh\nelse\n  bash\nfi\n",
 			*params.AppName, *params.ServerName)
 
-		// 历史pod只能通过taf-agent容器进入查看日志
+		// 历史pod只能通过tars-agent容器进入查看日志
 		if *params.History {
-			sh	= fmt.Sprintf("#!/bin/sh\n\ndir=/usr/local/app/taf/app_log/%s/%s/%s\n\nif [ -d $dir ]; then\n  cd $dir\nfi\n\nif [ ! -f /bin/bash ]; then\n  sh\nelse\n  bash\nfi\n",
+			sh	= fmt.Sprintf("#!/bin/sh\n\ndir=/usr/local/app/tars/app_log/%s/%s/%s\n\nif [ -d $dir ]; then\n  cd $dir\nfi\n\nif [ ! -f /bin/bash ]; then\n  sh\nelse\n  bash\nfi\n",
 				podName, *params.AppName, *params.ServerName)
 
 			pod, ok	:= getDaemonPodByIp(*params.NodeIP)
@@ -104,7 +104,7 @@ func getDaemonPodByIp(nodeIp string) (*k8sCoreV1.Pod, bool) {
 }
 
 func getDaemonPodByField(fun func(pod *k8sCoreV1.Pod) bool) (*k8sCoreV1.Pod, bool) {
-	requirement, err := labels.NewRequirement("app", selection.DoubleEquals, []string{TafAgentDaemonSetName})
+	requirement, err := labels.NewRequirement("app", selection.DoubleEquals, []string{TarsAgentDaemonSetName})
 	if err != nil {
 		return nil, false
 	}

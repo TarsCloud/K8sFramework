@@ -6,10 +6,10 @@ import (
 	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/template"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/template"
 )
 
 type CreateTemplateHandler struct {}

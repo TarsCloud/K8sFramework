@@ -1,4 +1,4 @@
 
-gen_server(taf tafconfig)
+gen_server(tars tarsconfig)
 
-target_link_libraries(tafconfig ${LIB_MYSQL}) 
+target_link_libraries(tarsconfig ${LIB_MYSQL}) 

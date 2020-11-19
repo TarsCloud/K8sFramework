@@ -22,7 +22,7 @@ public:
         constexpr char caFile[] = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt";
         constexpr char namespaceFile[] = "/var/run/secrets/kubernetes.io/serviceaccount/namespace";
 
-        std::string cert = taf::TC_File::load2str(caFile);
+        std::string cert = tars::TC_File::load2str(caFile);
 
         _apiServerIp = getenv(kubernetesServiceHostEnv);
 
@@ -34,9 +34,9 @@ public:
 
         _apiServerPort = std::stoi(port);
 
-        _token = taf::TC_File::load2str(tokenFile);
+        _token = tars::TC_File::load2str(tokenFile);
 
-        _namespace = taf::TC_File::load2str(namespaceFile);
+        _namespace = tars::TC_File::load2str(namespaceFile);
     }
 
     const std::string &bindToken() {

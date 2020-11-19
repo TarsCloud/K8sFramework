@@ -4,9 +4,9 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"k8s.io/apimachinery/pkg/labels"
 	"sort"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/tree"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/tree"
 )
 
 type SelectServerTreeHandler struct {}
@@ -21,7 +21,7 @@ func (s *SelectServerTreeHandler) Handle(params tree.SelectServerTreeParams) mid
 
 	var lastBusiness string
 
-	requirements := BuildSubTypeTafSelector()
+	requirements := BuildSubTypeTarsSelector()
 	list, err := K8sWatcher.tServerLister.TServers(namespace).List(labels.NewSelector().Add(requirements ...))
 	if err != nil {
 		return tree.NewSelectServerTreeInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -51,7 +51,7 @@ func (s *SelectServerTreeHandler) Handle(params tree.SelectServerTreeParams) mid
 		App:          make([]*models.AppElem, 0, 10),
 	}
 
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
 	if err != nil {
 		return tree.NewSelectServerTreeInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}

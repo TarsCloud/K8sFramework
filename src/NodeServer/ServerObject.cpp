@@ -19,7 +19,7 @@ int ServerObject::MetaData::updateConfFromDescriptor(const ServerDescriptor &des
     TC_Config tConf;
     try {
         m["node"] = FIXED_NODE_PROXY_NAME;
-        tConf.insertDomainParam("/taf/application/server", m, true);
+        tConf.insertDomainParam("/tars/application/server", m, true);
 
         for (const auto &pair: descriptor.adapters) {
             _vAdapter.push_back(pair.first);
@@ -32,7 +32,7 @@ int ServerObject::MetaData::updateConfFromDescriptor(const ServerDescriptor &des
             m["threads"] = TC_Common::tostr(pair.second.threadNum);
             m["servant"] = TC_Common::tostr(pair.second.servant);
             m["protocol"] = pair.second.protocol;
-            tConf.insertDomainParam("/taf/application/server/" + pair.first, m, true);
+            tConf.insertDomainParam("/tars/application/server/" + pair.first, m, true);
         }
         _vAdapter.emplace_back("AdminAdapter");
 
@@ -78,21 +78,21 @@ int ServerObject::MetaData::updateConfFromDescriptor(const ServerDescriptor &des
 }
 
 int ServerObject::MetaData::loadConf(TC_Config &tConf) {
-    constexpr char TARS_JAVA[] = "taf_java";
+    constexpr char TARS_JAVA[] = "tars_java";
     try {
         if (strncmp(_sServerType.c_str(), TARS_JAVA, sizeof(TARS_JAVA) - 1) == 0) {
-            std::string sJvmParams = tConf.get("/taf/application/server<jvmparams>", "");
+            std::string sJvmParams = tConf.get("/tars/application/server<jvmparams>", "");
             _sServerLauncherArgv = TC_Common::replace(_sServerLauncherArgv, "#{jvmparams}", sJvmParams);
 
-            std::string sMainClass = tConf.get("/taf/application/server<mainclass>", "");
+            std::string sMainClass = tConf.get("/tars/application/server<mainclass>", "");
             _sServerLauncherArgv = TC_Common::replace(_sServerLauncherArgv, "#{mainclass}", sMainClass);
 
-            std::string sClassPath = tConf.get("/taf/application/server<classpath>", "");
+            std::string sClassPath = tConf.get("/tars/application/server<classpath>", "");
             _sServerLauncherArgv = TC_Common::replace(_sServerLauncherArgv, "#{classpath}", sClassPath);
         }
 
-        _sServerLauncherEnv = tConf.get("/taf/application/server<env>", "");
-        _iTimeout = TC_Common::strto<int>(tConf.get("/taf/application/server<hearttimeout>", "60"));
+        _sServerLauncherEnv = tConf.get("/tars/application/server<env>", "");
+        _iTimeout = TC_Common::strto<int>(tConf.get("/tars/application/server<hearttimeout>", "60"));
     }
     catch (const exception &e) {
         LOG->error() << FILE_FUN << e.what() << endl;
@@ -159,7 +159,7 @@ ServerObject::ProcessStatus ServerObject::_doStart(std::string &result) {
     } while (false);
 
     if (!activateOk) {
-        _runtimeData.presentState = taf::ServerState::Inactive;
+        _runtimeData.presentState = tars::ServerState::Inactive;
         updateServerState(_runtimeData.settingState, _runtimeData.presentState);
         result = "activate server error, " + _metaData._sServerApp + ":" + _metaData._sServerName;
         return ProcessStatus::Error;
@@ -366,9 +366,9 @@ int ServerObject::addFile(string sFile, std::string &result) {
 
     string sFileName = TC_File::extractFileName(sFile);
 
-    TafRemoteConfig tTafRemoteConfig;
-    tTafRemoteConfig.setConfigInfo(ServerConfig::Config, _metaData._sServerApp, _metaData._sServerName, _metaData._sServerBaseDir, "");
-    return tTafRemoteConfig.addConfig(sFileName, result);
+    TarsRemoteConfig tTarsRemoteConfig;
+    tTarsRemoteConfig.setConfigInfo(Application::getCommunicator(), ServerConfig::Config, _metaData._sServerApp, _metaData._sServerName, _metaData._sServerBaseDir, "");
+    return tTarsRemoteConfig.addConfig(sFileName, result);
 }
 
 void ServerObject::_kill() {
@@ -469,7 +469,7 @@ void ServerObject::updateServerState() {
     }
 }
 
-void ServerObject::updateServerState(ServerState settingState, taf::ServerState presentState) {
+void ServerObject::updateServerState(ServerState settingState, tars::ServerState presentState) {
     TimerTaskQueue::instance().pushTimerTask([settingState, presentState] {
         try {
             auto ptr = ProxyManger::instance().getRegistryProxy();

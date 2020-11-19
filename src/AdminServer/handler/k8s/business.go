@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"github.com/go-openapi/runtime/middleware"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/business"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/business"
 )
 
 type CreateBusinessHandler struct {}
@@ -18,7 +18,7 @@ func (s *CreateBusinessHandler) Handle(params business.CreateBusinessParams) mid
 	namespace := K8sOption.Namespace
 	metadata := params.Params.Metadata
 
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
 	if err != nil {
 		return business.NewCreateBusinessInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
@@ -38,7 +38,7 @@ type SelectBusinessHandler struct {}
 func (s *SelectBusinessHandler) Handle(params business.SelectBusinessParams) middleware.Responder {
 	namespace := K8sOption.Namespace
 
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
 	if err != nil {
 		return business.NewSelectBusinessInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
@@ -175,7 +175,7 @@ func (s *DoListBusinessAppHandler) Handle(params business.DoListBusinessAppParam
 	}
 
 
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
 	if err != nil {
 		return business.NewDoListBusinessAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
@@ -213,12 +213,12 @@ func (s *DoAddBusinessAppHandler) Handle(params business.DoAddBusinessAppParams)
 	namespace := K8sOption.Namespace
 	metadata := params.Params.Metadata
 
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
 	if err != nil {
 		return business.NewDoAddBusinessAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
 
-	appMap := make(map[string]*crdv1alpha1.TTreeApps, len(tTree.Apps))
+	appMap := make(map[string]*crdv1alpha1.TTreeApp, len(tTree.Apps))
 	for i, app := range tTree.Apps {
 		appMap[app.Name] = &tTree.Apps[i]
 	}
@@ -237,7 +237,7 @@ func (s *DoAddBusinessAppHandler) Handle(params business.DoAddBusinessAppParams)
 }
 
 func getBuzNameIndex(namespace, buzName string) (*crdv1alpha1.TTree, int, error)  {
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
 	if err != nil {
 		return nil, -1, err
 	}

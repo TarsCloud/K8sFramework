@@ -6,11 +6,11 @@ import (
 	"golang.org/x/net/context"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.taf.io/crd/v1alpha1"
+	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"strings"
-	"tafadmin/handler/util"
-	"tafadmin/openapi/models"
-	"tafadmin/openapi/restapi/operations/server_servant"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/server_servant"
 )
 
 type CreateServerAdapterHandler struct {}
@@ -29,7 +29,7 @@ func (s *CreateServerAdapterHandler) Handle(params server_servant.CreateServerAd
 	for _, target := range metadata.Servant {
 		var adapter crdv1alpha1.TServant
 		adapter.Name = target.Name
-		adapter.IsTaf = *target.IsTaf
+		adapter.IsTars = *target.IsTars
 		adapter.IsTcp = *target.IsTCP
 		adapter.Timeout = target.Timeout
 		adapter.Capacity = target.Capacity
@@ -38,7 +38,7 @@ func (s *CreateServerAdapterHandler) Handle(params server_servant.CreateServerAd
 		adapter.Thread = target.Threads
 		Servants = append(Servants, adapter)
 	}
-	tServerCopy.Spec.Taf.Servants = append(tServerCopy.Spec.Taf.Servants, Servants ...)
+	tServerCopy.Spec.Tars.Servants = append(tServerCopy.Spec.Tars.Servants, Servants ...)
 
 	tServerInterface := K8sOption.CrdClientSet.CrdV1alpha1().TServers(namespace)
 	if _, err = tServerInterface.Update(context.TODO(), tServerCopy, k8sMetaV1.UpdateOptions{}); err != nil {
@@ -71,7 +71,7 @@ func (s *SelectServerAdapterHandler) Handle(params server_servant.SelectServerAd
 
 	allServerItems := make([]*crdv1alpha1.TServer, 0, 10)
 	if listAll {
-		requirements := BuildSubTypeTafSelector()
+		requirements := BuildSubTypeTarsSelector()
 		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
 		if err != nil {
 			return server_servant.NewSelectServerAdapterInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -88,7 +88,7 @@ func (s *SelectServerAdapterHandler) Handle(params server_servant.SelectServerAd
 
 	allItems := make([]crdv1alpha1.TServant, 0, len(allServerItems))
 	for _, Server := range allServerItems {
-		for _, Servant := range Server.Spec.Taf.Servants {
+		for _, Servant := range Server.Spec.Tars.Servants {
 			Servant.Name = getAdapterId(util.GetServerId(Server.Spec.App, Server.Spec.Server), Servant.Name)
 			allItems = append(allItems, Servant)
 		}
@@ -106,8 +106,8 @@ func (s *SelectServerAdapterHandler) Handle(params server_servant.SelectServerAd
 				if ok && pattern != elem.Name{
 					continue
 				}
-				pattern, ok = selectParams.Filter.Eq["IsTaf"]
-				if ok && pattern != elem.IsTaf{
+				pattern, ok = selectParams.Filter.Eq["IsTars"]
+				if ok && pattern != elem.IsTars{
 					continue
 				}
 				pattern, ok = selectParams.Filter.Eq["IsTcp"]
@@ -155,7 +155,7 @@ func (s *SelectServerAdapterHandler) Handle(params server_servant.SelectServerAd
 		elem["Port"] = item.Port
 		elem["Capacity"] = item.Capacity
 		elem["Timeout"] = item.Timeout
-		elem["IsTaf"] = item.IsTaf
+		elem["IsTars"] = item.IsTars
 		elem["IsTcp"] = item.IsTcp
 		result.Data = append(result.Data, elem)
 	}
@@ -184,7 +184,7 @@ func (s *UpdateServerAdapterHandler) Handle(params server_servant.UpdateServerAd
 	}
 
 	index := -1
-	for i, adapter := range tServer.Spec.Taf.Servants {
+	for i, adapter := range tServer.Spec.Tars.Servants {
 		if adapter.Name == AdapterName {
 			index = i
 		}
@@ -194,19 +194,19 @@ func (s *UpdateServerAdapterHandler) Handle(params server_servant.UpdateServerAd
 	}
 
 	target := params.Params.Target
-	if equalServerAdapter(&tServer.Spec.Taf.Servants[index], target) {
+	if equalServerAdapter(&tServer.Spec.Tars.Servants[index], target) {
 		return server_servant.NewUpdateServerAdapterInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("No Need To Update Duplicated AdapterId: %s. ", *metadata.AdapterID)})
 	}
 
 	tServerCopy := tServer.DeepCopy()
-	tServerCopy.Spec.Taf.Servants[index].Name = target.Name
-	tServerCopy.Spec.Taf.Servants[index].IsTaf = *target.IsTaf
-	tServerCopy.Spec.Taf.Servants[index].IsTcp = *target.IsTCP
-	tServerCopy.Spec.Taf.Servants[index].Timeout = target.Timeout
-	tServerCopy.Spec.Taf.Servants[index].Capacity = target.Capacity
-	tServerCopy.Spec.Taf.Servants[index].Port = target.Port
-	tServerCopy.Spec.Taf.Servants[index].Connection = target.Connections
-	tServerCopy.Spec.Taf.Servants[index].Thread = target.Threads
+	tServerCopy.Spec.Tars.Servants[index].Name = target.Name
+	tServerCopy.Spec.Tars.Servants[index].IsTars = *target.IsTars
+	tServerCopy.Spec.Tars.Servants[index].IsTcp = *target.IsTCP
+	tServerCopy.Spec.Tars.Servants[index].Timeout = target.Timeout
+	tServerCopy.Spec.Tars.Servants[index].Capacity = target.Capacity
+	tServerCopy.Spec.Tars.Servants[index].Port = target.Port
+	tServerCopy.Spec.Tars.Servants[index].Connection = target.Connections
+	tServerCopy.Spec.Tars.Servants[index].Thread = target.Threads
 
 	tServerInterface := K8sOption.CrdClientSet.CrdV1alpha1().TServers(namespace)
 	if _, err = tServerInterface.Update(context.TODO(), tServerCopy, k8sMetaV1.UpdateOptions{}); err != nil {
@@ -232,7 +232,7 @@ func (s *DeleteServerAdapterHandler) Handle(params server_servant.DeleteServerAd
 	}
 
 	index := -1
-	for i, adapter := range tServer.Spec.Taf.Servants {
+	for i, adapter := range tServer.Spec.Tars.Servants {
 		if adapter.Name == AdapterName {
 			index = i
 		}
@@ -242,7 +242,7 @@ func (s *DeleteServerAdapterHandler) Handle(params server_servant.DeleteServerAd
 	}
 
 	tServerCopy := tServer.DeepCopy()
-	tServerCopy.Spec.Taf.Servants = append(tServerCopy.Spec.Taf.Servants[0:index], tServerCopy.Spec.Taf.Servants[index+1:] ...)
+	tServerCopy.Spec.Tars.Servants = append(tServerCopy.Spec.Tars.Servants[0:index], tServerCopy.Spec.Tars.Servants[index+1:] ...)
 
 	tServerInterface := K8sOption.CrdClientSet.CrdV1alpha1().TServers(namespace)
 	if _, err = tServerInterface.Update(context.TODO(), tServerCopy, k8sMetaV1.UpdateOptions{}); err != nil {
@@ -278,7 +278,7 @@ func equalServerAdapter(oldAdapter *crdv1alpha1.TServant, newAdapter *models.Ser
 	if oldAdapter.IsTcp != *newAdapter.IsTCP {
 		return false
 	}
-	if oldAdapter.IsTaf != *newAdapter.IsTaf {
+	if oldAdapter.IsTars != *newAdapter.IsTars {
 		return false
 	}
 	return true

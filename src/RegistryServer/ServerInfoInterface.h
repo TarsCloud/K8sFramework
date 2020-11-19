@@ -36,7 +36,7 @@ struct Adapter {
     uint timeout;
     uint capacity;
     bool isTcp;
-    bool isTaf;
+    bool isTars;
 };
 
 struct ExternalUpstream {
@@ -52,12 +52,12 @@ struct NormalPort {
 };
 
 struct UpChain {
-    std::unordered_map<string, std::vector<taf::EndpointF>> customUpChain;
-    std::vector<taf::EndpointF> defaultUpChain;
+    std::unordered_map<string, std::vector<tars::EndpointF>> customUpChain;
+    std::vector<tars::EndpointF> defaultUpChain;
 };
 
 
-struct TafInfo {
+struct TarsInfo {
     int asyncThread;
     std::string profileContent;
     std::string templateName;
@@ -85,7 +85,7 @@ struct ExternalInfo {
 };
 
 enum class ServerSubType {
-    Taf,
+    Tars,
     DCache,
     DCacheDBAccess,
     DCacheProxy,
@@ -98,7 +98,7 @@ struct ServerInfo {
     ServerSubType subType{};
     std::string serverApp{};
     std::string serverName{};
-    std::shared_ptr<TafInfo> tafInfo{};
+    std::shared_ptr<TarsInfo> tarsInfo{};
     std::shared_ptr<DCacheInfo> dCacheInfo{};
     std::shared_ptr<DCacheProxyInfo> dCacheProxyInfo{};
     std::shared_ptr<DCacheRouteInfo> dCacheRouteInfo{};
@@ -138,9 +138,9 @@ public:
 
     void onTemplateDeleted(const rapidjson::Value &pDocument);
 
-    void findEndpoint(const string &id, vector<taf::EndpointF> *pActiveEp, vector<taf::EndpointF> *pInactiveEp);
+    void findEndpoint(const string &id, vector<tars::EndpointF> *pActiveEp, vector<tars::EndpointF> *pInactiveEp);
 
-    int getServerDescriptor(const string &serverApp, const string &serverName, taf::ServerDescriptor &descriptor);
+    int getServerDescriptor(const string &serverApp, const string &serverName, tars::ServerDescriptor &descriptor);
 
     void loadUpChainConf();
 
@@ -149,11 +149,11 @@ private:
 
     bool joinParentTemplate(const string &sTemplateName, TC_Config &conf, std::string &result);
 
-    int getTafServerDescriptor(const shared_ptr<ServerInfo> &serverInfo, ServerDescriptor &descriptor);
+    int getTarsServerDescriptor(const shared_ptr<ServerInfo> &serverInfo, ServerDescriptor &descriptor);
 
-    void findTafEndpoint(const std::shared_ptr<ServerInfo> &serverInfo, const string &sPortName, vector<taf::EndpointF> *pActiveEp, vector<taf::EndpointF> *pInactiveEp);
+    void findTarsEndpoint(const std::shared_ptr<ServerInfo> &serverInfo, const string &sPortName, vector<tars::EndpointF> *pActiveEp, vector<tars::EndpointF> *pInactiveEp);
 
-    void findUpChainEndpoint(const std::string &id, vector<taf::EndpointF> *pActiveEp, vector<taf::EndpointF> *pInactiveEp);
+    void findUpChainEndpoint(const std::string &id, vector<tars::EndpointF> *pActiveEp, vector<tars::EndpointF> *pInactiveEp);
 };
 
 inline void handleEndpointsEvent(k8SEventTypeEnum eventType, const rapidjson::Value &pDocument) {
