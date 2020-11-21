@@ -3,7 +3,7 @@
 #include <string>
 #include "Registry.h"
 
-using namespace taf;
+using namespace tars;
 
 /*
  * 提供给node调用的接口类
@@ -27,8 +27,8 @@ public:
      */
     void destroy() override {};
 
-    taf::Int32 getServerDescriptor(const std::string &serverApp, const std::string &serverName, taf::ServerDescriptor &serverDescriptor, taf::CurrentPtr current) override;
+    Int32 getServerDescriptor(const std::string &serverApp, const std::string &serverName, ServerDescriptor &serverDescriptor, CurrentPtr current) override;
 
-    void updateServerState(const std::string &podName, const std::string &settingState, const std::string &presentState, taf::CurrentPtr current) override;
+    void updateServerState(const std::string &podName, const std::string &settingState, const std::string &presentState, CurrentPtr current) override;
 
 };

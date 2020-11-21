@@ -31,8 +31,8 @@ struct Adapter {
 };
 
 struct UpChain {
-    std::unordered_map<string, std::vector<taf::EndpointF>> customUpChain;
-    std::vector<taf::EndpointF> defaultUpChain;
+    std::unordered_map<string, std::vector<EndpointF>> customUpChain;
+    std::vector<EndpointF> defaultUpChain;
 };
 
 struct TafInfo {
@@ -86,22 +86,22 @@ public:
 
     void onTemplateDeleted(const rapidjson::Value &pDocument);
 
-    void findEndpoint(const string &id, vector<taf::EndpointF> *pActiveEp, vector<taf::EndpointF> *pInactiveEp);
+    void findEndpoint(const string &id, vector<EndpointF> *pActiveEp, vector<EndpointF> *pInactiveEp);
 
-    int getServerDescriptor(const string &serverApp, const string &serverName, taf::ServerDescriptor &descriptor);
+    int getServerDescriptor(const string &serverApp, const string &serverName, ServerDescriptor &descriptor);
 
     void loadUpChainConf();
 
 private:
-    taf::TC_Config getTemplateContent(const std::string &sTemplateName, std::string &result);
+    TC_Config getTemplateContent(const std::string &sTemplateName, std::string &result);
 
-    bool joinParentTemplate(const string &sTemplateName, taf::TC_Config &conf, std::string &result);
+    bool joinParentTemplate(const string &sTemplateName, TC_Config &conf, std::string &result);
 
-    int getTafServerDescriptor(const shared_ptr<ServerInfo> &serverInfo, taf::ServerDescriptor &descriptor);
+    int getTafServerDescriptor(const shared_ptr<ServerInfo> &serverInfo, ServerDescriptor &descriptor);
 
-    void findTafEndpoint(const std::shared_ptr<ServerInfo> &serverInfo, const string &sPortName, vector<taf::EndpointF> *pActiveEp, vector<taf::EndpointF> *pInactiveEp);
+    void findTafEndpoint(const std::shared_ptr<ServerInfo> &serverInfo, const string &sPortName, vector<EndpointF> *pActiveEp, vector<EndpointF> *pInactiveEp);
 
-    void findUpChainEndpoint(const std::string &id, vector<taf::EndpointF> *pActiveEp, vector<taf::EndpointF> *pInactiveEp);
+    void findUpChainEndpoint(const std::string &id, vector<EndpointF> *pActiveEp, vector<EndpointF> *pInactiveEp);
 };
 
 inline void handleEndpointsEvent(K8SWatchEvent eventType, const rapidjson::Value &pDocument) {

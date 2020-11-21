@@ -4,7 +4,7 @@
 
 #include "servant/Application.h"
 
-using namespace taf;
+using namespace tars;
 
 /**
  *  Registry Server

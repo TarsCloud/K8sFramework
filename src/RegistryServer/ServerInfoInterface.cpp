@@ -9,8 +9,8 @@ static inline std::string SFromP(const rapidjson::Value *p) {
     return {p->GetString(), p->GetStringLength()};
 }
 
-void ServerInfoInterface::findEndpoint(const string &id, vector<EndpointF> *pActiveEp, vector<taf::EndpointF> *pInactiveEp) {
-    std::vector<std::string> v = taf::TC_Common::sepstr<string>(id, ".");
+void ServerInfoInterface::findEndpoint(const string &id, vector<EndpointF> *pActiveEp, vector<EndpointF> *pInactiveEp) {
+    std::vector<std::string> v = TC_Common::sepstr<string>(id, ".");
     if (v.size() != 3) {
         return;
     }
@@ -213,7 +213,7 @@ static std::shared_ptr<ServerInfo> buildServerInfoFromDocument(const rapidjson::
     return pServerInfo;
 }
 
-int ServerInfoInterface::getTafServerDescriptor(const std::shared_ptr<ServerInfo> &serverInfo, taf::ServerDescriptor &descriptor) {
+int ServerInfoInterface::getTafServerDescriptor(const std::shared_ptr<ServerInfo> &serverInfo, ServerDescriptor &descriptor) {
 
     const auto &tafInfo = serverInfo->tafInfo;
     if (tafInfo == nullptr) {
@@ -257,7 +257,7 @@ int ServerInfoInterface::getTafServerDescriptor(const std::shared_ptr<ServerInfo
     return 0;
 }
 
-int ServerInfoInterface::getServerDescriptor(const string &serverApp, const string &serverName, taf::ServerDescriptor &descriptor) {
+int ServerInfoInterface::getServerDescriptor(const string &serverApp, const string &serverName, ServerDescriptor &descriptor) {
     std::lock_guard<std::mutex> lockGuard(mutex_);
     const std::string sAppServer = TC_Common::lower(serverApp) + "-" + TC_Common::lower(serverName);
     auto iterator = serverInfoMap_.find(sAppServer);
@@ -398,8 +398,8 @@ void ServerInfoInterface::onEndpointDeleted(const rapidjson::Value &pDocument) {
 }
 
 void
-ServerInfoInterface::findTafEndpoint(const std::shared_ptr<ServerInfo> &serverInfo, const string &sPortName, vector<taf::EndpointF> *pActiveEp,
-                                     vector<taf::EndpointF> *pInactiveEp) {
+ServerInfoInterface::findTafEndpoint(const std::shared_ptr<ServerInfo> &serverInfo, const string &sPortName, vector<EndpointF> *pActiveEp,
+                                     vector<EndpointF> *pInactiveEp) {
 
     const auto &tafInfo = serverInfo->tafInfo;
 
@@ -416,14 +416,14 @@ ServerInfoInterface::findTafEndpoint(const std::shared_ptr<ServerInfo> &serverIn
         if (port->name == sPortName) {
             for (const auto &pod : pods) {
                 if (pod->presentState == "Active") {
-                    taf::EndpointF endpointF;
+                    EndpointF endpointF;
                     endpointF.port = port->port;
                     endpointF.istcp = port->isTcp;
                     endpointF.timeout = port->timeout;
                     endpointF.host.append(pod->name).append(".").append(TC_Common::lower(serverInfo->serverApp)).append("-").append(TC_Common::lower(serverInfo->serverName));
                     pActiveEp->push_back(endpointF);
                 } else if (pInactiveEp != nullptr) {
-                    taf::EndpointF endpointF;
+                    EndpointF endpointF;
                     endpointF.port = port->port;
                     endpointF.istcp = port->isTcp;
                     endpointF.timeout = port->timeout;
@@ -479,11 +479,11 @@ void ServerInfoInterface::loadUpChainConf() {
     for (const auto &domain:domains) {
         auto absDomain = string("/upchain/" + domain);
         auto lines = tcConfig.getDomainLine(absDomain);
-        std::vector<taf::EndpointF> ev;
+        std::vector<EndpointF> ev;
         ev.reserve(lines.size());
         for (auto &&line: lines) {
-            taf::TC_Endpoint endpoint(line);
-            taf::EndpointF f;
+            TC_Endpoint endpoint(line);
+            EndpointF f;
             f.host = endpoint.getHost();
             f.port = endpoint.getPort();
             f.timeout = endpoint.getTimeout();
@@ -505,7 +505,7 @@ void ServerInfoInterface::loadUpChainConf() {
     LOG->debug() << "update upchainInfo success" << endl;
 }
 
-void ServerInfoInterface::findUpChainEndpoint(const string &id, vector<EndpointF> *pActiveEp, vector<taf::EndpointF> *pInactiveEp) {
+void ServerInfoInterface::findUpChainEndpoint(const string &id, vector<EndpointF> *pActiveEp, vector<EndpointF> *pInactiveEp) {
     assert(pActiveEp != nullptr);
     pActiveEp->clear();
 

@@ -9,7 +9,7 @@ void RegistryImp::initialize() {
     LOG->debug() << "RegistryImp init ok." << endl;
 }
 
-void RegistryImp::updateServerState(const std::string &podName, const std::string &settingState, const std::string &presentState, taf::CurrentPtr current) {
+void RegistryImp::updateServerState(const std::string &podName, const std::string &settingState, const std::string &presentState, CurrentPtr current) {
     std::stringstream strStream;
     strStream.str("");
     strStream << "/api/v1/namespaces/" << K8SParams::instance().bindNamespace() << "/pods/" << podName << "/status";
@@ -49,6 +49,6 @@ void RegistryImp::updateServerState(const std::string &podName, const std::strin
     return;
 }
 
-taf::Int32 RegistryImp::getServerDescriptor(const std::string &serverApp, const std::string &serverName, ServerDescriptor &serverDescriptor, taf::CurrentPtr current) {
+Int32 RegistryImp::getServerDescriptor(const std::string &serverApp, const std::string &serverName, ServerDescriptor &serverDescriptor, CurrentPtr current) {
     return ServerInfoInterface::instance().getServerDescriptor(serverApp, serverName, serverDescriptor);
 }

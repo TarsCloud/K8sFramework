@@ -1,6 +1,6 @@
 ﻿#include "QueryImp.h"
 #include "ServerInfoInterface.h"
-#include "servant/taf_logger.h"
+#include "servant/RemoteLogger.h"
 
 #include <string>
 
@@ -38,24 +38,24 @@ string eFunToStr(const FUNID eFnId) {
     return sFun;
 }
 
-static void findObjectById_(const std::string &id, vector <EndpointF> *activeEp, vector <taf::EndpointF> *inactiveEp) {
+static void findObjectById_(const std::string &id, vector <EndpointF> *activeEp, vector <EndpointF> *inactiveEp) {
     ServerInfoInterface::instance().findEndpoint(id, activeEp, inactiveEp);
 }
 
 void QueryImp::initialize() {
 }
 
-vector <EndpointF> QueryImp::findObjectById(const std::string &id, taf::JceCurrentPtr current) {
-    vector <taf::EndpointF> activeEp;
+vector <EndpointF> QueryImp::findObjectById(const std::string &id, CurrentPtr current) {
+    vector <EndpointF> activeEp;
     findObjectById_(id, &activeEp, nullptr);
 
     std::ostringstream os;
-    doDaylog(FUNID_findObjectById, id, activeEp, vector<taf::EndpointF>(), current, os);
+    doDaylog(FUNID_findObjectById, id, activeEp, vector<EndpointF>(), current, os);
 
     return activeEp;
 }
 
-taf::Int32 QueryImp::findObjectById4Any(const std::string &id, vector <taf::EndpointF> &activeEp, vector <taf::EndpointF> &inactiveEp, taf::JceCurrentPtr current) {
+Int32 QueryImp::findObjectById4Any(const std::string &id, vector <EndpointF> &activeEp, vector <EndpointF> &inactiveEp, CurrentPtr current) {
     findObjectById_(id, &activeEp, &inactiveEp);
 
     std::ostringstream os;
@@ -64,7 +64,7 @@ taf::Int32 QueryImp::findObjectById4Any(const std::string &id, vector <taf::Endp
     return 0;
 }
 
-int QueryImp::findObjectById4All(const std::string &id, vector <taf::EndpointF> &activeEp, vector <taf::EndpointF> &inactiveEp, taf::JceCurrentPtr current) {
+int QueryImp::findObjectById4All(const std::string &id, vector <EndpointF> &activeEp, vector <EndpointF> &inactiveEp, CurrentPtr current) {
     findObjectById_(id, &activeEp, &inactiveEp);
 
     std::ostringstream os;
@@ -73,7 +73,7 @@ int QueryImp::findObjectById4All(const std::string &id, vector <taf::EndpointF> 
     return 0;
 }
 
-int QueryImp::findObjectByIdInSameGroup(const std::string &id, vector <taf::EndpointF> &activeEp, vector <taf::EndpointF> &inactiveEp, taf::JceCurrentPtr current) {
+int QueryImp::findObjectByIdInSameGroup(const std::string &id, vector <EndpointF> &activeEp, vector <EndpointF> &inactiveEp, CurrentPtr current) {
     findObjectById_(id, &activeEp, &inactiveEp);
 
     std::ostringstream os;
@@ -82,8 +82,8 @@ int QueryImp::findObjectByIdInSameGroup(const std::string &id, vector <taf::Endp
     return 0;
 }
 
-Int32 QueryImp::findObjectByIdInSameStation(const std::string &id, const std::string &sStation, vector <taf::EndpointF> &activeEp, vector <taf::EndpointF> &inactiveEp,
-                                            taf::JceCurrentPtr current) {
+Int32 QueryImp::findObjectByIdInSameStation(const std::string &id, const std::string &sStation, vector <EndpointF> &activeEp, vector <EndpointF> &inactiveEp,
+                                            CurrentPtr current) {
     findObjectById_(id, &activeEp, &inactiveEp);
 
     std::ostringstream os;
@@ -93,9 +93,9 @@ Int32 QueryImp::findObjectByIdInSameStation(const std::string &id, const std::st
 }
 
 Int32
-QueryImp::findObjectByIdInSameSet(const std::string &id, const std::string &setId, vector <taf::EndpointF> &activeEp,
-                                  vector <taf::EndpointF> &inactiveEp,
-                                  taf::JceCurrentPtr current) {
+QueryImp::findObjectByIdInSameSet(const std::string &id, const std::string &setId, vector <EndpointF> &activeEp,
+                                  vector <EndpointF> &inactiveEp,
+                                  CurrentPtr current) {
     findObjectById_(id, &activeEp, &inactiveEp);
 
     std::ostringstream os;
@@ -105,8 +105,8 @@ QueryImp::findObjectByIdInSameSet(const std::string &id, const std::string &setI
 }
 
 void
-QueryImp::doDaylog(FUNID eFnId, const string &id, const vector <taf::EndpointF> &activeEp,
-                   const vector <taf::EndpointF> &inactiveEp, const taf::CurrentPtr &current, const ostringstream &os,
+QueryImp::doDaylog(FUNID eFnId, const string &id, const vector <EndpointF> &activeEp,
+                   const vector <EndpointF> &inactiveEp, const CurrentPtr &current, const ostringstream &os,
                    const string &sSetid) {
     string sEpList;
 
