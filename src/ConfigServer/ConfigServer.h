@@ -3,7 +3,7 @@
 
 #include "servant/Application.h"
 
-using namespace taf;
+using namespace tars;
 
 class ConfigServer : public Application {
 protected:
