@@ -1,16 +1,16 @@
 
-#include <thread>
 #include "ServerInfoInterface.h"
 #include "RegistryServer.h"
-
+#include "rapidjson/pointer.h"
+#include <thread>
 
 static inline std::string SFromP(const rapidjson::Value *p) {
     assert(p != nullptr);
     return {p->GetString(), p->GetStringLength()};
 }
 
-void ServerInfoInterface::findEndpoint(const string &id, vector<EndpointF> *pActiveEp, vector<tars::EndpointF> *pInactiveEp) {
-    std::vector<std::string> v = tars::TC_Common::sepstr<string>(id, ".");
+void ServerInfoInterface::findEndpoint(const string &id, vector<EndpointF> *pActiveEp, vector<taf::EndpointF> *pInactiveEp) {
+    std::vector<std::string> v = taf::TC_Common::sepstr<string>(id, ".");
     if (v.size() != 3) {
         return;
     }
@@ -25,11 +25,11 @@ void ServerInfoInterface::findEndpoint(const string &id, vector<EndpointF> *pAct
         pInactiveEp->clear();
     }
 
-    std::lock_guard<std::mutex> lockGuard(_mutex);
+    std::lock_guard<std::mutex> lockGuard(mutex_);
 
-    auto iterator = _serverInfoMap.find(sAppServer);
+    auto iterator = serverInfoMap_.find(sAppServer);
 
-    if (iterator == _serverInfoMap.end()) {
+    if (iterator == serverInfoMap_.end()) {
         return findUpChainEndpoint(id, pActiveEp, pInactiveEp);
     }
 
@@ -41,52 +41,42 @@ void ServerInfoInterface::findEndpoint(const string &id, vector<EndpointF> *pAct
     }
 
     switch (serverInfo->subType) {
-        case ServerSubType::Tars:
-            return findTarsEndpoint(serverInfo, sPortName, pActiveEp, pInactiveEp);
-        case ServerSubType::DCache:
-            break;
-        case ServerSubType::DCacheProxy:
-            break;
-        case ServerSubType::DCacheRoute:
-            break;
-        case ServerSubType::DCacheDBAccess:
-            break;
-        case ServerSubType::External:
-            return;
+        case ServerSubType::Taf:
+            return findTafEndpoint(serverInfo, sPortName, pActiveEp, pInactiveEp);
         case ServerSubType::Normal:
-            break;
+            return;
     }
 }
 
-static std::shared_ptr<TarsInfo> buildTarsInfoFromDocument(const rapidjson::Value &pDocument) {
+static std::shared_ptr<TafInfo> buildTafInfoFromDocument(const rapidjson::Value &pDocument) {
 
-    auto pTarsInfo = std::make_shared<TarsInfo>();
+    auto pTafInfo = std::make_shared<TafInfo>();
 
-    auto pAsyncThread = rapidjson::GetValueByPointer(pDocument, "/spec/tars/asyncThread");
+    auto pAsyncThread = rapidjson::GetValueByPointer(pDocument, "/spec/taf/asyncThread");
     if (pAsyncThread == nullptr) {
         //fixme  should log
         return nullptr;
     }
     assert(pAsyncThread->IsInt());
-    pTarsInfo->asyncThread = pAsyncThread->GetInt();
+    pTafInfo->asyncThread = pAsyncThread->GetInt();
 
-    auto pProfile = rapidjson::GetValueByPointer(pDocument, "/spec/tars/profile");
+    auto pProfile = rapidjson::GetValueByPointer(pDocument, "/spec/taf/profile");
     if (pProfile == nullptr) {
         //fixme  should log
         return nullptr;
     }
     assert(pProfile->IsString());
-    pTarsInfo->profileContent = SFromP(pProfile);
+    pTafInfo->profileContent = SFromP(pProfile);
 
-    auto pTemplate = rapidjson::GetValueByPointer(pDocument, "/spec/tars/template");
+    auto pTemplate = rapidjson::GetValueByPointer(pDocument, "/spec/taf/template");
     if (pTemplate == nullptr) {
         //fixme  should log
         return nullptr;
     }
     assert(pTemplate->IsString());
-    pTarsInfo->templateName = SFromP(pTemplate);
+    pTafInfo->templateName = SFromP(pTemplate);
 
-    auto pServants = rapidjson::GetValueByPointer(pDocument, "/spec/tars/servants");
+    auto pServants = rapidjson::GetValueByPointer(pDocument, "/spec/taf/servants");
     if (pServants == nullptr) {
         //fixme  should log
         return nullptr;
@@ -119,15 +109,15 @@ static std::shared_ptr<TarsInfo> buildTarsInfoFromDocument(const rapidjson::Valu
         assert(pCapacity != nullptr && pCapacity->IsInt());
         pAdapter->capacity = pCapacity->GetInt();
 
-        auto pIsTars = rapidjson::GetValueByPointer(v, "/isTars");
-        assert(pIsTars != nullptr && pIsTars->IsBool());
-        pAdapter->isTars = pIsTars->GetBool();
+        auto pIsTaf = rapidjson::GetValueByPointer(v, "/isTaf");
+        assert(pIsTaf != nullptr && pIsTaf->IsBool());
+        pAdapter->isTaf = pIsTaf->GetBool();
 
         auto pIsTCP = rapidjson::GetValueByPointer(v, "/isTcp");
         assert(pIsTCP != nullptr && pIsTCP->IsBool());
         pAdapter->isTcp = pIsTCP->GetBool();
 
-        pTarsInfo->adapters.push_back(pAdapter);
+        pTafInfo->adapters.push_back(pAdapter);
     }
 
     auto pHostPorts = rapidjson::GetValueByPointer(pDocument, "/spec/hostPorts");
@@ -142,7 +132,7 @@ static std::shared_ptr<TarsInfo> buildTarsInfoFromDocument(const rapidjson::Valu
             assert(pNameRef != nullptr && pNameRef->IsString());
             auto nameRef = SFromP(pNameRef);
 
-            for (auto &adapter:pTarsInfo->adapters) {
+            for (auto &adapter:pTafInfo->adapters) {
 
                 if (adapter->name == nameRef) {
                     auto pPort = rapidjson::GetValueByPointer(hostPort, "/port");
@@ -154,82 +144,7 @@ static std::shared_ptr<TarsInfo> buildTarsInfoFromDocument(const rapidjson::Valu
         }
     }
 
-    return pTarsInfo;
-}
-
-static std::shared_ptr<ExternalInfo> buildExternalInfoFromDocument(const rapidjson::Value &pDocument) {
-
-    auto pExternalInfo = std::make_shared<ExternalInfo>();
-
-    auto pUpstreams = rapidjson::GetValueByPointer(pDocument, "/spec/external/upstreams");
-    if (pUpstreams == nullptr) {
-        return nullptr;
-    }
-
-    assert(pUpstreams->IsArray());
-
-    for (const auto &upstream: pUpstreams->GetArray()) {
-
-        auto upstreamInfo = std::make_shared<ExternalUpstream>();
-
-        auto pName = rapidjson::GetValueByPointer(upstream, "/name");
-        assert(pName != nullptr && pName->IsString());
-        upstreamInfo->name = SFromP(pName);
-
-        auto pIsTcp = rapidjson::GetValueByPointer(upstream, "/isTcp");
-        assert(pIsTcp != nullptr && pIsTcp->IsBool());
-        upstreamInfo->isTcp = pIsTcp->GetBool();
-
-        auto pAddresses = rapidjson::GetValueByPointer(upstream, "/addresses");
-        if (pAddresses != nullptr) {
-            assert(pAddresses->IsArray());
-
-            for (const auto &address: pAddresses->GetArray()) {
-
-                auto pIP = rapidjson::GetValueByPointer(address, "ip");
-                assert(pIP != nullptr && pIP->IsString());
-
-                auto pPort = rapidjson::GetValueByPointer(address, "port");
-                assert(pPort != nullptr && pPort->IsInt());
-
-                upstreamInfo->addresses.emplace_back(std::make_pair(SFromP(pIP), pPort->GetInt()));
-            }
-        }
-
-        pExternalInfo->upstreams.emplace_back(upstreamInfo);
-    }
-
-    return pExternalInfo;
-}
-
-static shared_ptr<NormalInfo> buildNormalInfoFromDocument(const rapidjson::Value &pDocument) {
-    auto pNormalInfo = std::make_shared<NormalInfo>();
-
-    auto pPorts = rapidjson::GetValueByPointer(pDocument, "/spec/normal/ports");
-    if (pPorts == nullptr) {
-        return nullptr;
-    }
-    assert(pPorts->IsArray());
-
-    for (const auto &port: pPorts->GetArray()) {
-        auto portInfo = std::make_shared<NormalPort>();
-
-        auto pPortName = rapidjson::GetValueByPointer(port, "/name");
-        assert(pPortName != nullptr && pPortName->IsString());
-        portInfo->name = SFromP(pPortName);
-
-        auto pPortValue = rapidjson::GetValueByPointer(port, "/port");
-        assert(pPortValue != nullptr && pPortValue->IsInt());
-        portInfo->port = pPortValue->GetInt();
-
-        auto pIsTcp = rapidjson::GetValueByPointer(port, "/isTcp");
-        assert(pIsTcp != nullptr && pIsTcp->IsBool());
-        portInfo->isTcp = pIsTcp->GetBool();
-
-        pNormalInfo->ports.emplace_back(portInfo);
-    }
-
-    return pNormalInfo;
+    return pTafInfo;
 }
 
 static std::shared_ptr<ServerInfo> buildServerInfoFromDocument(const rapidjson::Value &pDocument) {
@@ -249,50 +164,24 @@ static std::shared_ptr<ServerInfo> buildServerInfoFromDocument(const rapidjson::
 
     std::string subTypeStr = SFromP(pSubType);
 
-    constexpr char TarsType[] = "tars";
-    constexpr char DCacheType[] = "dCache";
-    constexpr char DCacheProxyType[] = "dCacheProxy";
-    constexpr char DCacheRouteType[] = "dCacheRouter";
-    constexpr char DCacheAccessType[] = "dCacheDBAccess";
+    constexpr char TafType[] = "taf";
     constexpr char NormalType[] = "normal";
-    constexpr char ExternalType[] = "external";
 
-    if (subTypeStr == TarsType) {
-        pServerInfo->subType = ServerSubType::Tars;
-    } else if (subTypeStr == DCacheType) {
-        pServerInfo->subType = ServerSubType::DCache;
-    } else if (subTypeStr == DCacheProxyType) {
-        pServerInfo->subType = ServerSubType::DCacheProxy;
-    } else if (subTypeStr == DCacheRouteType) {
-        pServerInfo->subType = ServerSubType::DCacheRoute;
-    } else if (subTypeStr == DCacheAccessType) {
-        pServerInfo->subType = ServerSubType::DCacheDBAccess;
+    if (subTypeStr == TafType) {
+        pServerInfo->subType = ServerSubType::Taf;
     } else if (subTypeStr == NormalType) {
         pServerInfo->subType = ServerSubType::Normal;
-    } else if (subTypeStr == ExternalType) {
-        pServerInfo->subType = ServerSubType::External;
     } else {
         assert(false);
         return nullptr;
     }
 
     switch (pServerInfo->subType) {
-        case ServerSubType::Tars:
-            pServerInfo->tarsInfo = buildTarsInfoFromDocument(pDocument);
-            break;
-        case ServerSubType::DCache:
-            break;
-        case ServerSubType::DCacheProxy:
-            break;
-        case ServerSubType::DCacheRoute:
-            break;
-        case ServerSubType::External:
-            pServerInfo->externalInfo = buildExternalInfoFromDocument(pDocument);
+        case ServerSubType::Taf:
+            pServerInfo->tafInfo = buildTafInfoFromDocument(pDocument);
             break;
         case ServerSubType::Normal:
-            pServerInfo->normalInfo = buildNormalInfoFromDocument(pDocument);
-            break;
-        case ServerSubType::DCacheDBAccess:
+            // todo pServerInfo->normalInfo = buildNormalInfoFromDocument(pDocument);
             break;
     }
 
@@ -324,30 +213,30 @@ static std::shared_ptr<ServerInfo> buildServerInfoFromDocument(const rapidjson::
     return pServerInfo;
 }
 
-int ServerInfoInterface::getTarsServerDescriptor(const std::shared_ptr<ServerInfo> &serverInfo, tars::ServerDescriptor &descriptor) {
+int ServerInfoInterface::getTafServerDescriptor(const std::shared_ptr<ServerInfo> &serverInfo, taf::ServerDescriptor &descriptor) {
 
-    const auto &tarsInfo = serverInfo->tarsInfo;
-    if (tarsInfo == nullptr) {
+    const auto &tafInfo = serverInfo->tafInfo;
+    if (tafInfo == nullptr) {
         return -1;
     }
 
-    const auto &adapters = tarsInfo->adapters;
-    descriptor.asyncThreadNum = tarsInfo->asyncThread;
+    const auto &adapters = tafInfo->adapters;
+    descriptor.asyncThreadNum = tafInfo->asyncThread;
 
-    const auto &sTemplateName = tarsInfo->templateName;
+    const auto &sTemplateName = tafInfo->templateName;
     assert(!sTemplateName.empty());
 
     string sResult;
 
     TC_Config templateConf = getTemplateContent(sTemplateName, sResult);
 
-    const auto &profileContent = tarsInfo->profileContent;
+    const auto &profileContent = tafInfo->profileContent;
 
     if (profileContent.empty()) {
         descriptor.profile = templateConf.tostr();
     } else {
         TC_Config profileConf{};
-        profileConf.parseString(tarsInfo->profileContent);
+        profileConf.parseString(tafInfo->profileContent);
         profileConf.joinConfig(templateConf, false);
         descriptor.profile = profileConf.tostr();
     }
@@ -356,7 +245,7 @@ int ServerInfoInterface::getTarsServerDescriptor(const std::shared_ptr<ServerInf
         AdapterDescriptor adapterDescriptor;
         adapterDescriptor.adapterName.append(serverInfo->serverApp).append(".").append(serverInfo->serverName).append(".").append(adapter->name).append(".Adapter");
         adapterDescriptor.servant.append(serverInfo->serverApp).append(".").append(serverInfo->serverName).append(".").append(adapter->name);
-        adapterDescriptor.protocol = adapter->isTars ? "tars" : "not_tars";
+        adapterDescriptor.protocol = adapter->isTaf ? "taf" : "not_taf";
         adapterDescriptor.endpoint.append(adapter->isTcp ? "tcp" : "udp").append(" -h ${localip} -p ").append(to_string(adapter->port)).append(" -t ").append(
                 to_string(adapter->timeout));
         adapterDescriptor.threadNum = adapter->thread;
@@ -368,11 +257,11 @@ int ServerInfoInterface::getTarsServerDescriptor(const std::shared_ptr<ServerInf
     return 0;
 }
 
-int ServerInfoInterface::getServerDescriptor(const string &serverApp, const string &serverName, tars::ServerDescriptor &descriptor) {
-    std::lock_guard<std::mutex> lockGuard(_mutex);
+int ServerInfoInterface::getServerDescriptor(const string &serverApp, const string &serverName, taf::ServerDescriptor &descriptor) {
+    std::lock_guard<std::mutex> lockGuard(mutex_);
     const std::string sAppServer = TC_Common::lower(serverApp) + "-" + TC_Common::lower(serverName);
-    auto iterator = _serverInfoMap.find(sAppServer);
-    if (iterator == _serverInfoMap.end()) {
+    auto iterator = serverInfoMap_.find(sAppServer);
+    if (iterator == serverInfoMap_.end()) {
         LOG->error() << "not found" << serverApp << "-" << serverName << endl;
         return -1;
     }
@@ -385,13 +274,8 @@ int ServerInfoInterface::getServerDescriptor(const string &serverApp, const stri
     const auto &serverInfo = iterator->second;
 
     switch (serverInfo->subType) {
-        case ServerSubType::Tars:
-        case ServerSubType::DCache:
-        case ServerSubType::DCacheProxy:
-        case ServerSubType::DCacheRoute:
-        case ServerSubType::DCacheDBAccess:
-            return getTarsServerDescriptor(serverInfo, descriptor);
-        case ServerSubType::External:
+        case ServerSubType::Taf:
+            return getTafServerDescriptor(serverInfo, descriptor);
         case ServerSubType::Normal:
             return -1;
     }
@@ -403,11 +287,11 @@ int ServerInfoInterface::getServerDescriptor(const string &serverApp, const stri
 TC_Config ServerInfoInterface::getTemplateContent(const string &sTemplateName, std::string &result) {
     assert(!sTemplateName.empty());
     TC_Config conf{};
-    auto iterator = _templateMap.find(sTemplateName);
-    if (iterator != _templateMap.end()) {
-        const auto &content = iterator->second->content;
+    auto iterator = templateMap_.find(sTemplateName);
+    if (iterator != templateMap_.end()) {
+        const auto &content = iterator->second->content_;
         conf.parseString(content);
-        const auto &parent = iterator->second->parent;
+        const auto &parent = iterator->second->parent_;
 
         if (sTemplateName != parent) {
             joinParentTemplate(parent, conf, result);
@@ -421,25 +305,25 @@ bool ServerInfoInterface::joinParentTemplate(const string &sTemplateName, TC_Con
     auto currentTemplateName = sTemplateName;
 
     while (true) {
-        auto iterator = _templateMap.find(sTemplateName);
+        auto iterator = templateMap_.find(sTemplateName);
 
-        if (iterator == _templateMap.end()) {
+        if (iterator == templateMap_.end()) {
             //todo set result
             return false;
         }
 
-        const auto &content = iterator->second->content;
+        const auto &content = iterator->second->content_;
 
         TC_Config currentConf;
         try {
             currentConf.parseString(content);
             conf.joinConfig(currentConf, false);
-        } catch (...) {
-            //todo set result;
-            return false;
+        } catch (TC_Config_Exception &ex) {
+            result = ex.what();
+            return -1;
         }
 
-        auto parentTemplateName = iterator->second->parent;
+        auto parentTemplateName = iterator->second->parent_;
         if (currentTemplateName == parentTemplateName) {
             return true;
         }
@@ -460,15 +344,15 @@ void ServerInfoInterface::onTemplateAdd(const rapidjson::Value &pDocument) {
 
     auto pTemplate = std::make_shared<Template>();
 
-    pTemplate->content = SFromP(pContent);
-    pTemplate->parent = SFromP(pParent);
+    pTemplate->content_ = SFromP(pContent);
+    pTemplate->parent_ = SFromP(pParent);
 
     auto name = SFromP(pName);
 
-    std::lock_guard<std::mutex> lockGuard(_mutex);
-    auto iterator = _templateMap.find(name);
-    if (iterator == _templateMap.end()) {
-        _templateMap[name] = pTemplate;
+    std::lock_guard<std::mutex> lockGuard(mutex_);
+    auto iterator = templateMap_.find(name);
+    if (iterator == templateMap_.end()) {
+        templateMap_[name] = pTemplate;
     } else {
         iterator->second.swap(pTemplate);
     }
@@ -482,21 +366,20 @@ void ServerInfoInterface::onTemplateDeleted(const rapidjson::Value &pDocument) {
     auto pName = rapidjson::GetValueByPointer(pDocument, "/metadata/name");
     assert(pName != nullptr && pName->IsString());
     auto name = SFromP(pName);
-    std::lock_guard<std::mutex> lockGuard(_mutex);
-    _templateMap.erase(name);
+    std::lock_guard<std::mutex> lockGuard(mutex_);
+    templateMap_.erase(name);
 }
 
 void ServerInfoInterface::onEndpointAdd(const rapidjson::Value &pDocument) {
     auto endpointName = rapidjson::GetValueByPointer(pDocument, "/metadata/name");
     assert(endpointName != nullptr && endpointName->IsString());
-    std::string sServerName = SFromP(endpointName);
+    std::string sEndpointName = SFromP(endpointName);
 
     auto pServerInfo = buildServerInfoFromDocument(pDocument);
-
-    std::lock_guard<std::mutex> lockGuard(_mutex);
-    auto iterator = _serverInfoMap.find(sServerName);
-    if (iterator == _serverInfoMap.end()) {
-        _serverInfoMap[sServerName] = pServerInfo;
+    std::lock_guard<std::mutex> lockGuard(mutex_);
+    auto iterator = serverInfoMap_.find(sEndpointName);
+    if (iterator == serverInfoMap_.end()) {
+        serverInfoMap_[sEndpointName] = pServerInfo;
     } else {
         iterator->second.swap(pServerInfo);
     }
@@ -510,22 +393,22 @@ void ServerInfoInterface::onEndpointDeleted(const rapidjson::Value &pDocument) {
     auto endpointName = rapidjson::GetValueByPointer(pDocument, "/metadata/name");
     assert(endpointName != nullptr && endpointName->IsString());
     std::string sEndpointName = SFromP(endpointName);
-    std::lock_guard<std::mutex> lockGuard(_mutex);
-    _serverInfoMap.erase(sEndpointName);
+    std::lock_guard<std::mutex> lockGuard(mutex_);
+    serverInfoMap_.erase(sEndpointName);
 }
 
 void
-ServerInfoInterface::findTarsEndpoint(const std::shared_ptr<ServerInfo> &serverInfo, const string &sPortName, vector<tars::EndpointF> *pActiveEp,
-                                     vector<tars::EndpointF> *pInactiveEp) {
+ServerInfoInterface::findTafEndpoint(const std::shared_ptr<ServerInfo> &serverInfo, const string &sPortName, vector<taf::EndpointF> *pActiveEp,
+                                     vector<taf::EndpointF> *pInactiveEp) {
 
-    const auto &tarsInfo = serverInfo->tarsInfo;
+    const auto &tafInfo = serverInfo->tafInfo;
 
-    if (tarsInfo == nullptr) {
-        LOG->debug() << serverInfo->serverApp << "." << serverInfo->serverName << "->tarsInfo is nullptr" << endl;
+    if (tafInfo == nullptr) {
+        LOG->debug() << serverInfo->serverApp << "." << serverInfo->serverName << "->tafInfo is nullptr" << endl;
         return;
     }
 
-    const auto &adapters = tarsInfo->adapters;
+    const auto &adapters = tafInfo->adapters;
 
     const auto &pods = serverInfo->pods;
 
@@ -533,14 +416,14 @@ ServerInfoInterface::findTarsEndpoint(const std::shared_ptr<ServerInfo> &serverI
         if (port->name == sPortName) {
             for (const auto &pod : pods) {
                 if (pod->presentState == "Active") {
-                    tars::EndpointF endpointF;
+                    taf::EndpointF endpointF;
                     endpointF.port = port->port;
                     endpointF.istcp = port->isTcp;
                     endpointF.timeout = port->timeout;
                     endpointF.host.append(pod->name).append(".").append(TC_Common::lower(serverInfo->serverApp)).append("-").append(TC_Common::lower(serverInfo->serverName));
                     pActiveEp->push_back(endpointF);
                 } else if (pInactiveEp != nullptr) {
-                    tars::EndpointF endpointF;
+                    taf::EndpointF endpointF;
                     endpointF.port = port->port;
                     endpointF.istcp = port->isTcp;
                     endpointF.timeout = port->timeout;
@@ -558,9 +441,9 @@ void ServerInfoInterface::loadUpChainConf() {
 
     int fok = ::access(UpChainConfFile, F_OK);
     if (fok != 0) {
-        std::lock_guard<std::mutex> lockGuard(_mutex);
-        if (_upChainInfo != nullptr) {
-            _upChainInfo = nullptr;
+        std::lock_guard<std::mutex> lockGuard(mutex_);
+        if (upChainInfo_ != nullptr) {
+            upChainInfo_ = nullptr;
             LOG->debug() << "clear upchainInfo because file \"" << UpChainConfFile << "\"not exist";
         }
         return;
@@ -574,9 +457,9 @@ void ServerInfoInterface::loadUpChainConf() {
 
     auto upChainConfContent = TC_File::load2str(UpChainConfFile);
     if (upChainConfContent.empty()) {
-        std::lock_guard<std::mutex> lockGuard(_mutex);
-        if (_upChainInfo != nullptr) {
-            _upChainInfo = nullptr;
+        std::lock_guard<std::mutex> lockGuard(mutex_);
+        if (upChainInfo_ != nullptr) {
+            upChainInfo_ = nullptr;
             LOG->debug() << "clear upchainInfo because file \"" << UpChainConfFile << "\"is empty";
         }
         return;
@@ -596,11 +479,11 @@ void ServerInfoInterface::loadUpChainConf() {
     for (const auto &domain:domains) {
         auto absDomain = string("/upchain/" + domain);
         auto lines = tcConfig.getDomainLine(absDomain);
-        std::vector<tars::EndpointF> ev;
+        std::vector<taf::EndpointF> ev;
         ev.reserve(lines.size());
         for (auto &&line: lines) {
-            tars::TC_Endpoint endpoint(line);
-            tars::EndpointF f;
+            taf::TC_Endpoint endpoint(line);
+            taf::EndpointF f;
             f.host = endpoint.getHost();
             f.port = endpoint.getPort();
             f.timeout = endpoint.getTimeout();
@@ -613,31 +496,31 @@ void ServerInfoInterface::loadUpChainConf() {
         upChainInfo->customUpChain[domain] = std::move(ev);
     }
 
-    std::lock_guard<std::mutex> lockGuard(_mutex);
-    if (_upChainInfo != nullptr) {
-        _upChainInfo.swap(upChainInfo);
+    std::lock_guard<std::mutex> lockGuard(mutex_);
+    if (upChainInfo_ != nullptr) {
+        upChainInfo_.swap(upChainInfo);
         return;
     }
-    _upChainInfo = upChainInfo;
+    upChainInfo_ = upChainInfo;
     LOG->debug() << "update upchainInfo success" << endl;
 }
 
-void ServerInfoInterface::findUpChainEndpoint(const string &id, vector<EndpointF> *pActiveEp, vector<tars::EndpointF> *pInactiveEp) {
+void ServerInfoInterface::findUpChainEndpoint(const string &id, vector<EndpointF> *pActiveEp, vector<taf::EndpointF> *pInactiveEp) {
     assert(pActiveEp != nullptr);
     pActiveEp->clear();
 
-    if (_upChainInfo == nullptr) {
+    if (upChainInfo_ == nullptr) {
         return;
     }
 
-    auto customIterator = _upChainInfo->customUpChain.find(id);
-    if (customIterator != _upChainInfo->customUpChain.end()) {
+    auto customIterator = upChainInfo_->customUpChain.find(id);
+    if (customIterator != upChainInfo_->customUpChain.end()) {
         *pActiveEp = customIterator->second;
         return;
     }
 
-    if (!_upChainInfo->defaultUpChain.empty()) {
-        *pActiveEp = _upChainInfo->defaultUpChain;
+    if (!upChainInfo_->defaultUpChain.empty()) {
+        *pActiveEp = upChainInfo_->defaultUpChain;
     }
 }
 

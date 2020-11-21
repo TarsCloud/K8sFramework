@@ -1,10 +1,9 @@
 ﻿
 #pragma once
-
-#include <util/tc_mysql.h>
+#include <string>
 #include "Registry.h"
 
-using namespace tars;
+using namespace taf;
 
 /*
  * 提供给node调用的接口类
@@ -28,8 +27,8 @@ public:
      */
     void destroy() override {};
 
-    tars::Int32 getServerDescriptor(const std::string &serverApp, const std::string &serverName, tars::ServerDescriptor &serverDescriptor, tars::CurrentPtr current) override;
+    taf::Int32 getServerDescriptor(const std::string &serverApp, const std::string &serverName, taf::ServerDescriptor &serverDescriptor, taf::CurrentPtr current) override;
 
-    void updateServerState(const std::string &podName, const std::string &settingState, const std::string &presentState, tars::CurrentPtr current) override;
+    void updateServerState(const std::string &podName, const std::string &settingState, const std::string &presentState, taf::CurrentPtr current) override;
 
 };

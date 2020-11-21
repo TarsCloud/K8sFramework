@@ -4,7 +4,7 @@
 
 #include "servant/Application.h"
 
-using namespace tars;
+using namespace taf;
 
 /**
  *  Registry Server
@@ -22,8 +22,7 @@ protected:
     void destroyApp() override;
 
 private:
-    std::thread _ioThread;
-    std::thread _k8sClientThread;
+     std::thread  upchainThread;
 };
 
 

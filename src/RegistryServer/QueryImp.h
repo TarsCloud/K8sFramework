@@ -2,21 +2,21 @@
 
 #pragma once
 
+#include <string>
 #include "servant/QueryF.h"
 
-using namespace tars;
+using namespace taf;
 
-enum FUNID
-{
-  FUNID_findObjectById = 0,
-  FUNID_findObjectById4Any = 1,
-  FUNID_findObjectById4All = 2,
-  FUNID_findObjectByIdInSameGroup = 3,
-  FUNID_findObjectByIdInSameStation = 4,
-  FUNID_findObjectByIdInSameSet = 5
+enum FUNID {
+    FUNID_findObjectById = 0,
+    FUNID_findObjectById4Any = 1,
+    FUNID_findObjectById4All = 2,
+    FUNID_findObjectByIdInSameGroup = 3,
+    FUNID_findObjectByIdInSameStation = 4,
+    FUNID_findObjectByIdInSameSet = 5
 };
 
-string eFunTostr(const FUNID eFnId);
+std::string eFunTostr(const FUNID eFnId);
 
 /**
  * 对象查询接口类
@@ -45,7 +45,7 @@ public:
      *
      * @return  返回所有该对象的活动endpoint列表
      */
-    vector<EndpointF> findObjectById(const std::string &id, tars::CurrentPtr current) override;
+    vector <EndpointF> findObjectById(const std::string &id, taf::JceCurrentPtr current) override;
 
     /**根据id获取所有对象,包括活动和非活动对象
      *
@@ -54,9 +54,9 @@ public:
      * @param inactiveEp 非存活endpoint列表
      * @return:  0-成功  others-失败
      */
-    tars::Int32
-    findObjectById4Any(const std::string &id, vector<tars::EndpointF> &activeEp, vector<tars::EndpointF> &inactiveEp,
-                       tars::CurrentPtr current) override;
+    taf::Int32
+    findObjectById4Any(const std::string &id, vector <taf::EndpointF> &activeEp, vector <taf::EndpointF> &inactiveEp,
+                       taf::JceCurrentPtr current) override;
 
     /** 根据id获取对象所有endpoint列表
      *
@@ -66,8 +66,8 @@ public:
      * @return:  0-成功  others-失败
      */
     Int32 findObjectById4All(const std::string &id,
-                             vector<tars::EndpointF> &activeEp, vector<tars::EndpointF> &inactiveEp,
-                             tars::CurrentPtr current) override;
+                             vector <taf::EndpointF> &activeEp, vector <taf::EndpointF> &inactiveEp,
+                             taf::JceCurrentPtr current) override;
 
     /** 根据id获取对象同组endpoint列表
     *
@@ -77,8 +77,8 @@ public:
     * @return:  0-成功  others-失败
     */
     Int32 findObjectByIdInSameGroup(const std::string &id,
-                                    vector<tars::EndpointF> &activeEp, vector<tars::EndpointF> &inactiveEp,
-                                    tars::CurrentPtr current) override;
+                                    vector <taf::EndpointF> &activeEp, vector <taf::EndpointF> &inactiveEp,
+                                    taf::JceCurrentPtr current) override;
 
     /** 根据id获取对象指定归属地的endpoint列表
      *
@@ -88,9 +88,9 @@ public:
      * @return:  0-成功  others-失败
      */
     Int32
-    findObjectByIdInSameStation(const std::string &id, const std::string &sStation, vector<tars::EndpointF> &activeEp,
-                                vector<tars::EndpointF> &inactiveEp,
-                                tars::CurrentPtr current) override;
+    findObjectByIdInSameStation(const std::string &id, const std::string &sStation, vector <taf::EndpointF> &activeEp,
+                                vector <taf::EndpointF> &inactiveEp,
+                                taf::JceCurrentPtr current) override;
 
     /** 根据id获取对象同set endpoint列表
     *
@@ -100,12 +100,12 @@ public:
     * @param inactiveEp 非存活endpoint列表
     * @return:  0-成功  others-失败
     */
-    Int32 findObjectByIdInSameSet(const std::string &id, const std::string &setId, vector<tars::EndpointF> &activeEp,
-                                  vector<tars::EndpointF> &inactiveEp,
-                                  tars::CurrentPtr current) override;
+    Int32 findObjectByIdInSameSet(const std::string &id, const std::string &setId, vector <taf::EndpointF> &activeEp,
+                                  vector <taf::EndpointF> &inactiveEp,
+                                  taf::JceCurrentPtr current) override;
 
- private:
-  void doDaylog(FUNID eFnId,const string& id,const vector<tars::EndpointF> &activeEp,
-                    const vector<tars::EndpointF> &inactiveEp, const tars::CurrentPtr& current,
-                    const std::ostringstream& os,const string& sSetid="");
+private:
+    void doDaylog(FUNID eFnId, const string &id, const vector <taf::EndpointF> &activeEp,
+                  const vector <taf::EndpointF> &inactiveEp, const taf::CurrentPtr &current,
+                  const std::ostringstream &os, const string &sSetid = "");
 };
