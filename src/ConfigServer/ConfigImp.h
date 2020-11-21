@@ -4,10 +4,10 @@
 #include "util/tc_common.h"
 #include "util/tc_config.h"
 #include "util/tc_mysql.h"
-#include "servant/RemoteLogger.h"
+#include "servant/taf_logger.h"
 #include "servant/ConfigF.h"
 
-using namespace tars;
+using namespace taf;
 
 class ConfigImp final : public Config {
 public:
@@ -41,7 +41,7 @@ public:
     *
     * return  : 配置文件内容
     */
-    int ListConfig(const string &app, const string &server, vector<string> &vf, tars::CurrentPtr current) final;
+    int ListConfig(const string &app, const string &server, vector <string> &vf, taf::JceCurrentPtr current) final;
 
     /**
      * 加载配置文件
@@ -52,7 +52,7 @@ public:
      * return  : 配置文件内容
      */
     int loadConfig(const std::string &app, const std::string &server, const std::string &filename, string &config,
-                   tars::CurrentPtr current) final;
+                   taf::JceCurrentPtr current) final;
 
     /**
      * 根据ip获取配置
@@ -64,7 +64,7 @@ public:
      * @return int
      */
     int loadConfigByHost(const string &appServerName, const string &filename, const string &host, string &config,
-                         tars::CurrentPtr current) final;
+                         taf::JceCurrentPtr current) final;
 
     /**
      *
@@ -76,7 +76,7 @@ public:
      * @return int
      */
     int checkConfig(const string &appServerName, const string &filename, const string &host, string &result,
-                    tars::CurrentPtr current) final;
+                    taf::JceCurrentPtr current) final;
 
     /**
     * 获取配置文件列表
@@ -85,7 +85,7 @@ public:
     *
     * return  : 配置文件内容
     */
-    int ListConfigByInfo(const ConfigInfo &configInfo, vector<string> &vf, tars::CurrentPtr current) final;
+    int ListConfigByInfo(const ConfigInfo &configInfo, vector <string> &vf, taf::JceCurrentPtr current) final;
 
     /**
      * 加载配置文件
@@ -95,7 +95,7 @@ public:
      * return  :
      */
 
-    int loadConfigByInfo(const ConfigInfo &configInfo, string &config, tars::CurrentPtr current) final;
+    int loadConfigByInfo(const ConfigInfo &configInfo, string &config, taf::JceCurrentPtr current) final;
 
     /**
      *
@@ -104,7 +104,7 @@ public:
      * @return int
      */
 
-    int checkConfigByInfo(const ConfigInfo &configInfo, string &result, tars::CurrentPtr current) final;
+    int checkConfigByInfo(const ConfigInfo &configInfo, string &result, taf::JceCurrentPtr current) final;
 
     /**
     * 获取服务的所有配置文件列表，
@@ -112,14 +112,8 @@ public:
     * @param[out] vf  获取到的文件名称列表
     * @return int 0: 成功, -1:失败
     **/
-    tars::Int32 ListAllConfigByInfo(const tars::GetConfigListInfo &configInfo, vector<std::string> &vf,
-                                   tars::CurrentPtr current) final;
-
-    int loadConfigByPodSeq(const string &appServerName, const string &filename, int podSeq, string &result);
-
-protected:
-    std::mutex _mutex;
-    TC_Mysql _mysqlConfig;
+    taf::Int32 ListAllConfigByInfo(const taf::GetConfigListInfo &configInfo, vector <std::string> &vf,
+                                   taf::JceCurrentPtr current) final;
 };
 
 #endif

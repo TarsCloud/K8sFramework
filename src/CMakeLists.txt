@@ -22,6 +22,10 @@ endif()
 include_directories(/usr/local/tars/cpp/thirdparty/include)
 link_directories(/usr/local/tars/cpp/thirdparty/lib)
 
+add_subdirectory(LibK8SClient)
+
+include_directories(./LibK8SClient/)
+
 add_subdirectory(ConfigServer)
 add_subdirectory(NodeServer)
 add_subdirectory(NotifyServer)

@@ -3,7 +3,7 @@
 
 #include "servant/Application.h"
 
-using namespace tars;
+using namespace taf;
 
 class ConfigServer : public Application {
 protected:
@@ -17,8 +17,6 @@ protected:
      */
     void destroyApp() final;
 };
-
-extern ConfigServer g_app;
 
 #endif
 
