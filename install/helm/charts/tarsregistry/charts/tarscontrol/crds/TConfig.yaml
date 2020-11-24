@@ -1,58 +1,32 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: tconfigs.k8s.tars.io
+  name: tdeploys.k8s.taf.io
 spec:
   conversion:
     strategy: None
-  group: k8s.tars.io
+  group: k8s.taf.io
   names:
-    kind: TConfig
-    listKind: TConfigList
-    plural: tconfigs
+    kind: TDeploy
+    listKind: TDeployList
+    plural: tdeploys
     shortNames:
-      - tc
-    singular: tconfig
+      - td
+    singular: tdeploy
   scope: Namespaced
   versions:
     - name: v1alpha1
       schema:
         openAPIV3Schema:
-          oneOf:
-            - required:
-                - appConfig
-            - required:
-                - serverConfig
           properties:
-            appConfig:
-              properties:
-                app:
-                  pattern: ^[a-zA-Z][a-zA-Z0-9]{0,23}$
-                  type: string
-                configName:
-                  type: string
-                  pattern: ^[a-zA-Z][a-zA-Z0-9_.-]{0,48}$
-                configContent:
-                  type: string
-                  maxLength: 819200
-                updatePerson:
-                  type: string
-                  pattern: ^[a-zA-Z][a-zA-Z0-9_.-]{0,15}$
-                updateReason:
-                  type: string
-                  maxLength: 300
-                updateTime:
-                  type: string
-                  format: date-time
-              required:
-                - app
-                - configName
-                - configContent
-                - updateTime
-                - updatePerson
-                - updateReason
-              type: object
-            serverConfig:
+            apply:
+              oneOf:
+                - required:
+                    - taf
+                    - k8s
+                - required:
+                    - normal
+                    - k8s
               properties:
                 app:
                   type: string
@@ -60,33 +34,447 @@ spec:
                 server:
                   type: string
                   pattern: ^[a-zA-Z][a-zA-Z0-9]{1,35}$
-                configName:
+                subType:
+                  enum:
+                    - taf
+                    - normal
                   type: string
-                  pattern: ^[a-zA-Z][a-zA-Z0-9_.-]{0,48}$
-                configContent:
-                  type: string
-                  maxLength: 819200
-                podSeq:
-                  type: string
-                  pattern: ^[1-9]$|[1-3][0-9]$
-                updatePerson:
-                  type: string
-                  pattern: ^[a-zA-Z][a-zA-Z0-9_.-]{0,15}$
-                updateReason:
-                  type: string
-                  maxLength: 300
-                updateTime:
-                  type: string
-                  format: date-time
+                important:
+                  default: 3
+                  maximum: 20
+                  minimum: 1
+                  type: integer
+                k8s:
+                  properties:
+                    env:
+                      items:
+                        oneOf:
+                          - required:
+                              - value
+                          - required:
+                              - valueFrom
+                        properties:
+                          name:
+                            pattern: ^[a-zA-Z][a-zA-Z0-9-_]{1,47}$
+                            type: string
+                          value:
+                            pattern: ^[$a-zA-Z0-9{}/:]{0,180}$
+                            required:
+                              - value
+                            type: string
+                          valueFrom:
+                            oneOf:
+                              - required:
+                                  - fieldRef
+                              - required:
+                                  - resourceFieldRef
+                              - required:
+                                  - configMapKeyRef
+                              - required:
+                                  - secretKeyRef
+                            properties:
+                              configMapKeyRef:
+                                properties:
+                                  key:
+                                    pattern: ^[a-zA-Z][a-zA-Z0-9-]{1,47}$
+                                    type: string
+                                  name:
+                                    pattern: ^[a-zA-Z][a-zA-Z0-9-]{1,47}$
+                                    type: string
+                                  optional:
+                                    type: boolean
+                                required:
+                                  - name
+                                  - key
+                                type: object
+                              fieldRef:
+                                properties:
+                                  apiVersion:
+                                    type: string
+                                  fieldPath:
+                                    type: string
+                                type: object
+                              resourceFieldRef:
+                                properties:
+                                  containerName:
+                                    type: string
+                                  divisor:
+                                    x-kubernetes-int-or-string: true
+                                  resource:
+                                    type: string
+                                type: object
+                              secretKeyRef:
+                                properties:
+                                  key:
+                                    pattern: ^[a-zA-Z][a-zA-Z0-9-]{1,47}$h
+                                    type: string
+                                  name:
+                                    pattern: ^[a-zA-Z][a-zA-Z0-9-]{1,47}$
+                                    type: string
+                                  optional:
+                                    type: boolean
+                                required:
+                                  - name
+                                  - key
+                                type: object
+                            type: object
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    envFrom:
+                      items:
+                        oneOf:
+                          - required:
+                              - configMapRef
+                          - required:
+                              - secretRef
+                        properties:
+                          configMapRef:
+                            properties:
+                              name:
+                                pattern: ^[a-zA-Z][a-zA-Z0-9-]{1,47}$
+                                type: string
+                              optional:
+                                type: boolean
+                            required:
+                              - name
+                            type: object
+                          prefix:
+                            type: string
+                          secretRef:
+                            properties:
+                              name:
+                                pattern: ^[a-zA-Z][a-zA-Z0-9-]{1,47}$
+                                type: string
+                              optional:
+                                type: boolean
+                            required:
+                              - name
+                            type: object
+                        type: object
+                      type: array
+                    hostNetwork:
+                      default: false
+                      type: boolean
+                    hostIPC:
+                      default: false
+                      type: boolean
+                    hostPorts:
+                      items:
+                        properties:
+                          nameRef:
+                            pattern: ^[a-zA-Z0-9]{1,45}Obj$
+                            type: string
+                          port:
+                            maximum: 65535
+                            minimum: 1
+                            type: integer
+                        required:
+                          - nameRef
+                          - port
+                        type: object
+                      type: array
+                    mounts:
+                      items:
+                        properties:
+                          mountPath:
+                            type: string
+                          mountPropagation:
+                            enum:
+                              - None
+                              - MountPropagationHostToContainer
+                              - MountPropagationBidirectional
+                            type: string
+                          name:
+                            pattern: ^[a-zA-Z][a-zA-Z0-9-]{1,47}$
+                            type: string
+                          readOnly:
+                            type: boolean
+                          source:
+                            oneOf:
+                              - required:
+                                  - hostPath
+                              - required:
+                                  - emptyDir
+                              - required:
+                                  - configMap
+                              - required:
+                                  - secret
+                              - required:
+                                  - persistentVolumeClaim
+                              - required:
+                                  - downwardAPI
+                            properties:
+                              configMap:
+                                properties:
+                                  items:
+                                    items:
+                                      properties:
+                                        fsType:
+                                          type: string
+                                        key:
+                                          type: string
+                                        path:
+                                          type: string
+                                      type: object
+                                    required:
+                                      - key
+                                      - path
+                                    type: array
+                                  name:
+                                    type: string
+                                type: object
+                              emptyDir:
+                                properties:
+                                  medium:
+                                    enum:
+                                      - ""
+                                      - Memory
+                                      - HugePages
+                                    type: string
+                                  sizeLimit:
+                                    type: integer
+                                type: object
+                              hostPath:
+                                properties:
+                                  path:
+                                    type: string
+                                  type:
+                                    enum:
+                                      - ""
+                                      - DirectoryOrCreate
+                                      - Directory
+                                      - FileOrCreate
+                                      - File
+                                      - Socket
+                                      - CharDevice
+                                      - BlockDevice
+                                    type: string
+                                required:
+                                  - path
+                                type: object
+                              persistentVolumeClaim:
+                                properties:
+                                  claimName:
+                                    type: string
+                                  readOnly:
+                                    type: boolean
+                                type: object
+                              secret:
+                                properties:
+                                  defaultMode:
+                                    type: integer
+                                  items:
+                                    items:
+                                      properties:
+                                        fsType:
+                                          type: string
+                                        key:
+                                          type: string
+                                        path:
+                                          type: string
+                                      type: object
+                                    minItems: 1
+                                    required:
+                                      - key
+                                      - path
+                                    type: array
+                                  name:
+                                    type: string
+                                  optional:
+                                    type: boolean
+                                required:
+                                  - name
+                                type: object
+                            type: object
+                          subPath:
+                            type: string
+                          subPathExpr:
+                            type: string
+                        type: object
+                      type: array
+                    nodeSelector:
+                      oneOf:
+                        - required:
+                            - nodeBind
+                        - required:
+                            - publicPool
+                        - required:
+                            - abilityPool
+                        - required:
+                            - daemonSet
+                      properties:
+                        abilityPool:
+                          properties:
+                            values:
+                              items:
+                                type: string
+                              maxItems: 0
+                              type: array
+                          type: object
+                        nodeBind:
+                          properties:
+                            values:
+                              items:
+                                type: string
+                              minItems: 1
+                              type: array
+                          required:
+                            - values
+                          type: object
+                        publicPool:
+                          properties:
+                            values:
+                              items:
+                                type: string
+                              maxItems: 0
+                              type: array
+                          type: object
+                        daemonSet:
+                          properties:
+                            values:
+                              items:
+                                type: string
+                              maxItems: 0
+                              type: array
+                          type: object
+                      type: object
+                    notStacked:
+                      default: false
+                      type: boolean
+                    podManagementPolicy:
+                      default: Parallel
+                      enum:
+                        - OrderedReady
+                        - Parallel
+                      type: string
+                    readinessGate:
+                      enum:
+                        - ""
+                        - taf.io/active
+                      type: string
+                    replicas:
+                      maximum: 12
+                      minimum: 0
+                      type: integer
+                    serviceAccount:
+                      pattern: ^[a-zA-Z][a-zA-Z0-9-]{1,47}$
+                      type: string
+                  required:
+                    - replicas
+                    - nodeSelector
+                  type: object
+                normal:
+                  properties:
+                    ports:
+                      items:
+                        properties:
+                          isTcp:
+                            default: true
+                            type: boolean
+                          name:
+                            pattern: ^[a-zA-Z][a-zA-Z0-9-]{0,44}$
+                            type: string
+                          port:
+                            maximum: 65535
+                            minimum: 1
+                            type: integer
+                        required:
+                          - name
+                          - port
+                        type: object
+                      minItems: 1
+                      type: array
+                  required:
+                    - ports
+                  type: object
+                taf:
+                  properties:
+                    asyncThread:
+                      default: 1
+                      maximum: 5
+                      minimum: 0
+                      type: integer
+                    foreground:
+                      default: false
+                      type: boolean
+                    profile:
+                      type: string
+                    servants:
+                      items:
+                        properties:
+                          capacity:
+                            default: 10000
+                            maximum: 3000000
+                            minimum: 1
+                            type: integer
+                          connection:
+                            default: 10000
+                            maximum: 3000000
+                            minimum: 1
+                            type: integer
+                          isTaf:
+                            default: true
+                            type: boolean
+                          isTcp:
+                            default: true
+                            type: boolean
+                          name:
+                            pattern: ^[a-zA-Z][a-zA-Z0-9]{0,44}Obj$
+                            type: string
+                          port:
+                            maximum: 65535
+                            minimum: 1
+                            type: integer
+                          thread:
+                            default: 3
+                            maximum: 16
+                            minimum: 1
+                            type: integer
+                          timeout:
+                            default: 60000
+                            maximum: 6000000
+                            minimum: 0
+                            type: integer
+                        required:
+                          - name
+                          - port
+                        type: object
+                      minItems: 1
+                      type: array
+                    template:
+                      pattern: ^[a-zA-Z][a-zA-Z0-9-.]{1,35}$
+                      type: string
+                  type: object
               required:
                 - app
                 - server
-                - configName
-                - configContent
-                - updateTime
-                - updatePerson
-                - updateReason
+                - subType
               type: object
+            approve:
+              properties:
+                person:
+                  type: string
+                  pattern: ^[a-zA-Z][a-zA-Z0-9_.-]{0,15}$
+                reason:
+                  type: string
+                  maxLength: 300
+                result:
+                  type: boolean
+                time:
+                  type: string
+                  format: date-time
+              required:
+                - person
+                - time
+                - result
+                - reason
+              type: object
+            deployed:
+              type: boolean
+          required:
+            - apply
           type: object
       served: true
       storage: true
