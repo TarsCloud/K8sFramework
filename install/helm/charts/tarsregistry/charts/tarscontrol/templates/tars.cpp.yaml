@@ -1,0 +1,8 @@
+apiVersion: k8s.tars.io/v1alpha1
+kind: TTemplate
+metadata:
+  name: tars.cpp
+  namespace: {{.Release.Namespace}}
+spec:
+  content: ""
+  parent: tars.default

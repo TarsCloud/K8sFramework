@@ -1,0 +1,6 @@
+#!/bin/bash
+export ServerName="tarsstat"
+export ServerType="tars_cpp"
+export BuildPerson="admin"
+export BuildTime="Tue Nov 24 09:25:38 CST 2020"
+

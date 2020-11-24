@@ -1,0 +1,186 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tars-admin
+  namespace: {{.Release.Namespace}}
+stringData:
+  _DB_HOST_: "{{ .Values.tarsDB.host }}"
+  _DB_PORT_: "{{ .Values.tarsDB.port }}"
+  _DB_USER_: "{{ .Values.tarsDB.user }}"
+  _DB_PASSWORD_: "{{ .Values.tarsDB.password }}"
+  _DB_NAME_: "{{ .Values.tarsDB.name }}"
+---
+
+
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tars-tarsadmin
+  namespace: {{.Release.Namespace}}
+---
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tars-tarsadmin
+  namespace: {{.Release.Namespace}}
+rules:
+  - apiGroups: [ "" ]
+    resources: [ pods,pods/status ]
+    verbs: [ get ]
+  - apiGroups: [ "" ]
+    resources: [ pods/exec ]
+    verbs: [ create ]
+  - apiGroups: [ k8s.tars.io ]
+    resources: [ tservers ,ttemplates, treleases,tendpoints,tendpoints/status ]
+    verbs: [ create, get ,list, watch ,patch,update ]
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tars-tarsadmin
+  namespace: {{.Release.Namespace}}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tars-tarsadmin
+subjects:
+  - kind: ServiceAccount
+    name: tars-tarsadmin
+    namespace: {{.Release.Namespace}}
+---
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{.Release.Namespace}}:tars-tarsadmin
+rules:
+  - apiGroups: [ "" ]
+    resources: [ nodes ]
+    verbs: [ get, list, watch,update ]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{.Release.Namespace}}:tars-tarsadmin
+subjects:
+  - kind: ServiceAccount
+    name: tars-tarsadmin
+    namespace: {{.Release.Namespace}}
+roleRef:
+  kind: ClusterRole
+  name: {{.Release.Namespace}}:tars-tarsadmin
+  apiGroup: rbac.authorization.k8s.io
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tars-default
+  namespace: {{.Release.Namespace}}
+data:
+  ServerServantElem: |
+    {
+        "Port": 10000,
+        "IsTars": true,
+        "IsTcp": true,
+        "Threads": 3,
+        "Timeout": 60000,
+        "Capacity": 10000,
+        "HostPort": 0,
+        "Connections": 10000
+    }
+  ServerOption: |
+    {
+        "AsyncThread": 3,
+        "ServerProfile": "",
+        "ServerTemplate": "tars.default",
+        "ServerImportant": 2,
+        "ServerSubType": "tars"
+    }
+  K8SNodeSelectorKind: |
+    [
+        "AbilityPool",
+        "PublicPool",
+        "NodeBind"
+    ]
+  ServerTypeOptional: |
+    [
+        "tars_cpp",
+        "tars_java_war",
+        "tars_java_jar",
+        "tars_nodejs",
+        "not_tars"
+    ]
+  ServerK8S: |
+    {
+        "HostIpc": false,
+        "HostPort": [ ],
+        "Replicas": 0,
+        "HostNetwork": false,
+        "NodeSelector": {
+            "AbilityPool": {
+                "Value": [ ]
+            }
+        }
+    }
+---
+
+apiVersion: k8s.tars.io/v1alpha1
+kind: TRelease
+metadata:
+  name: tars-tarsadmin
+  namespace: {{.Release.Namespace}}
+spec:
+  list:
+    - image: {{.Values.global.registry.url}}/tars.tarsadmin:10000
+      imagePullSecret: tars-image-secret
+      tag: "10000"
+      serverType: tars_cpp
+---
+
+apiVersion: k8s.tars.io/v1alpha1
+kind: TServer
+metadata:
+  name: tars-tarsadmin
+  namespace: {{.Release.Namespace}}
+  labels:
+    tars.io/ReleaseSource: tars-tarsadmin
+    tars.io/ReleaseTag: "10000"
+    tars.io/ServerApp: tars
+    tars.io/ServerName: tarsadmin
+    tars.io/SubType: normal
+    tars.io/Template: tars.default
+spec:
+  app: tars
+  server: tarsadmin
+  subType: normal
+  normal:
+    ports:
+      - name: admin
+        port: 18080
+      - name: proxy
+        port: 18081
+  k8s:
+    replicas: 1
+    nodeSelector:
+      abilityPool:
+        values: [ ]
+    serviceAccount: tars-tarsadmin
+    envFrom:
+      - secretRef:
+          name: tars-admin
+    mounts:
+      - name: default-env
+        source:
+          configMap:
+            name: tars-default
+        mountPath: /etc/default-env
+  release:
+    source: tars-tarsadmin
+    tag: '10000'
+    image: {{.Values.global.registry.url}}/tars.tarsadmin:10000
+    imagePullSecret: tars-image-secret
+    serverType: tars_cpp

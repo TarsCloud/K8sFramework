@@ -26,7 +26,7 @@ function LOG_DEBUG() {
 
 if (($# < 3)); then
   LOG_INFO "Usage:  push.sh <DOCKER_REGISTRY_URL> <DOCKER_REGISTRY_USER> <DOCKER_REGISTRY_PASSWORD>"
-  LOG_INFO "Example: push.sh dockerhub.com/tafk8s tafk8s tafk8s@image"
+  LOG_INFO "Example: push.sh docker.tarsyun.com/k8sframework tarsk8s tarsk8s@image"
   exit 255
 fi
 
@@ -36,14 +36,14 @@ _DOCKER_REGISTRY_USER_=$2
 _DOCKER_REGISTRY_PASSWORD_=$3
 #
 
+cp -rf k8s-web build/files/
+
 #### 构建基础镜像
 declare -a BaseImages=(
-  taf.base
-  taf.cppbase
-  taf.javabase
-  taf.node6base
-  taf.node8base
-  taf.node10base
+  tars.base
+  tars.cppbase
+  tars.javabase
+  tars.nodejsbase
   helm.wait
 )
 
@@ -57,12 +57,12 @@ done
 
 #### 构建基础服务镜像
 declare -a FrameworkImages=(
-  taf.tafcontrol
-  taf.tafregistry
-  taf.tafagent
-  taf.tafimage
-  taf.tafadmin
-  taf.tafweb
+  tars.tarscontrol
+  tars.tarsregistry
+  tars.tarsagent
+  tars.tarsimage
+  tars.tarsadmin
+  tars.tarsweb
 )
 
 for KEY in "${FrameworkImages[@]}"; do
@@ -75,37 +75,37 @@ done
 
 #### 构建基础服务镜像
 declare -a ServerImages=(
-  taflog
-  tafconfig
-  tafnotify
-  tafstat
-  tafquerystat
-  tafproperty
-  tafqueryproperty
+  tarslog
+  tarsconfig
+  tarsnotify
+  tarsstat
+  tarsquerystat
+  tarsproperty
+  tarsqueryproperty
 )
 
 for KEY in "${ServerImages[@]}"; do
-  mkdir -p build/files/template/taf."${KEY}"
-  mkdir -p build/files/template/taf."${KEY}"/root/etc
-  mkdir -p build/files/template/taf."${KEY}"/root/usr/local/server/bin
+  mkdir -p build/files/template/tars."${KEY}"
+  mkdir -p build/files/template/tars."${KEY}"/root/etc
+  mkdir -p build/files/template/tars."${KEY}"/root/usr/local/server/bin
 
-  if ! cp build/files/binary/"${KEY}" build/files/template/taf."${KEY}"/root/usr/local/server/bin/"${KEY}"; then
+  if ! cp build/files/binary/"${KEY}" build/files/template/tars."${KEY}"/root/usr/local/server/bin/"${KEY}"; then
     LOG_ERROR "copy ${KEY} failed, please check ${KEY} is in directory: build/files/binary"
     exit 255
   fi
 
-  echo "FROM taf.cppbase
+  echo "FROM tars.cppbase
 COPY /root /
-" >build/files/template/taf."${KEY}"/Dockerfile
+" >build/files/template/tars."${KEY}"/Dockerfile
 
   echo "#!/bin/bash
 export ServerName=\"${KEY}\"
-export ServerType=\"taf_cpp\"
+export ServerType=\"tars_cpp\"
 export BuildPerson=\"admin\"
 export BuildTime=\"$(date)\"
-" >build/files/template/taf."${KEY}"/root/etc/detail
+" >build/files/template/tars."${KEY}"/root/etc/detail
 
-  if ! docker build -t taf."${KEY}" build/files/template/taf."${KEY}"; then
+  if ! docker build -t tars."${KEY}" build/files/template/tars."${KEY}"; then
     LOG_ERROR "Build ${KEY} image failed"
     exit 255
   fi
@@ -116,25 +116,23 @@ done
 LOG_INFO "Build All Images Ok"
 
 declare -a LocalImages=(
-  taf.base
-  taf.cppbase
-  taf.javabase
-  taf.node6base
-  taf.node8base
-  taf.node10base
-  taf.tafcontrol
-  taf.tafregistry
-  taf.tafagent
-  taf.tafimage
-  taf.tafadmin
-  taf.tafweb
-  taf.taflog
-  taf.tafconfig
-  taf.tafnotify
-  taf.tafstat
-  taf.tafquerystat
-  taf.tafproperty
-  taf.tafqueryproperty
+  tars.base
+  tars.cppbase
+  tars.javabase
+  tars.nodejsbase
+  tars.tarscontrol
+  tars.tarsregistry
+  tars.tarsagent
+  tars.tarsimage
+  tars.tarsadmin
+  tars.tarsweb
+  tars.tarslog
+  tars.tarsconfig
+  tars.tarsnotify
+  tars.tarsstat
+  tars.tarsquerystat
+  tars.tarsproperty
+  tars.tarsqueryproperty
   helm.wait
 )
 

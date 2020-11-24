@@ -14,7 +14,7 @@ cp build_release/servers/tarsproperty/bin/tarsproperty /tars-k8s-binary || exit 
 cp build_release/servers/tarsqueryproperty/bin/tarsqueryproperty /tars-k8s-binary || exit 255
 
 cd ../src || exit 255
-mkdir build_tmp || exit 255
+mkdir -p build_tmp && rm -rf build_tmp/* || exit 255
 cd build_tmp || exit 255
 cmake .. || exit 255
 make -j4 || exit 255

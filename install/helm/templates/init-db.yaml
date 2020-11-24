@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: tafcontrol-init-db
+  name: tarscontrol-init-db
   namespace: {{.Release.Namespace}}
   annotations:
     # This is what defines this resource as a hook. Without this line, the
@@ -12,10 +12,10 @@ metadata:
 data:
   entrypoint: |
     #!/usr/bin/env bash
-    mysql -h{{.Values.tafDB.host}} -P{{.Values.tafDB.port}} -u{{.Values.tafDB.user}} -p{{.Values.tafDB.password}} < /init-db/tafDB.sql ||exit 255
+    mysql -h{{.Values.tarsDB.host}} -P{{.Values.tarsDB.port}} -u{{.Values.tarsDB.user}} -p{{.Values.tarsDB.password}} < /init-db/tarsDB.sql ||exit 255
     mysql -h{{.Values.statDB.host}} -P{{.Values.statDB.port}} -u{{.Values.statDB.user}} -p{{.Values.statDB.password}} < /init-db/statDB.sql ||exit 255
     mysql -h{{.Values.propertyDB.host}} -P{{.Values.propertyDB.port}} -u{{.Values.propertyDB.user}} -p{{.Values.propertyDB.password}} < /init-db/propertyDB.sql ||exit 255
-  tafDB.sql: |
+  tarsDB.sql: |
     -- MySQL dump 10.17  Distrib 10.3.22-MariaDB, for debian-linux-gnu (x86_64)
     --
     -- ------------------------------------------------------
@@ -33,12 +33,12 @@ data:
     /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
     --
-    -- Current Database: `{{.Values.tafDB.name}}`
+    -- Current Database: `{{.Values.tarsDB.name}}`
     --
 
-    CREATE DATABASE /*!32312 IF NOT EXISTS*/ `{{.Values.tafDB.name}}` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+    CREATE DATABASE /*!32312 IF NOT EXISTS*/ `{{.Values.tarsDB.name}}` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 
-    USE `{{.Values.tafDB.name}}`;
+    USE `{{.Values.tarsDB.name}}`;
 
     --
     -- Table structure for table `t_server_notify`
@@ -135,7 +135,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: tafcontrol-init-db
+  name: tarscontrol-init-db
   namespace: {{.Release.Namespace}}
   annotations:
     # This is what defines this resource as a hook. Without this line, the
@@ -146,20 +146,20 @@ metadata:
 spec:
   template:
     metadata:
-      name: tafcontrol-init-db
+      name: tarscontrol-init-db
     spec:
       containers:
-        - name: tafcontrol-init-db
+        - name: tarscontrol-init-db
           image: {{.Values.global.registry.url}}/mysqlclient
           command: [ "sh" ,"-c", "/init-db/entrypoint" ]
           volumeMounts:
             - name: init-db
               mountPath: /init-db
       imagePullSecrets:
-        - name: taf-image-secret
+        - name: tars-image-secret
       volumes:
         - configMap:
             defaultMode: 440
-            name: tafcontrol-init-db
+            name: tarscontrol-init-db
           name: init-db
       restartPolicy: Never

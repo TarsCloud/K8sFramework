@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tars-tarscontrol
+  namespace: {{.Release.Namespace}}
+---
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tars-tarscontrol
+  namespace: {{.Release.Namespace}}
+rules:
+  - apiGroups: [ "" ]
+    resources: [ services ]
+    verbs: [ create, get ,list, watch ,patch,update ]
+  - apiGroups: [ "" ]
+    resources: [ events ]
+    verbs: [ create ]
+  - apiGroups: [ "" ]
+    resources: [ pods,pods/status ]
+    verbs: [ list,get,watch ]
+  - apiGroups: [ apps ]
+    resources: [ statefulsets,daemonsets ]
+    verbs: [ create, get ,list, watch ,patch,update ]
+  - apiGroups: [ k8s.tars.io ]
+    resources: [ tservers ,ttemplates, treleases,tendpoints,tendpoints/status,tdeploys,tconfigs,texitedrecords]
+    verbs: [ create, get ,list, watch ,patch,update ]
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tars-tarscontrol
+  namespace: {{.Release.Namespace}}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tars-tarscontrol
+subjects:
+  - kind: ServiceAccount
+    name: tars-tarscontrol
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: tars-tarscontrol
+  namespace: {{.Release.Namespace}}
+  labels:
+    tars.io/ServerApp: tars
+    tars.io/ServerName: tarscontrol
+spec:
+  ports:
+    - name: hook
+      port: 443
+      protocol: TCP
+      targetPort: 443
+  selector:
+    tars.io/ServerApp: tars
+    tars.io/ServerName: tarscontrol
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tars-tarscontrol
+  namespace: {{.Release.Namespace}}
+  labels:
+    tars.io/ServerApp: tars
+    tars.io/ServerName: tarscontrol
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tars.io/ServerApp: tars
+      tars.io/ServerName: tarscontrol
+  template:
+    metadata:
+      labels:
+        tars.io/ServerApp: tars
+        tars.io/ServerName: tarscontrol
+      name: tars-tarscontrol
+    spec:
+      containers:
+        - env:
+            - name: SERVICE_NAME
+              value: tars-tarscontrol
+          image: {{.Values.global.registry.url}}/tars.tarscontrol:10000
+          imagePullPolicy: Always
+          name: tars-tarscontrol
+      enableServiceLinks: false
+      imagePullSecrets:
+        - name: tars-image-secret
+      restartPolicy: Always
+      serviceAccount: tars-tarscontrol

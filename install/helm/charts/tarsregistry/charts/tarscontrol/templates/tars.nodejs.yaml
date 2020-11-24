@@ -1,0 +1,16 @@
+apiVersion: k8s.tars.io/v1alpha1
+kind: TTemplate
+metadata:
+  name: tars.nodejs
+  namespace: {{.Release.Namespace}}
+spec:
+  content: |
+    <tars>
+      <application>
+        <client>
+          #网络异步回调线程个数
+          asyncthread = 2
+        </client>
+      </application>
+    </tars>
+  parent: tars.default

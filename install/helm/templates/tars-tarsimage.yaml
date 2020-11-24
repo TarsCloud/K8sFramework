@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tars-tarsimage
+  namespace: {{.Release.Namespace}}
+data:
+  DockerRegistryUrl: {{.Values.global.registry.url}}
+  DockerRegistryUser: {{.Values.global.registry.user}}
+  DockerRegistryPassword: {{.Values.global.registry.password}}
+  CppImageBase: {{.Values.global.registry.url}}/tars.cppbase:10000
+  JavaImageBase: {{.Values.global.registry.url}}/tars.javabase:10000
+  Node6ImageBase: {{.Values.global.registry.url}}/tars.node6base:10000
+  Node8ImageBase: {{.Values.global.registry.url}}/tars.node8base:10000
+  Node10ImageBase: {{.Values.global.registry.url}}/tars.node10base:10000
+---
+
+apiVersion: k8s.tars.io/v1alpha1
+kind: TRelease
+metadata:
+  name: tars-tarsimage
+  namespace: {{.Release.Namespace}}
+spec:
+  list:
+    - image: {{.Values.global.registry.url}}/tars.tarsimage:10000
+      imagePullSecret: tars-image-secret
+      tag: "10000"
+      serverType: tars_cpp
+---
+
+apiVersion: k8s.tars.io/v1alpha1
+kind: TServer
+metadata:
+  name: tars-tarsimage
+  namespace: {{.Release.Namespace}}
+  labels:
+    tars.io/ReleaseSource: tars-tarsimage
+    tars.io/ReleaseTag: "10000"
+    tars.io/ServerApp: tars
+    tars.io/ServerName: tarsimage
+    tars.io/SubType: normal
+    tars.io/Template: tars.default
+spec:
+  app: tars
+  server: tarsimage
+  subType: normal
+  normal:
+    ports:
+      - name: http
+        port: 80
+  k8s:
+    replicas: 1
+    nodeSelector:
+      abilityPool:
+        values: [ ]
+    mounts:
+      - name: docker-sock
+        source:
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+        mountPath: /var/run/docker.sock
+      - name: registry-env
+        source:
+          configMap:
+            name: tars-tarsimage
+        mountPath: /etc/registry-env
+  release:
+    source: tars-tarsimage
+    tag: '10000'
+    image: {{.Values.global.registry.url}}/tars.tarsimage:10000
+    imagePullSecret: tars-image-secret
+    serverType: tars_cpp

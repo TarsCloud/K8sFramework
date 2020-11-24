@@ -1,0 +1,37 @@
+apiVersion: k8s.tars.io/v1alpha1
+kind: TRelease
+metadata:
+  name: tars-tarsweb
+  namespace: {{.Release.Namespace}}
+spec:
+  list:
+    - image: {{.Values.global.registry.url}}/tars.tarsweb:10000
+      imagePullSecret: tars-image-secret
+      tag: "10000"
+      serverType: tars_nodejs
+---
+
+apiVersion: k8s.tars.io/v1alpha1
+kind: TServer
+metadata:
+  name: tars-tarsweb
+  namespace: {{.Release.Namespace}}
+spec:
+  app: tars
+  server: tarsweb
+  subType: normal
+  normal:
+    ports:
+      - name: http
+        port: 3000
+  k8s:
+    replicas: 1
+    nodeSelector:
+      abilityPool:
+        values: [ ]
+  release:
+    source: tars-tarsweb
+    tag: '10000'
+    image: {{.Values.global.registry.url}}/tars.tarsweb:10000
+    imagePullSecret: tars-image-secret
+    serverType: tars_nodejs

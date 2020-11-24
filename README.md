@@ -54,31 +54,21 @@
 
 因为 基础镜像采用 debian:stretch-slim(debian9 精简版),为避免出现兼容性问题,建议使用 debian 9 环境编译
 
-## 执行安装 install
+# Tars 安装
 
-- 本目录存放部署的模板文件
-
-- 安装前提:
-   1. 需要一个可用的 k8s 集群 ,且部署机能通过 kubectl 操作该集群
-   2. 需要三个 mysql database ,分别作为 框架基础数据库(_TARS_DB)，服务监控数据库(_TARS_STAT_)，特性监控数据库(_TARS_PROPERTY_)
-   3. 需要可用的 docker 镜像仓库，以及合法的用户名，密码
-   
-- 安装步骤:
+- 第一步 ： build  （不需要任何参数）
+- 第二步： push.sh  , 提供 镜像仓库地址，用户，密码
+- 第三步: helm install 
+  先修改install/helm/values.yaml 文件里面的值, 然后执行:
 ```
-cd /usr/local/tars/cpp/deploy
-
-#准备环境
-sh k8s-pre-install.sh
-
-#执行k8s-install.sh
-./k8s-install.sh DOCKER_REGISTRY_URL DOCKER_REGISTRY_USER DOCKER_REGISTRY_PASSWORD DB_TARS_HOST DB_TARS_PORT DB_TARS_USER DB_TARS_PASSWORD NODEIP;
-
-#等待执行完毕, 查看 tars-tarsweb service 的 nodeport 端口
-kubectl get service -n tars
-
-# 通过 nodeport 端口，可以访问 tars-tarsweb
+  helm install -n [namespace] --create-namespace ./install/helm
 ```
-
+  等待完成, 或者指定参数例如:
+```
+  helm install -n [namespace] --create-namespace ./install/helm \
+  --set global.registry.url=docker.tarsyun.com,global.registry.user=tars,...(其他参数)
+```
+  
 # K8SFramework 使用
 
 ## K8SFramework 的使用方式变化

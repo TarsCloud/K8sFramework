@@ -1,20 +1,20 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
-  name: {{.Release.Namespace}}:tafcontrol
+  name: {{.Release.Namespace}}:tarscontrol
 webhooks:
-  - name: validating.taf.k8s.io
+  - name: validating.tars.k8s.io
     namespaceSelector:
       matchLabels:
         name: {{.Release.Namespace}}
     clientConfig:
       caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURBakNDQWVxZ0F3SUJBZ0lKQUpkZTVJYys0OWYxTUEwR0NTcUdTSWIzRFFFQkN3VUFNQll4RkRBU0JnTlYKQkFNTUMzUmhabTl3WlhKaGRHOXlNQjRYRFRJd01UQXhOREF5TkRJeE5sb1hEVE13TVRBeE1qQXlOREl4TmxvdwpGakVVTUJJR0ExVUVBd3dMZEdGbWIzQmxjbUYwYjNJd2dnRWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3CmdnRUtBb0lCQVFDK0J3U09VS3E1RHhuY09wUEN2a0lxaEhGcGQyRFl5ZHlmSDJyRzFoUURhNC9oYmNYN1YrMUkKSXBETXUzK0t2UG1iODI1OFllQlpQTFlpYjRIYzhTRDFNcS9KOFhwOGtFZkE2aE1GWTFMbnBKWU5hZnpPNlhHNwpYa3BNazB4OEFPampFUkJYODJMVHZoTnNRTmdCYmh1dFk1MFY1ZXFiSCswVFVuQlFCT2ZxUVpzbnZTVDdqQ1dBCmt5VTJ3K2IvZHBCSnFVdFNkN3hNaGRHMlpPSVVObHREQ0dKalI1bk83Q1NUaHZaRTBaMG4vMDJkdUw2UCt0dFoKVTBla3ZoZUQwODA5TFpodElCWGtDeUpFT294OHA1RUNPUkpseE5JbHJEMm5VYzFpN3RyZFFZU2p3VG5lem1nZQpCMWJ0dXFiRHFXcGxOUUQ1UWo5TUVDZ2pnZnFJd2U2ZkFnTUJBQUdqVXpCUk1CMEdBMVVkRGdRV0JCUlZjbGhxCm5naEJiZDdaRERIamVzY0pteVdJM0RBZkJnTlZIU01FR0RBV2dCUlZjbGhxbmdoQmJkN1pEREhqZXNjSm15V0kKM0RBUEJnTlZIUk1CQWY4RUJUQURBUUgvTUEwR0NTcUdTSWIzRFFFQkN3VUFBNElCQVFBenhsdlhpSmQvMWxzbQoxT2pqVGFhQ1Nra1g4UStyTlM0QStHMlFDSFI2UjNNaTQzanJ3OEFhM3c3dTE0ZFRqS3ptTWQ5OVVRVzJDUjJiCnAyajVwYWJ4amx1UWZNTXQyTEFpWFF3SkVDcFFLTFhiSkFzcWQxQk9sWE1RM2lhenNKem9SUEZ3ZVRVTzdKVWcKQlVFR29vMjVQejFYVDlWTFNpSFNBM0gzTWVtczlycWE2cUlqUTF3TFNNZEpNVnJGenZRRDNaaDdZNFQyMFVxWApsNzYxS3JxRXZNbVRnTGtWV0RjeU5ScGtoRE9uTnFXWEFIZzZiWDJISUpXSEVPdk5melRtcUlpaE1vOVhxZ0Q3CjMydUxBMzc1cjBFSEJ3dGo4MFVNQmU5cWl3bHd0WkZpRW5iOHJ2elRCTGNhTzQrWTFMU1pTUC8yTWVBbGMrVUMKN1RPRDBuM0YKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQ==
       service:
-        name: taf-tafcontrol
+        name: tars-tarscontrol
         path: /validating
         namespace: {{.Release.Namespace}}
     rules:
-      - apiGroups: [ k8s.taf.io ]
+      - apiGroups: [ k8s.tars.io ]
         apiVersions: [ v1alpha1 ]
         operations: [ CREATE,UPDATE,DELETE ]
         resources: [ tdeploys,tservers,tendpoints,treleases,ttemplates,trees,tconfigs ]
@@ -28,20 +28,20 @@ webhooks:
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: {{.Release.Namespace}}:tafcontrol
+  name: {{.Release.Namespace}}-tarscontrol
 webhooks:
-  - name: mutating.taf.k8s.io
+  - name: mutating.tars.k8s.io
     namespaceSelector:
       matchLabels:
         name: {{.Release.Namespace}}
     clientConfig:
       caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURBakNDQWVxZ0F3SUJBZ0lKQUpkZTVJYys0OWYxTUEwR0NTcUdTSWIzRFFFQkN3VUFNQll4RkRBU0JnTlYKQkFNTUMzUmhabTl3WlhKaGRHOXlNQjRYRFRJd01UQXhOREF5TkRJeE5sb1hEVE13TVRBeE1qQXlOREl4TmxvdwpGakVVTUJJR0ExVUVBd3dMZEdGbWIzQmxjbUYwYjNJd2dnRWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3CmdnRUtBb0lCQVFDK0J3U09VS3E1RHhuY09wUEN2a0lxaEhGcGQyRFl5ZHlmSDJyRzFoUURhNC9oYmNYN1YrMUkKSXBETXUzK0t2UG1iODI1OFllQlpQTFlpYjRIYzhTRDFNcS9KOFhwOGtFZkE2aE1GWTFMbnBKWU5hZnpPNlhHNwpYa3BNazB4OEFPampFUkJYODJMVHZoTnNRTmdCYmh1dFk1MFY1ZXFiSCswVFVuQlFCT2ZxUVpzbnZTVDdqQ1dBCmt5VTJ3K2IvZHBCSnFVdFNkN3hNaGRHMlpPSVVObHREQ0dKalI1bk83Q1NUaHZaRTBaMG4vMDJkdUw2UCt0dFoKVTBla3ZoZUQwODA5TFpodElCWGtDeUpFT294OHA1RUNPUkpseE5JbHJEMm5VYzFpN3RyZFFZU2p3VG5lem1nZQpCMWJ0dXFiRHFXcGxOUUQ1UWo5TUVDZ2pnZnFJd2U2ZkFnTUJBQUdqVXpCUk1CMEdBMVVkRGdRV0JCUlZjbGhxCm5naEJiZDdaRERIamVzY0pteVdJM0RBZkJnTlZIU01FR0RBV2dCUlZjbGhxbmdoQmJkN1pEREhqZXNjSm15V0kKM0RBUEJnTlZIUk1CQWY4RUJUQURBUUgvTUEwR0NTcUdTSWIzRFFFQkN3VUFBNElCQVFBenhsdlhpSmQvMWxzbQoxT2pqVGFhQ1Nra1g4UStyTlM0QStHMlFDSFI2UjNNaTQzanJ3OEFhM3c3dTE0ZFRqS3ptTWQ5OVVRVzJDUjJiCnAyajVwYWJ4amx1UWZNTXQyTEFpWFF3SkVDcFFLTFhiSkFzcWQxQk9sWE1RM2lhenNKem9SUEZ3ZVRVTzdKVWcKQlVFR29vMjVQejFYVDlWTFNpSFNBM0gzTWVtczlycWE2cUlqUTF3TFNNZEpNVnJGenZRRDNaaDdZNFQyMFVxWApsNzYxS3JxRXZNbVRnTGtWV0RjeU5ScGtoRE9uTnFXWEFIZzZiWDJISUpXSEVPdk5melRtcUlpaE1vOVhxZ0Q3CjMydUxBMzc1cjBFSEJ3dGo4MFVNQmU5cWl3bHd0WkZpRW5iOHJ2elRCTGNhTzQrWTFMU1pTUC8yTWVBbGMrVUMKN1RPRDBuM0YKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQ==
       service:
-        name: taf-tafcontrol
+        name: tars-tarscontrol
         namespace: {{.Release.Namespace}}
         path: /mutating
     rules:
-      - apiGroups: [ k8s.taf.io ]
+      - apiGroups: [ k8s.tars.io ]
         apiVersions: [ v1alpha1 ]
         operations: [ CREATE,UPDATE ]
         resources: [ tdeploys,tservers,tconfigs,ttrees ]
@@ -55,7 +55,7 @@ webhooks:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: taf-webhook-update
+  name: tars-webhook-update
   annotations:
     "helm.sh/hook": post-install
     "helm.sh/hook-weight": "-10"
@@ -65,7 +65,7 @@ metadata:
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: {{.Release.Namespace}}:taf-webhook-update
+  name: {{.Release.Namespace}}:tars-webhook-update
   annotations:
     "helm.sh/hook": post-install
     "helm.sh/hook-weight": "-10"
@@ -79,7 +79,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{.Release.Namespace}}:taf-webhook-update
+  name: {{.Release.Namespace}}:tars-webhook-update
   annotations:
     "helm.sh/hook": post-install
     "helm.sh/hook-weight": "-10"
@@ -87,17 +87,17 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{.Release.Namespace}}:taf-webhook-update
+  name: {{.Release.Namespace}}:tars-webhook-update
 subjects:
   - kind: ServiceAccount
-    name: taf-webhook-update
+    name: tars-webhook-update
     namespace: {{.Release.Namespace}}
 ---
 
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: taf-webhook-update
+  name: tars-webhook-update
   namespace: {{.Release.Namespace}}
   annotations:
     "helm.sh/hook": post-install
@@ -113,15 +113,15 @@ data:
     -H 'Content-Type: application/strategic-merge-patch+json' \
     -H 'Accept: application/json' \
     -H 'Authorization: Bearer $(cat ${TokenFile})' \
-    -d '{\"webhooks\":[{\"name\":\"mutating.taf.k8s.io\",\"failurePolicy\":\"Fail\"}]}' \
-    'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/apis/admissionregistration.k8s.io/v1/mutatingwebhookconfigurations/{{.Release.Namespace}}:tafcontrol'"
+    -d '{\"webhooks\":[{\"name\":\"mutating.tars.k8s.io\",\"failurePolicy\":\"Fail\"}]}' \
+    'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/apis/admissionregistration.k8s.io/v1/mutatingwebhookconfigurations/{{.Release.Namespace}}:tarscontrol'"
 
     UpdateValidatingCommand="curl -s -k -X PATCH \
     -H 'Content-Type: application/strategic-merge-patch+json' \
     -H 'Accept: application/json' \
     -H 'Authorization: Bearer $(cat ${TokenFile})' \
-    -d '{\"webhooks\":[{\"name\":\"validating.taf.k8s.io\",\"failurePolicy\":\"Fail\"}]}' \
-    'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/apis/admissionregistration.k8s.io/v1/validatingwebhookconfigurations/{{.Release.Namespace}}:tafcontrol'"
+    -d '{\"webhooks\":[{\"name\":\"validating.tars.k8s.io\",\"failurePolicy\":\"Fail\"}]}' \
+    'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/apis/admissionregistration.k8s.io/v1/validatingwebhookconfigurations/{{.Release.Namespace}}:tarscontrol'"
 
     UpdateMutatingResponse=$(eval "${UpdateMutatingCommand}")
     echo "${UpdateMutatingResponse}"
@@ -134,7 +134,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: taf-webhook-update
+  name: tars-webhook-update
   namespace: {{.Release.Namespace}}
   annotations:
     "helm.sh/hook": post-install
@@ -143,21 +143,21 @@ metadata:
 spec:
   template:
     metadata:
-      name: taf-webhook-update
+      name: tars-webhook-update
     spec:
       containers:
-        - name: taf-webhook-update
+        - name: tars-webhook-update
           image: {{.Values.global.registry.url}}/helm.wait:10000
-          command: [ "/taf-webhook-update/update.sh" ]
+          command: [ "/tars-webhook-update/update.sh" ]
           volumeMounts:
-            - name: taf-webhook-update
-              mountPath: /taf-webhook-update
+            - name: tars-webhook-update
+              mountPath: /tars-webhook-update
       imagePullSecrets:
-        - name: taf-image-secret
+        - name: tars-image-secret
       volumes:
         - configMap:
             defaultMode: 440
-            name: taf-webhook-update
-          name: taf-webhook-update
-      serviceAccount: taf-webhook-update
+            name: tars-webhook-update
+          name: tars-webhook-update
+      serviceAccount: tars-webhook-update
       restartPolicy: Never

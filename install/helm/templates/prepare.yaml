@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: taf-control-prepare
+  name: tars-control-prepare
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "-10"
@@ -11,7 +11,7 @@ metadata:
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: {{.Release.Namespace}}:taf-control-prepare
+  name: {{.Release.Namespace}}:tars-control-prepare
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "-10"
@@ -25,7 +25,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{.Release.Namespace}}:taf-control-prepare
+  name: {{.Release.Namespace}}:tars-control-prepare
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "-10"
@@ -33,17 +33,17 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{.Release.Namespace}}:taf-control-prepare
+  name: {{.Release.Namespace}}:tars-control-prepare
 subjects:
   - kind: ServiceAccount
-    name: taf-control-prepare
+    name: tars-control-prepare
     namespace: {{.Release.Namespace}}
 ---
 
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: taf-control-prepare
+  name: tars-control-prepare
   namespace: {{.Release.Namespace}}
   annotations:
     "helm.sh/hook": pre-install
@@ -70,7 +70,7 @@ data:
       -H 'Authorization: Bearer ${TokenValue}' \
       -H 'Content-Type: application/merge-patch+json' \
       -H 'Accept: application/json' \
-      -d '{\"metadata\":{\"labels\":{\"taf.io/node.${NamespaceValue}\":\"\",\"taf.io/ability.${NamespaceValue}\":\"\"}}}' \
+      -d '{\"metadata\":{\"labels\":{\"tars.io/node.${NamespaceValue}\":\"\",\"tars.io/ability.${NamespaceValue}\":\"\"}}}' \
       'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/api/v1/nodes/${KEY}'"
 
       echo "${UpdateLabelCommand}"
@@ -82,7 +82,7 @@ data:
     -H 'Authorization: Bearer ${TokenValue}' \
     -H 'Content-Type: application/merge-patch+json' \
     -H 'Accept: application/json' \
-    -d '{\"metadata\":{\"labels\":{\"taf.io/node.${NamespaceValue}\":\"\"}}}' \
+    -d '{\"metadata\":{\"labels\":{\"tars.io/node.${NamespaceValue}\":\"\"}}}' \
     'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/api/v1/nodes/${LogNode}'"
 
     echo "${UpdateLabelCommand}"
@@ -93,7 +93,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: taf-control-prepare
+  name: tars-control-prepare
   namespace: {{.Release.Namespace}}
   annotations:
     "helm.sh/hook": pre-install
@@ -102,21 +102,21 @@ metadata:
 spec:
   template:
     metadata:
-      name: taf-control-prepare
+      name: tars-control-prepare
     spec:
       containers:
-        - name: taf-control-prepare
+        - name: tars-control-prepare
           image: {{.Values.global.registry.url}}/helm.wait:10000
-          command: [ "/taf-control-prepare/run.sh" ]
+          command: [ "/tars-control-prepare/run.sh" ]
           volumeMounts:
-            - name: taf-control-prepare
-              mountPath: /taf-control-prepare
+            - name: tars-control-prepare
+              mountPath: /tars-control-prepare
       imagePullSecrets:
-        - name: taf-image-secret
+        - name: tars-image-secret
       volumes:
         - configMap:
             defaultMode: 440
-            name: taf-control-prepare
-          name: taf-control-prepare
-      serviceAccount: taf-control-prepare
+            name: tars-control-prepare
+          name: tars-control-prepare
+      serviceAccount: tars-control-prepare
       restartPolicy: Never

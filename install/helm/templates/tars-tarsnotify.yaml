@@ -1,0 +1,89 @@
+apiVersion: k8s.tars.io/v1alpha1
+kind: TRelease
+metadata:
+  name: tars-tarsnotify
+  namespace: {{.Release.Namespace}}
+  labels:
+    tars.io/ReleaseSource: tars-tarsnotify
+    tars.io/ReleaseTag: "10000"
+    tars.io/ServerApp: tars
+    tars.io/ServerName: tarsnotify
+    tars.io/SubType: tars
+    tars.io/Template: tars.default
+spec:
+  list:
+    - image: {{.Values.global.registry.url}}/tars.tarsnotify:10000
+      imagePullSecret: tars-image-secret
+      tag: "10000"
+      serverType: tars_cpp
+---
+
+apiVersion: k8s.tars.io/v1alpha1
+kind: TServer
+metadata:
+  name: tars-tarsnotify
+  namespace: {{.Release.Namespace}}
+spec:
+  app: tars
+  server: tarsnotify
+  subType: tars
+  tars:
+    template: tars.cpp
+    profile: |
+      <tars>
+        <application>
+          <server>
+            #log = tars.tarslog4other.LogObj
+            logLevel = DEBUG
+          </server>
+          </application>
+          <db>
+            charset=utf8
+            dbhost={{ .Values.tarsDB.host }}
+            dbport={{ .Values.tarsDB.port }}
+            dbname={{ .Values.tarsDB.name }}
+            dbuser={{ .Values.tarsDB.user }}
+            dbpass={{ .Values.tarsDB.password }}
+          </db>
+      </tars>
+    servants:
+      - name: NotifyObj
+        port: 10000
+  k8s:
+    replicas: 1
+    nodeSelector:
+      abilityPool:
+        values: [ ]
+    env:
+      - name: Namespace
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
+      - name: PodName
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+      - name: PodIP
+        valueFrom:
+          fieldRef:
+            fieldPath: status.podIP
+      - name: ServerApp
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.labels['tars.io/ServerApp']
+    mounts:
+      - name: host-log-dir
+        source:
+          hostPath:
+            path: /usr/local/app/tars/app_log
+            type: DirectoryOrCreate
+        mountPath: /usr/local/app/tars/app_log
+        subPathExpr: $(Namespace).$(PodName)
+    readinessGate: tars.io/active
+  release:
+    source: tars-tarsnotify
+    tag: '10000'
+    image: {{.Values.global.registry.url}}/tars.tarsnotify:10000
+    imagePullSecret: tars-image-secret
+    serverType: tars_cpp
