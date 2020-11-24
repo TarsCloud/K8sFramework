@@ -1,9 +1,9 @@
-FROM node:10-stretch-slim AS First
+FROM node:12-stretch-slim AS First
 COPY files/sources.list /etc/apt/sources.list
 COPY files/template/tarsweb/root /
 COPY files/k8s-web /k8s-web
 
-RUN apt update -y && apt install python build-essential busybox -y && busybox --install
+# RUN apt update -y && apt install python build-essential busybox -y && busybox --install
 RUN cd /k8s-web && rm -f package-lock.json 
 #&& npm install --registry=http://registry.upchinaproduct.com
 
