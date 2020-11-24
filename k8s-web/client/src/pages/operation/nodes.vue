@@ -197,7 +197,7 @@ export default {
           user: 'root',
           password:'',
           port: '22',
-          runuser: 'taf'
+          runuser: 'tars'
         }
       },
     };

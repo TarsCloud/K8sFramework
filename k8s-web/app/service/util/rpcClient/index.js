@@ -24,14 +24,14 @@
 // const logger = require('./../../../logger');
 // client.initialize(path.join(__dirname, '../../../../config/tars.conf'));
 
-const client  = require("@taf/taf-rpc/protal.js").client;
-const AdminRegProxy = require("./tafProxy/AdminRegProxy");
-const ConfigFProxy = require("./tafProxy/ConfigFProxy");
-const DCacheOptProxy = require("./tafProxy/DCacheOptProxy");
-const MonitorQueryProxy = require("./tafProxy/MonitorQueryProxy");
+const client  = require("@tars/tars-rpc/protal.js").client;
+const AdminRegProxy = require("./tarsProxy/AdminRegProxy");
+const ConfigFProxy = require("./tarsProxy/ConfigFProxy");
+const DCacheOptProxy = require("./tarsProxy/DCacheOptProxy");
+const MonitorQueryProxy = require("./tarsProxy/MonitorQueryProxy");
 const path = require('path');
 const logger = require('./../../../logger');
-client.initialize(path.join(__dirname, '../../../../config/taf.conf'));
+client.initialize(path.join(__dirname, '../../../../config/tars.conf'));
 
 const RPCClientPrx = (proxy, moduleName, interfaceName, servantName, setInfo) => {
     var module = proxy[moduleName];
@@ -116,15 +116,15 @@ module.exports = {
     // nodePrx: RPCClientPrx(NodeProxy, 'tars', 'Node', 'tars.tarsnode.NodeObj'),
     // nodeStruct: RPCStruct(NodeProxy, 'tars'),
 
-	adminRegPrx : RPCClientPrx(AdminRegProxy, 'taf', 'AdminReg', 'taf.tafAdminRegistry.AdminRegObj'),
-    adminRegStruct : RPCStruct(AdminRegProxy, 'taf'),
+	adminRegPrx : RPCClientPrx(AdminRegProxy, 'tars', 'AdminReg', 'tars.tarsAdminRegistry.AdminRegObj'),
+    adminRegStruct : RPCStruct(AdminRegProxy, 'tars'),
 
-    configFPrx : RPCClientPrx(ConfigFProxy, 'taf', 'Config', 'taf.tafconfig.ConfigObj'),
-    configFStruct : RPCStruct(ConfigFProxy, 'taf'),
+    configFPrx : RPCClientPrx(ConfigFProxy, 'tars', 'Config', 'tars.tarsconfig.ConfigObj'),
+    configFStruct : RPCStruct(ConfigFProxy, 'tars'),
 
-    statQueryPrx : RPCClientPrx(MonitorQueryProxy, 'taf', 'MonitorQuery', 'taf.tafquerystat.QueryObj'),
-    propertyQueryPrx : RPCClientPrx(MonitorQueryProxy, 'taf', 'MonitorQuery', 'taf.tafqueryproperty.QueryObj'),
-    monitorQueryStruct : RPCStruct(MonitorQueryProxy, 'taf'),
+    statQueryPrx : RPCClientPrx(MonitorQueryProxy, 'tars', 'MonitorQuery', 'tars.tarsquerystat.QueryObj'),
+    propertyQueryPrx : RPCClientPrx(MonitorQueryProxy, 'tars', 'MonitorQuery', 'tars.tarsqueryproperty.QueryObj'),
+    monitorQueryStruct : RPCStruct(MonitorQueryProxy, 'tars'),
 
     DCacheOptPrx: RPCClientPrx(DCacheOptProxy, 'DCache', 'DCacheOpt', 'DCache.DCacheOptServer.DCacheOptObj'),
     DCacheOptStruct: RPCStruct(DCacheOptProxy, 'DCache'),

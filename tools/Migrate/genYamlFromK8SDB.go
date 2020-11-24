@@ -37,16 +37,16 @@ type serverK8S struct {
 	configs []Config
 }
 
-type templateTaf struct {
+type templateTars struct {
 	parent string
 	content string
 }
 
 var err error
 var serverK8SCache = make(map[int]serverK8S)
-var templateTafCache = make(map[string]templateTaf)
+var templateTarsCache = make(map[string]templateTars)
 
-var _DOCKER_REGISTRY_URL_ = "registry.cn-shenzhen.aliyuncs.com/taf-k8s"
+var _DOCKER_REGISTRY_URL_ = "registry.cn-shenzhen.aliyuncs.com/tars-k8s"
 
 func LoadK8SDBServerData() {
 	server, err := selectServer(globalK8SDb)
@@ -123,7 +123,7 @@ func LoadK8SDBServerData() {
 		obj := Servant{}
 		obj.Name = adapter.Data[i]["f_name"].(string)
 		obj.Port = adapter.Data[i]["f_port"].(int)
-		obj.IsTaf = adapter.Data[i]["f_is_taf"].(bool)
+		obj.IsTars = adapter.Data[i]["f_is_tars"].(bool)
 		item.objs = append(item.objs, obj)
 
 		serverK8SCache[id] = item
@@ -208,10 +208,10 @@ func LoadK8SDBServerData() {
 		serverK8SCache[id] = item
 	}
 }
-func AdapterK8SDBTServerData(tafserver *TServer, request BuildRequest, release ReleaseImageItem) bool {
+func AdapterK8SDBTServerData(tarsserver *TServer, request BuildRequest, release ReleaseImageItem) bool {
 	for _, val := range serverK8SCache {
 		if request.ServerApp == val.app && request.ServerName == val.server {
-			TServerAdapter(tafserver, val, release)
+			TServerAdapter(tarsserver, val, release)
 			TConfigAdapter(val, request)
 			return true
 		}
@@ -219,26 +219,26 @@ func AdapterK8SDBTServerData(tafserver *TServer, request BuildRequest, release R
 	return false
 }
 
-func LoadTafDBTemplateData() {
+func LoadTarsDBTemplateData() {
 	template, err 	:= selectTemplate(globalK8SDb)
 	if err.ErrorCode != 0 {
 		panic(err)
 	}
 	for i := 0; i < len(template.Data); i++ {
 		name := template.Data[i]["f_template_name"].(string)
-		_, ok := templateTafCache[name]
+		_, ok := templateTarsCache[name]
 		if ok {
 			panic(fmt.Sprintf("t_template f_template_name: %s has duplicated number.", name))
 		}
 
-		one := templateTaf{}
+		one := templateTars{}
 
 		one.parent = template.Data[i]["f_template_parent"].(string)
 		if template.Data[i]["f_template_content"] != nil {
 			one.content = template.Data[i]["f_template_content"].(string)
 		}
 
-		templateTafCache[name] = one
+		templateTarsCache[name] = one
 	}
 }
 func DumpTTempateData()  {
@@ -246,62 +246,62 @@ func DumpTTempateData()  {
 	if err != nil {
 		panic(fmt.Sprintf("read from %s err: %s\n", "ttemplate.yaml", err))
 	}
-	taftemplate := &TTemplate{}
-	err = yaml.Unmarshal(template, &taftemplate)
+	tarstemplate := &TTemplate{}
+	err = yaml.Unmarshal(template, &tarstemplate)
 	if err != nil {
 		panic(fmt.Sprintf("unmarshal from %s err: %s\n", "ttemplate.yaml", err))
 	}
-	for key, val := range templateTafCache {
-		taftemplate.Metadata.Name = key
-		taftemplate.Spec.Parent = val.parent
-		taftemplate.Spec.Content = val.content
+	for key, val := range templateTarsCache {
+		tarstemplate.Metadata.Name = key
+		tarstemplate.Spec.Parent = val.parent
+		tarstemplate.Spec.Content = val.content
 
-		output, err := yaml.Marshal(&taftemplate)
+		output, err := yaml.Marshal(&tarstemplate)
 		if err != nil {
-			panic(fmt.Sprintf("marshal from %v err: %s\n", taftemplate, err))
+			panic(fmt.Sprintf("marshal from %v err: %s\n", tarstemplate, err))
 		}
 		_ = ioutil.WriteFile(fmt.Sprintf("%s/%s.yaml", AppTemplateDir, key), output, os.ModePerm)
 	}
 }
 
-func TServerAdapter(tafserver *TServer, val serverK8S, release ReleaseImageItem) {
+func TServerAdapter(tarsserver *TServer, val serverK8S, release ReleaseImageItem) {
 	name := val.name
-	tafserver.Metadata.Name = val.name
-	tafserver.Metadata.Namespace = Namespace
+	tarsserver.Metadata.Name = val.name
+	tarsserver.Metadata.Namespace = Namespace
 
-	tafserver.Spec.App = val.app
-	tafserver.Spec.Server = val.server
+	tarsserver.Spec.App = val.app
+	tarsserver.Spec.Server = val.server
 
-	tafserver.Spec.Release.Source = name
-	tafserver.Spec.Release.Image = release.Image
-	tafserver.Spec.Release.Tag = release.Tag
-	tafserver.Spec.Release.ServerType = release.ServerType
+	tarsserver.Spec.Release.Source = name
+	tarsserver.Spec.Release.Image = release.Image
+	tarsserver.Spec.Release.Tag = release.Tag
+	tarsserver.Spec.Release.ServerType = release.ServerType
 
 	if strings.Contains(val.template, "nodejs") {
-		tafserver.Spec.Taf.Template = "taf.nodejs"
+		tarsserver.Spec.Tars.Template = "tars.nodejs"
 	} else {
-		tafserver.Spec.Taf.Template = val.template
+		tarsserver.Spec.Tars.Template = val.template
 	}
-	tafserver.Spec.Taf.Servants = val.objs
+	tarsserver.Spec.Tars.Servants = val.objs
 	if len(val.profile) > 5 {
-		tafserver.Spec.Taf.Profile = val.profile
+		tarsserver.Spec.Tars.Profile = val.profile
 	} else {
-		tafserver.Spec.Taf.Profile = ""
+		tarsserver.Spec.Tars.Profile = ""
 	}
 
-	tafserver.Spec.K8S.Replicas = val.replicas
-	tafserver.Spec.K8S.HostPorts = val.hostPorts
+	tarsserver.Spec.K8S.Replicas = val.replicas
+	tarsserver.Spec.K8S.HostPorts = val.hostPorts
 	if val.nodeSelc.AbilityPool.Values == nil {
-		delete(tafserver.Spec.K8S.NodeSelector, "abilityPool")
-		tafserver.Spec.K8S.NodeSelector["nodeBind"] = val.nodeSelc.NodeBind
+		delete(tarsserver.Spec.K8S.NodeSelector, "abilityPool")
+		tarsserver.Spec.K8S.NodeSelector["nodeBind"] = val.nodeSelc.NodeBind
 	} else {
-		delete(tafserver.Spec.K8S.NodeSelector, "nodeBind")
-		tafserver.Spec.K8S.NodeSelector["abilityPool"] = val.nodeSelc.AbilityPool
+		delete(tarsserver.Spec.K8S.NodeSelector, "nodeBind")
+		tarsserver.Spec.K8S.NodeSelector["abilityPool"] = val.nodeSelc.AbilityPool
 	}
 
-	output, err := yaml.Marshal(&tafserver)
+	output, err := yaml.Marshal(&tarsserver)
 	if err != nil {
-		panic(fmt.Sprintf("marshal from %v err: %s\n", tafserver, err))
+		panic(fmt.Sprintf("marshal from %v err: %s\n", tarsserver, err))
 	}
 	_ = ioutil.WriteFile(fmt.Sprintf("%s/%s.yaml", AppServerDir, name), output, os.ModePerm)
 }
@@ -311,8 +311,8 @@ func TConfigAdapter(val serverK8S, request BuildRequest) {
 	if err != nil {
 		panic(fmt.Sprintf("read from %s err: %s\n", "tconfig.yaml", err))
 	}
-	tafconfig := &TConfig{}
-	err = yaml.Unmarshal(config, &tafconfig)
+	tarsconfig := &TConfig{}
+	err = yaml.Unmarshal(config, &tarsconfig)
 	if err != nil {
 		panic(fmt.Sprintf("unmarshal from %s err: %s\n", "tconfig.yaml", err))
 	}
@@ -320,15 +320,15 @@ func TConfigAdapter(val serverK8S, request BuildRequest) {
 	for _, config := range val.configs {
 		name := strings.ToLower(fmt.Sprintf("%s-%s-%s", val.app, val.server, config.configName))
 
-		tafconfig.Metadata.Name = name
-		tafconfig.ServerConfig.App = val.app
-		tafconfig.ServerConfig.Server = val.server
-		tafconfig.ServerConfig.ConfigName = config.configName
-		tafconfig.ServerConfig.ConfigContent = config.configContent
+		tarsconfig.Metadata.Name = name
+		tarsconfig.ServerConfig.App = val.app
+		tarsconfig.ServerConfig.Server = val.server
+		tarsconfig.ServerConfig.ConfigName = config.configName
+		tarsconfig.ServerConfig.ConfigContent = config.configContent
 
-		output, err := yaml.Marshal(&tafconfig)
+		output, err := yaml.Marshal(&tarsconfig)
 		if err != nil {
-			panic(fmt.Sprintf("marshal from %v err: %s\n", tafconfig, err))
+			panic(fmt.Sprintf("marshal from %v err: %s\n", tarsconfig, err))
 		}
 		_ = ioutil.WriteFile(fmt.Sprintf("%s/%s.yaml", AppConfigDir, name), output, os.ModePerm)
 	}

@@ -1,0 +1,14 @@
+apiVersion: k8s.tars.io/v1alpha1
+kind: TTree
+metadata:
+  name: tars-tree
+  namespace: {{.Release.Namespace }}
+apps:
+  - businessRef: TarsFramework
+    name: tars
+  - businessRef: TarsFramework
+    name: base
+businesses:
+  - name: TarsFramework
+    show: tars框架服务
+    weight: 5

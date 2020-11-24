@@ -23,10 +23,10 @@ var fs = require('fs');
 
 const ResourceController = {};
 
-ResourceController.getTafNode = async(ctx) => {
+ResourceController.getTarsNode = async(ctx) => {
 	// console.log('getTarsNode', ctx);
 
-	let tgzPath = path.join(__dirname, '../../../files/tafnode.tgz');
+	let tgzPath = path.join(__dirname, '../../../files/tarsnode.tgz');
 	let exists = fs.existsSync(tgzPath);
 	if(!exists) {
 		ctx.body = "#!/bin/bash \n echo 'not tarsnode.tgz exists'";

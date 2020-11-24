@@ -150,8 +150,8 @@
             <span class="required">{{props.column.title}}</span>
           </template>
           <template slot-scope="props">
-            <let-radio v-model="props.row.protocol" label="taf">TAF</let-radio>
-            <let-radio v-model="props.row.protocol" label="not_tars">{{$t('serverList.servant.notTAF')}}</let-radio>
+            <let-radio v-model="props.row.protocol" label="tars">TARS</let-radio>
+            <let-radio v-model="props.row.protocol" label="not_tars">{{$t('serverList.servant.notTARS')}}</let-radio>
           </template>
         </let-table-column>
         <let-table-column :title="$t('deployService.table.th.threads')" width="80px">
@@ -279,7 +279,7 @@ const getInitialModel = () => ({
     bind_ip: '',
     port: '',
     port_type: 'tcp',
-    protocol: 'taf',
+    protocol: 'tars',
     thread_num: 5,
     max_connections: 200000,
     queuecap: 10000,

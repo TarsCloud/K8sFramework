@@ -645,7 +645,7 @@ interface DCacheOpt
     /*
     *从数据库中重新加载路由配置信息
     *参数说明:
-    *    sApp: taf应用名,设置为DCache即可
+    *    sApp: tars应用名,设置为DCache即可
     *    sRouterServerName: 路由服务名
     *    sResult: 结果,成功时为空，失败时错误信息
     *返回值:true 加载成功,false加载失败

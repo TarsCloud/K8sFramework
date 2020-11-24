@@ -78,7 +78,7 @@ module.exports = function(sequelize, DataTypes) {
     protocol: {
       type: DataTypes.STRING(64),
       allowNull: true,
-      defaultValue: 'taf'
+      defaultValue: 'tars'
     },
     handlegroup: {
       type: DataTypes.STRING(64),

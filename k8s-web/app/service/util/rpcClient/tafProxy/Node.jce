@@ -1,6 +1,6 @@
 #include "NodeDescriptor.jce"
 
-module taf
+module tars
 {
 
     interface Node

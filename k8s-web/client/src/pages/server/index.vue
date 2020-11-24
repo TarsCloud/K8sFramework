@@ -247,7 +247,7 @@ export default {
     },
 
     checkTreeid() {
-      this.treeid = this.getLocalStorage('taf_treeid') || ''
+      this.treeid = this.getLocalStorage('tars_treeid') || ''
     },
 
     clickTab(tabkey) {
@@ -258,7 +258,7 @@ export default {
         }
       })
 
-      this.setLocalStorage('taf_tabs', JSON.stringify(BTabs))
+      this.setLocalStorage('tars_tabs', JSON.stringify(BTabs))
     },
 
     // 有些目录层级不显示某些标签，处理之
@@ -301,7 +301,7 @@ export default {
 
     checkBTabs() {
       let { BTabs } = this
-      const tabs = this.getLocalStorage('taf_tabs')
+      const tabs = this.getLocalStorage('tars_tabs')
       if(tabs && tabs.length > 0){
         tabs.forEach(item => {
           BTabs.push({
@@ -352,13 +352,13 @@ export default {
       }
 
       this.treeid = nodeKey
-      this.setLocalStorage('taf_treeid', JSON.stringify(nodeKey))
-      this.setLocalStorage('taf_tabs', JSON.stringify(BTabs))
+      this.setLocalStorage('tars_treeid', JSON.stringify(nodeKey))
+      this.setLocalStorage('tars_tabs', JSON.stringify(BTabs))
     },
 
     clickBTabs(e, nodeKey) {
       this.treeid = nodeKey
-      this.setLocalStorage('taf_treeid', JSON.stringify(nodeKey))
+      this.setLocalStorage('tars_treeid', JSON.stringify(nodeKey))
     },
 
     closeBTabs(nodeKey) {
@@ -372,22 +372,22 @@ export default {
       })
       BTabs.splice(BIndex, 1)
 
-      this.setLocalStorage('taf_tabs', JSON.stringify(BTabs))
+      this.setLocalStorage('tars_tabs', JSON.stringify(BTabs))
 
       if(BTabs.length > 0){
         this.treeid = BTabs[BTabs.length - 1].id
       }else{
         this.treeid = ''
       }
-      this.setLocalStorage('taf_treeid', JSON.stringify(this.treeid))
+      this.setLocalStorage('tars_treeid', JSON.stringify(this.treeid))
       this.getTreeData()
     },
 
     closeAllBTabs() {
       this.BTabs = []
       this.treeid = ''
-      this.setLocalStorage('taf_tabs', JSON.stringify(this.BTabs))
-      this.setLocalStorage('taf_treeid', JSON.stringify(this.treeid))
+      this.setLocalStorage('tars_tabs', JSON.stringify(this.BTabs))
+      this.setLocalStorage('tars_treeid', JSON.stringify(this.treeid))
       this.getTreeData()
     },
 

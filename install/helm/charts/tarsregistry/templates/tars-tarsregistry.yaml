@@ -112,7 +112,7 @@ spec:
             path: /usr/local/app/tars/app_log
             type: DirectoryOrCreate
         mountPath: /usr/local/app/tars/app_log
-        subPathExpr: $(Namespace).$(PodName)
+        subPathExpr: $(Namespace)/$(PodName)
       - name: upchain
         source:
           configMap:

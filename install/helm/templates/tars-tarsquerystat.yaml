@@ -2,6 +2,7 @@ apiVersion: k8s.tars.io/v1alpha1
 kind: TRelease
 metadata:
   name: tars-tarsquerystat
+  namespace: {{.Release.Namespace}}
 spec:
   list:
     - image: {{.Values.global.registry.url}}/tars.tarsquerystat:10000
@@ -14,6 +15,7 @@ apiVersion: k8s.tars.io/v1alpha1
 kind: TServer
 metadata:
   name: tars-tarsquerystat
+  namespace: {{.Release.Namespace}}
   labels:
     tars.io/ReleaseSource: tars-tarsquerystat
     tars.io/ReleaseTag: "10000"
@@ -72,7 +74,7 @@ spec:
             path: /usr/local/app/tars/app_log
             type: DirectoryOrCreate
         mountPath: /usr/local/app/tars/app_log
-        subPathExpr: $(Namespace).$(PodName)
+        subPathExpr: $(Namespace)/$(PodName)
     readinessGate: tars.io/active
   release:
     source: tars-tarsquerystat

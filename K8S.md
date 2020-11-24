@@ -37,7 +37,7 @@ annotations 的含义下文会有阐述
 
 ## 节点选择
 
-TafK8S 提供了三种节点选择方式.
+TarsK8S 提供了三种节点选择方式.
 
 1. 指定节点(NodeBind)
    
@@ -163,7 +163,7 @@ TafK8S 提供了三种节点选择方式.
 
 ## 服务暴露
 
-在某些情况下,需要将服务的地址和端口直接对集群外暴露,TafK8S提供了两种暴露方式,如非特殊需要,建议使用 HostPort 方式暴露
+在某些情况下,需要将服务的地址和端口直接对集群外暴露,TarsK8S提供了两种暴露方式,如非特殊需要,建议使用 HostPort 方式暴露
 
 1. HostNetwork
 
@@ -225,7 +225,7 @@ TafK8S 提供了三种节点选择方式.
 
 
 ## ReadinessGates
-  TafK8S 使用了 k8s 的 ReadinessGates 特性，为每一个 Statefulset 配置了  
+  TarsK8S 使用了 k8s 的 ReadinessGates 特性，为每一个 Statefulset 配置了  
   ```json
   {
     "readinessGates":[
@@ -241,9 +241,9 @@ TafK8S 提供了三种节点选择方式.
   + 如果 state=="Active",会将 pod["tars.io/service"].status 设置为 true, 这会使 k8s 自动将此 pod 加入到 endpoints
 
 
-# TafK8S 的运维
+# TarsK8S 的运维
 
-在一般情况下，TafK8S 的运维方式 与 tars 几乎一致或见名(界面)知意,此处只介绍不一致的地方
+在一般情况下，TarsK8S 的运维方式 与 tars 几乎一致或见名(界面)知意,此处只介绍不一致的地方
 
 ## 伸缩 tarsregistry, tarsimage , tarsadmin,tarsweb
  因为tarsregistry, tarsimage ,tarsadmin, tarsweb 与业务服务部署方式不太一致.在tarsweb上是无法管理这些服务的, 当需要伸缩时，可以使用 kubectl 修改。

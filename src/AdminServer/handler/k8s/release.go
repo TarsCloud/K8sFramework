@@ -195,7 +195,7 @@ func (s *CreateServicePoolHandler) Handle(params release.CreateServicePoolParams
 	if err != nil {
 		return release.NewCreateServicePoolInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
-	if tServer.Spec.SubType != crdv1alpha1.TAF {
+	if tServer.Spec.SubType != crdv1alpha1.TARS {
 		return release.NewCreateServicePoolInternalServerError().WithPayload(&models.Error{Code: -1, Message: "NonTars Is Not Supported."})
 	}
 
@@ -267,11 +267,11 @@ func (s *DoEnableServiceHandler) Handle(params release.DoEnableServiceParams) mi
 	if err != nil {
 		return release.NewDoEnableServiceInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
-	if tServer.Spec.SubType != crdv1alpha1.TAF {
+	if tServer.Spec.SubType != crdv1alpha1.TARS {
 		return release.NewDoEnableServiceInternalServerError().WithPayload(&models.Error{Code: -1, Message: "NonTars Is Not Supported."})
 	}
 
-	// TAF服务的TRelease和TServer一一对应
+	// TARS服务的TRelease和TServer一一对应
 	tRelease, err := K8sWatcher.tReleaseLister.TReleases(namespace).Get(util.GetTServerName(tServer.Name))
 	if err != nil {
 		return release.NewDoEnableServiceInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})

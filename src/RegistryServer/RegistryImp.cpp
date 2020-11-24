@@ -16,7 +16,7 @@ void RegistryImp::updateServerState(const std::string &podName, const std::strin
     const std::string patchUrl = strStream.str();
 
     strStream.str("");
-    strStream << R"({"status":{"conditions":[{"type":"taf.io/active")" << ","
+    strStream << R"({"status":{"conditions":[{"type":"tars.io/active")" << ","
               << R"("status":")" << ((settingState == "Active" && presentState == "Active") ? "True" : "False") << R"(",)"
               << R"("reason":")" << settingState << "/" << presentState << R"("}]}})";
 

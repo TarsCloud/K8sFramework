@@ -1,11 +1,11 @@
-const Taf = require("@taf/taf-rpc").client;
+const Tars = require("@tars/tars-rpc").client;
 const ldapPrx = require("../proxy/LDAPProxy").Common;
 
 let adaptorStr = 'Comm.LDAPServer.LDAPObj'
-if (!process.env.TAF_CONFIG) {
+if (!process.env.TARS_CONFIG) {
     adaptorStr += '@tcp -h 172.16.8.125 -t 60000 -p 8888'
 }
-const prxObj = Taf.stringToProxy(ldapPrx.LDAPServerProxy, adaptorStr);
+const prxObj = Tars.stringToProxy(ldapPrx.LDAPServerProxy, adaptorStr);
 
 exports = module.exports = {
     // 校验ldapkey合法性

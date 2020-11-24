@@ -1,15 +1,15 @@
 {
-  "TafDBConfig": {
+  "TarsDBConfig": {
     "DBHost": "172.16.8.90",
     "DBPort": "3306",
-    "DBName": "db_taf",
-    "DBUser": "taf",
-    "DBPass": "taf2015"
+    "DBName": "db_tars",
+    "DBUser": "tars",
+    "DBPass": "tars2015"
   },
   "K8SDBConfig": {
     "DBHost": "116.63.36.58",
     "DBPort": "3306",
-    "DBName": "taf_db",
+    "DBName": "tars_db",
     "DBUser": "root",
     "DBPass": "sT3fg5aQm"
   },

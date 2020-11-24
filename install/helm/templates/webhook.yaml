@@ -1,7 +1,7 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
-  name: {{.Release.Namespace}}:tarscontrol
+  name: {{.Release.Namespace}}-tarscontrol
 webhooks:
   - name: validating.tars.k8s.io
     namespaceSelector:
@@ -17,7 +17,7 @@ webhooks:
       - apiGroups: [ k8s.tars.io ]
         apiVersions: [ v1alpha1 ]
         operations: [ CREATE,UPDATE,DELETE ]
-        resources: [ tdeploys,tservers,tendpoints,treleases,ttemplates,trees,tconfigs ]
+        resources: [ tdeploys,tservers,tendpoints,treleases,ttemplates,ttrees,tconfigs ]
         scope: Namespaced
     admissionReviewVersions: [ v1alpha1,v1beta1 ]
     sideEffects: None
@@ -114,14 +114,14 @@ data:
     -H 'Accept: application/json' \
     -H 'Authorization: Bearer $(cat ${TokenFile})' \
     -d '{\"webhooks\":[{\"name\":\"mutating.tars.k8s.io\",\"failurePolicy\":\"Fail\"}]}' \
-    'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/apis/admissionregistration.k8s.io/v1/mutatingwebhookconfigurations/{{.Release.Namespace}}:tarscontrol'"
+    'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/apis/admissionregistration.k8s.io/v1/mutatingwebhookconfigurations/{{.Release.Namespace}}-tarscontrol'"
 
     UpdateValidatingCommand="curl -s -k -X PATCH \
     -H 'Content-Type: application/strategic-merge-patch+json' \
     -H 'Accept: application/json' \
     -H 'Authorization: Bearer $(cat ${TokenFile})' \
     -d '{\"webhooks\":[{\"name\":\"validating.tars.k8s.io\",\"failurePolicy\":\"Fail\"}]}' \
-    'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/apis/admissionregistration.k8s.io/v1/validatingwebhookconfigurations/{{.Release.Namespace}}:tarscontrol'"
+    'https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/apis/admissionregistration.k8s.io/v1/validatingwebhookconfigurations/{{.Release.Namespace}}-tarscontrol'"
 
     UpdateMutatingResponse=$(eval "${UpdateMutatingCommand}")
     echo "${UpdateMutatingResponse}"

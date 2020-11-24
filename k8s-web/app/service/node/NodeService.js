@@ -15,7 +15,7 @@
  */
 
 // const NodeProxy = require("../util/rpcClient/rpcProxy/NodeProxy");
-const NodeProxy = require("../util/rpcClient/tafProxy/NodeProxy");
+const NodeProxy = require("../util/rpcClient/tarsProxy/NodeProxy");
 const { nodePrx, RPCClientPrx } = require('../util/rpcClient');
 
 const NodeService = {};
@@ -27,7 +27,7 @@ NodeService.startServer = async (application, serverName, podIp) => {
         let target = podIp[i];
         let ret = {};
         try {
-            let nodePrx = await RPCClientPrx(NodeProxy, 'taf', 'Node', `taf.tafnode.NodeObj@tcp -h ${target} -p 19385 -t 3000`)
+            let nodePrx = await RPCClientPrx(NodeProxy, 'tars', 'Node', `tars.tarsnode.NodeObj@tcp -h ${target} -p 19385 -t 3000`)
             ret = await nodePrx.startServer(application, serverName);
         } catch (e) {
             ret = {
@@ -54,7 +54,7 @@ NodeService.stopServer = async (application, serverName, podIp) => {
         let target = podIp[i];
         let ret = {};
         try {
-            let nodePrx = await RPCClientPrx(NodeProxy, 'taf', 'Node', `taf.tafnode.NodeObj@tcp -h ${target} -p 19385 -t 3000`)
+            let nodePrx = await RPCClientPrx(NodeProxy, 'tars', 'Node', `tars.tarsnode.NodeObj@tcp -h ${target} -p 19385 -t 3000`)
             ret = await nodePrx.stopServer(application, serverName);
         } catch (e) {
             ret = {
@@ -81,7 +81,7 @@ NodeService.restartServer = async (application, serverName, podIp) => {
         let target = podIp[i];
         let ret = {};
         try {
-            let nodePrx = await RPCClientPrx(NodeProxy, 'taf', 'Node', `taf.tafnode.NodeObj@tcp -h ${target} -p 19385 -t 3000`)
+            let nodePrx = await RPCClientPrx(NodeProxy, 'tars', 'Node', `tars.tarsnode.NodeObj@tcp -h ${target} -p 19385 -t 3000`)
             ret = await nodePrx.restartServer(application, serverName);
         } catch (e) {
             ret = {
@@ -108,7 +108,7 @@ NodeService.doCommand = async (application, serverName, podIp, command) => {
         let target = podIp[i];
         let ret = {};
         try {
-            let nodePrx = await RPCClientPrx(NodeProxy, 'taf', 'Node', `taf.tafnode.NodeObj@tcp -h ${target} -p 19385 -t 3000`)
+            let nodePrx = await RPCClientPrx(NodeProxy, 'tars', 'Node', `tars.tarsnode.NodeObj@tcp -h ${target} -p 19385 -t 3000`)
             ret = await nodePrx.notifyServer(application, serverName, command);
         } catch (e) {
             ret = {

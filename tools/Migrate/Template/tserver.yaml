@@ -5,47 +5,47 @@
 # (5)t_server_adapter，构建servants
 # (6)t_server_k8s，构建k8s选项
 
-apiVersion: k8s.taf.io/v1alpha1
+apiVersion: k8s.tars.io/v1alpha1
 kind: TServer
 metadata:
   # key-name
   name: semantics-semword2vecserver
   # 写死，脚本批量替换
-  namespace: taf
+  namespace: tars
 spec:
   # t_server.f_server_app
   app: Semantics
   # t_server.f_server_name
   server: SemWord2VecServer
   # 写死
-  subType: taf
-  taf:
+  subType: tars
+  tars:
     # t_server_option.f_server_template
-    template: taf.cpp
+    template: tars.cpp
     # t_server_option.f_server_profile，如果私有模板中有<db>字样，打印日志输出标识
     profile: |
-      <taf>
+      <tars>
         <application>
           <server>
-            #log = taf.taflog4other.LogObj
+            #log = tars.tarslog4other.LogObj
             logLevel = DEBUG
           </server>
           </application>
           <db>
             charset=utf8
-            dbhost=_DB_TAF_HOST_
-            dbname=_DB_TAF_DATABASE_
-            dbpass=_DB_TAF_PASSWORD_
-            dbport=_DB_TAF_PORT_
-            dbuser=_DB_TAF_USER_
+            dbhost=_DB_TARS_HOST_
+            dbname=_DB_TARS_DATABASE_
+            dbpass=_DB_TARS_PASSWORD_
+            dbport=_DB_TARS_PORT_
+            dbuser=_DB_TARS_USER_
           </db>
-      </taf>
+      </tars>
     servants:
       # t_server_adapter.f_name
       - name: ConfigObj
       # t_server_adapter.f_port
         port: 10000
-        isTaf: true
+        isTars: true
       # 数组，存在多个时
     # - name: xxxxxObj
   k8s:
@@ -66,7 +66,7 @@ spec:
       - nameRef: ConfigObj
       # t_server_k8s.f_host_port.value
         port: 10000
-    # 写死，业务server都一样。taf框架组件server暂时手填一下算了(优化时，从client-go中拿)
+    # 写死，业务server都一样。tars框架组件server暂时手填一下算了(优化时，从client-go中拿)
     env:
       - name: Namespace
         valueFrom:
@@ -84,24 +84,24 @@ spec:
         valueFrom:
           fieldRef:
             apiVersion: v1
-            fieldPath: metadata.labels['taf.io/ServerApp']
-    # 写死，大多数业务server都一样。taf-config挂载了remote-log，w2v/bm2.5/vsm挂载了data(优化时，从client-go中拿)
+            fieldPath: metadata.labels['tars.io/ServerApp']
+    # 写死，大多数业务server都一样。tars-config挂载了remote-log，w2v/bm2.5/vsm挂载了data(优化时，从client-go中拿)
     mounts:
       - name: host-log-dir
         source:
           hostPath:
-            path: /usr/local/app/taf/app_log
+            path: /usr/local/app/tars/app_log
             type: DirectoryOrCreate
-        mountPath: /usr/local/app/taf/app_log
+        mountPath: /usr/local/app/tars/app_log
         subPathExpr: $(Namespace).$(PodName)
   release:
     # key.name
-    source: taf-tafconfig
+    source: tars-tarsconfig
       # f_service_pool.f_service_image: 提取:后缀
     tag: '10000'
     # f_service_pool.f_service_image: replace前缀 
-    image: harbor-huawei.upchinaproduct.com/hwk8s/taf.tafconfig:10000
+    image: harbor-huawei.upchinaproduct.com/hwk8s/tars.tarsconfig:10000
     # 写死
-    imagePullSecret: taf-image-secret
+    imagePullSecret: tars-image-secret
     # server type
-    serverType: taf_cpp
+    serverType: tars_cpp

@@ -1,5 +1,5 @@
 <template>
-  <let-form-item class="taf-form-item">
+  <let-form-item class="tars-form-item">
     <label
       class="let-form-item__label let-label__position_top clickable"
       @click="$emit('onLabelClick')"
@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: 'TafFormItem',
+  name: 'TarsFormItem',
   props: {
     label: String,
   },
@@ -18,7 +18,7 @@ export default {
 </script>
 
 <style>
-.taf-form-item {
+.tars-form-item {
   .clickable {
     color: #3f5ae0;
   }

@@ -23,7 +23,7 @@ type ConfigMigrateServer struct {
 }
 
 type ServerList struct {
-	Info   *InfoFromTaf `json:"info"`
+	Info   *InfoFromTars `json:"info"`
 	result string
 }
 
@@ -31,7 +31,7 @@ var globalMigrateConfig ConfigMigrateServer
 var globalServerList []ServerList
 
 
-func LoadTafDBServerData() bool {
+func LoadTarsDBServerData() bool {
 	if bs, err := ioutil.ReadFile(migrateConfigPath); err != nil {
 		fmt.Println(fmt.Sprintf("Open Config File Error: %s", err))
 		return false
@@ -45,9 +45,9 @@ func LoadTafDBServerData() bool {
 
 	for _, migrateServer := range globalMigrateConfig.MigrateServer {
 		for _, serverName := range migrateServer.ServerName {
-			info, err := LoadInfoFromTaf(migrateServer.ServerApp, serverName)
+			info, err := LoadInfoFromTars(migrateServer.ServerApp, serverName)
 			if err != nil {
-				fmt.Printf("Load Info From TafDB Error , App = %s ,ServerName = %s, Error: %s\n", migrateServer.ServerApp, serverName, err.Error())
+				fmt.Printf("Load Info From TarsDB Error , App = %s ,ServerName = %s, Error: %s\n", migrateServer.ServerApp, serverName, err.Error())
 				return false
 			}
 			if globalServerList == nil {
@@ -75,10 +75,10 @@ func LoadDumpFromHZServerData(dumpedServerDataPath string) bool {
 	return true
 }
 
-func AdapterTafDBTServerData(tafserver *TServer, request BuildRequest, release ReleaseImageItem) bool {
+func AdapterTarsDBTServerData(tarsserver *TServer, request BuildRequest, release ReleaseImageItem) bool {
 	for _, val := range globalServerList {
 		if request.ServerApp == val.Info.ServerApp && request.ServerName == val.Info.ServerName {
-			enableTServer(tafserver, val.Info, release)
+			enableTServer(tarsserver, val.Info, release)
 			enableConfig(val.Info, request)
 			return true
 		}
@@ -86,56 +86,56 @@ func AdapterTafDBTServerData(tafserver *TServer, request BuildRequest, release R
 	return false
 }
 
-func enableTServer(tafserver *TServer, info *InfoFromTaf, release ReleaseImageItem)  {
+func enableTServer(tarsserver *TServer, info *InfoFromTars, release ReleaseImageItem)  {
 	name := fmt.Sprintf("%s-%s", strings.ToLower(info.ServerApp), strings.ToLower(info.ServerName))
-	tafserver.Metadata.Name = name
-	tafserver.Metadata.Namespace = Namespace
+	tarsserver.Metadata.Name = name
+	tarsserver.Metadata.Namespace = Namespace
 
-	tafserver.Spec.App = info.ServerApp
-	tafserver.Spec.Server = info.ServerName
+	tarsserver.Spec.App = info.ServerApp
+	tarsserver.Spec.Server = info.ServerName
 
-	tafserver.Spec.Release.Source = name
-	tafserver.Spec.Release.ServerType = release.ServerType
-	tafserver.Spec.Release.Tag = release.Tag
-	tafserver.Spec.Release.Image = release.Image
+	tarsserver.Spec.Release.Source = name
+	tarsserver.Spec.Release.ServerType = release.ServerType
+	tarsserver.Spec.Release.Tag = release.Tag
+	tarsserver.Spec.Release.Image = release.Image
 
 	if strings.Contains(info.ServerOption.ServerTemplate, "nodejs") {
-		tafserver.Spec.Taf.Template = "taf.nodejs"
+		tarsserver.Spec.Tars.Template = "tars.nodejs"
 	} else {
-		tafserver.Spec.Taf.Template = info.ServerOption.ServerTemplate
+		tarsserver.Spec.Tars.Template = info.ServerOption.ServerTemplate
 	}
 	if len(info.ServerOption.ServerProfile) > 5 {
-		tafserver.Spec.Taf.Profile = info.ServerOption.ServerProfile
+		tarsserver.Spec.Tars.Profile = info.ServerOption.ServerProfile
 	} else {
-		tafserver.Spec.Taf.Profile = ""
+		tarsserver.Spec.Tars.Profile = ""
 	}
-	tafserver.Spec.Taf.Servants = make([]Servant, 0, 0)
+	tarsserver.Spec.Tars.Servants = make([]Servant, 0, 0)
 	for _, servant := range info.ServerAdapters {
 		objSeps := strings.Split(servant.Name, ".")
-		tafserver.Spec.Taf.Servants = append(tafserver.Spec.Taf.Servants,
-			Servant{Name: objSeps[len(objSeps)-1], Port: servant.Port, IsTaf: servant.IsTaf})
+		tarsserver.Spec.Tars.Servants = append(tarsserver.Spec.Tars.Servants,
+			Servant{Name: objSeps[len(objSeps)-1], Port: servant.Port, IsTars: servant.IsTars})
 	}
 
-	tafserver.Spec.K8S.Replicas = 1
-	tafserver.Spec.K8S.HostPorts = nil
+	tarsserver.Spec.K8S.Replicas = 1
+	tarsserver.Spec.K8S.HostPorts = nil
 
-	delete(tafserver.Spec.K8S.NodeSelector, "nodeBind")
-	tafserver.Spec.K8S.NodeSelector["abilityPool"] = NodeSelectorValues{Values: make([]string, 0, 1)}
+	delete(tarsserver.Spec.K8S.NodeSelector, "nodeBind")
+	tarsserver.Spec.K8S.NodeSelector["abilityPool"] = NodeSelectorValues{Values: make([]string, 0, 1)}
 
-	output, err := yaml.Marshal(&tafserver)
+	output, err := yaml.Marshal(&tarsserver)
 	if err != nil {
-		panic(fmt.Sprintf("marshal from %v err: %s\n", tafserver, err))
+		panic(fmt.Sprintf("marshal from %v err: %s\n", tarsserver, err))
 	}
 	_ = ioutil.WriteFile(fmt.Sprintf("%s/%s.yaml", AppServerDir, name), output, os.ModePerm)
 }
 
-func enableConfig(info *InfoFromTaf, request BuildRequest) {
+func enableConfig(info *InfoFromTars, request BuildRequest) {
 	config, err := ioutil.ReadFile(request.TConfigTemplatePath)
 	if err != nil {
 		panic(fmt.Sprintf("read from %s err: %s\n", "tconfig.yaml", err))
 	}
-	tafconfig := &TConfig{}
-	err = yaml.Unmarshal(config, &tafconfig)
+	tarsconfig := &TConfig{}
+	err = yaml.Unmarshal(config, &tarsconfig)
 	if err != nil {
 		panic(fmt.Sprintf("unmarshal from %s err: %s\n", "tconfig.yaml", err))
 	}
@@ -144,15 +144,15 @@ func enableConfig(info *InfoFromTaf, request BuildRequest) {
 		crc := crc32.ChecksumIEEE([]byte(config.CurrentConfigFile))
 		name := strings.ToLower(fmt.Sprintf("%s-%s-%s", info.ServerApp, info.ServerName, strconv.FormatUint(uint64(crc), 10)))
 
-		tafconfig.Metadata.Name = name
-		tafconfig.ServerConfig.App = info.ServerApp
-		tafconfig.ServerConfig.Server = info.ServerName
-		tafconfig.ServerConfig.ConfigName = config.CurrentConfigFile
-		tafconfig.ServerConfig.ConfigContent = config.CurrentConfigFileContent
+		tarsconfig.Metadata.Name = name
+		tarsconfig.ServerConfig.App = info.ServerApp
+		tarsconfig.ServerConfig.Server = info.ServerName
+		tarsconfig.ServerConfig.ConfigName = config.CurrentConfigFile
+		tarsconfig.ServerConfig.ConfigContent = config.CurrentConfigFileContent
 
-		output, err := yaml.Marshal(&tafconfig)
+		output, err := yaml.Marshal(&tarsconfig)
 		if err != nil {
-			panic(fmt.Sprintf("marshal from %v err: %s\n", tafconfig, err))
+			panic(fmt.Sprintf("marshal from %v err: %s\n", tarsconfig, err))
 		}
 		_ = ioutil.WriteFile(fmt.Sprintf("%s/%s.yaml", AppConfigDir, name), output, os.ModePerm)
 	}

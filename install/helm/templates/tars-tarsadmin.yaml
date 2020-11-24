@@ -11,8 +11,6 @@ stringData:
   _DB_NAME_: "{{ .Values.tarsDB.name }}"
 ---
 
-
-
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -27,14 +25,20 @@ metadata:
   namespace: {{.Release.Namespace}}
 rules:
   - apiGroups: [ "" ]
-    resources: [ pods,pods/status ]
-    verbs: [ get ]
+    resources: [ pods ]
+    verbs: [ get,list ]
   - apiGroups: [ "" ]
     resources: [ pods/exec ]
     verbs: [ create ]
   - apiGroups: [ k8s.tars.io ]
-    resources: [ tservers ,ttemplates, treleases,tendpoints,tendpoints/status ]
-    verbs: [ create, get ,list, watch ,patch,update ]
+    resources: [ ttrees ]
+    verbs: [ get ,list,watch,patch,update ]
+  - apiGroups: [ k8s.tars.io ]
+    resources: [ tdeploys, tservers ,ttemplates, treleases,tconfigs ]
+    verbs: [ create, get ,list,delete,watch ,patch, update ]
+  - apiGroups: [ k8s.tars.io ]
+    resources: [ tendpoints,tendpoints/status,texitedrecords ]
+    verbs: [ get ,list, watch ]
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
@@ -59,7 +63,7 @@ metadata:
 rules:
   - apiGroups: [ "" ]
     resources: [ nodes ]
-    verbs: [ get, list, watch,update ]
+    verbs: [ get,list, watch,update ]
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -111,7 +115,10 @@ data:
         "tars_cpp",
         "tars_java_war",
         "tars_java_jar",
-        "tars_nodejs",
+        "tars_node",
+        "tars_node8",
+        "tars_node10",
+        "tars_node_pkg",
         "not_tars"
     ]
   ServerK8S: |

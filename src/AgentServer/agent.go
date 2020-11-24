@@ -56,7 +56,7 @@ func StartHTTPServer()  {
 	mux.HandleFunc("/net", 	NetFunc)
 	mux.HandleFunc("/port", 	PortFunc)
 
-	port := os.Getenv("TAF_AGENT_PORT")
+	port := os.Getenv("TARS_AGENT_PORT")
 	if port == "" {
 		port = "8000"
 	}

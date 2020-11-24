@@ -58,14 +58,14 @@ func BuildDoubleEqualSelector(filter *models.SelectRequestFilter, keyLabel map[s
 }
 
 func BuildSubTypeTarsSelector() []labels.Requirement {
-	requirement, _ := labels.NewRequirement(TSubTypeLabel, selection.DoubleEquals, []string{string(crdv1alpha1.TAF)})
+	requirement, _ := labels.NewRequirement(TSubTypeLabel, selection.DoubleEquals, []string{string(crdv1alpha1.TARS)})
 	return []labels.Requirement{*requirement}
 }
 
 func BuildTarsAppSelector(appName string) []labels.Requirement {
 	requirements := make([]labels.Requirement, 0, 2)
 
-	r1, _ := labels.NewRequirement(TSubTypeLabel, selection.DoubleEquals, []string{string(crdv1alpha1.TAF)})
+	r1, _ := labels.NewRequirement(TSubTypeLabel, selection.DoubleEquals, []string{string(crdv1alpha1.TARS)})
 	requirements = append(requirements, *r1)
 
 	r2, _ := labels.NewRequirement(TServerAppLabel, selection.DoubleEquals, []string{appName})

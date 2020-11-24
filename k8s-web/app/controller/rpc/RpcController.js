@@ -383,7 +383,7 @@ module.exports = {
      * 发布包上传
      * @param  {String}  Token                登录签名
      * @param  {String}  ServerId             服务
-     * @param  {String}  ServerType           服务类型(taf_java,taf_cpp,taf_node_pkg,taf_node,taf_node8,taf_node10)
+     * @param  {String}  ServerType           服务类型(tars_java,tars_cpp,tars_node_pkg,tars_node,tars_node8,tars_node10)
      */
     async uploadPatchPackage(ctx) {
         const that = module.exports
@@ -2551,7 +2551,7 @@ module.exports = {
      */
     async ServerAdapterSelect(ctx) {
         const that = module.exports
-        let { Token = '', ServerId = '', AdapterId = 0, page = 1, isAll = false, isTaf = '', isTcp = false } = ctx.paramsObj
+        let { Token = '', ServerId = '', AdapterId = 0, page = 1, isAll = false, isTars = '', isTcp = false } = ctx.paramsObj
 
         let filter = {
             eq: {},
@@ -2578,11 +2578,11 @@ module.exports = {
             filter.eq.AdapterId = Math.floor(AdapterId)
         }
 
-        if(isTaf){
-            if(isTaf === 'true'){
-                filter.eq.IsTaf = true
-            }else if(isTaf === 'false'){
-                filter.eq.IsTaf = false
+        if(isTars){
+            if(isTars === 'true'){
+                filter.eq.IsTars = true
+            }else if(isTars === 'false'){
+                filter.eq.IsTars = false
             }
         }
 
@@ -2616,7 +2616,7 @@ module.exports = {
      * @param  {Number}  Connections          连接数(1024-100000)
      * @param  {Number}  Capacity             队列长度(100-100000)
      * @param  {Number}  Timeout              超时时间(0-100000)
-     * @param  {Boolean} IsTaf               是否TAF(true, false)
+     * @param  {Boolean} IsTars               是否TARS(true, false)
      * @param  {Boolean} IsTcp                是否TCP(true, false)
      */
     async ServerAdapterUpdate(ctx) {
@@ -2641,7 +2641,7 @@ module.exports = {
                 Port: ServerServant[0].Port,
                 Capacity: ServerServant[0].Capacity,
                 Timeout: ServerServant[0].Timeout,
-                IsTaf: ServerServant[0].IsTaf,
+                IsTars: ServerServant[0].IsTars,
                 IsTcp: ServerServant[0].IsTcp,
             }
             const params = {

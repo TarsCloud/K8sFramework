@@ -1,11 +1,11 @@
 /*
- * Taf config 读取
+ * Tars config 读取
  */
 
 'use strict';
 
 const Q = require('q');
-const ConfigParser = require('@taf/taf-utils').Config;
+const ConfigParser = require('@tars/tars-utils').Config;
 
 const config = {};
 
@@ -23,9 +23,9 @@ function parseConf(content, configFormat) {
 
 function loadConfig(filename, configFormat) {
     const dfd = Q.defer();
-    if (process.env.TAF_CONFIG) {
-        const tafConfigHelper = require('@taf/taf-config');
-        const helper = new tafConfigHelper();
+    if (process.env.TARS_CONFIG) {
+        const tarsConfigHelper = require('@tars/tars-config');
+        const helper = new tarsConfigHelper();
         helper.loadConfig(filename, configFormat).then((data) => {
             data = parseConf(data, configFormat);
             global.CONFIG = data;

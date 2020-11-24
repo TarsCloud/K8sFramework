@@ -30,7 +30,7 @@ func init() {
   "swagger": "2.0",
   "info": {
     "description": "Tars Admin接口文档",
-    "title": "TAF-K8S Admin",
+    "title": "TARS-K8S Admin",
     "version": "1.0.0"
   },
   "host": "tarsadmin.com",
@@ -2767,7 +2767,7 @@ func init() {
   "swagger": "2.0",
   "info": {
     "description": "Tars Admin接口文档",
-    "title": "TAF-K8S Admin",
+    "title": "TARS-K8S Admin",
     "version": "1.0.0"
   },
   "host": "tarsadmin.com",

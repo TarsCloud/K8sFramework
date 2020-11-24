@@ -2,10 +2,10 @@
   <div class="app_index__header">
     <div class="main-width">
 
-      <h1 class="hidden">TAF</h1>
+      <h1 class="hidden">TARS</h1>
 
       <div class="logo-wrap">
-        <a :class="{active: dcache === 'true'}" href="/"><img class="logo" src="/static/img/taf-logo.png"></a>
+        <a :class="{active: dcache === 'true'}" href="/"><img class="logo" src="/static/img/tars-logo.png"></a>
         <a v-if="dcache === 'true'" href="/dcache.html"><img class="logo" alt="dcache" src="/static/img/dcache-logo.png"></a>
       </div>
 

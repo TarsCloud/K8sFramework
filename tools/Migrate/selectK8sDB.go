@@ -141,7 +141,7 @@ func execSelectSql(db sqrl.BaseRunner, from string, requestColumnSqlColumnMap Re
 
 	return data, count, nil
 }
-func selectServer(tafDb *sql.DB) (SelectResult, Error) {
+func selectServer(tarsDb *sql.DB) (SelectResult, Error) {
 	requestColumnsSqlColumnsMap := RequestColumnSqlColumnMap{
 		"ServerId": SqlColumn{
 			ColumnName: "f_server_id",
@@ -180,14 +180,14 @@ func selectServer(tafDb *sql.DB) (SelectResult, Error) {
 		Count: nil,
 	}
 
-	if selectResult.Data, selectResult.Count, err = execSelectSql(tafDb, from, requestColumnsSqlColumnsMap); err != nil {
+	if selectResult.Data, selectResult.Count, err = execSelectSql(tarsDb, from, requestColumnsSqlColumnsMap); err != nil {
 		return SelectResult{}, Error{err.Error(), -1}
 	}
 
 	return selectResult, Error{"", 0}
 }
 
-func selectServerAdapter(tafDb *sql.DB) (SelectResult, Error) {
+func selectServerAdapter(tarsDb *sql.DB) (SelectResult, Error) {
 	requestColumnsSqlColumnsMap := RequestColumnSqlColumnMap{
 		"AdapterId": SqlColumn{
 			ColumnName: "f_adapter_id",
@@ -223,8 +223,8 @@ func selectServerAdapter(tafDb *sql.DB) (SelectResult, Error) {
 			ColumnType: "int",
 		},
 
-		"IsTaf": SqlColumn{
-			ColumnName: "f_is_taf",
+		"IsTars": SqlColumn{
+			ColumnName: "f_is_tars",
 			ColumnType: "bool",
 		},
 		"IsTcp": SqlColumn{
@@ -240,14 +240,14 @@ func selectServerAdapter(tafDb *sql.DB) (SelectResult, Error) {
 		Count: nil,
 	}
 
-	if selectResult.Data, selectResult.Count, err = execSelectSql(tafDb, from, requestColumnsSqlColumnsMap); err != nil {
+	if selectResult.Data, selectResult.Count, err = execSelectSql(tarsDb, from, requestColumnsSqlColumnsMap); err != nil {
 		return SelectResult{}, Error{err.Error(), -1}
 	}
 
 	return selectResult, Error{"", 0}
 }
 
-func selectServicePool(tafDb *sql.DB) (SelectResult, Error) {
+func selectServicePool(tarsDb *sql.DB) (SelectResult, Error) {
 	requestColumnsSqlColumnsMap := RequestColumnSqlColumnMap{
 		"ServiceId": SqlColumn{
 			ColumnName: "f_service_id",
@@ -298,14 +298,14 @@ func selectServicePool(tafDb *sql.DB) (SelectResult, Error) {
 		Data:  nil,
 		Count: nil,
 	}
-	if selectResult.Data, selectResult.Count, err = execSelectSql(tafDb, from, requestColumnsSqlColumnsMap); err != nil {
+	if selectResult.Data, selectResult.Count, err = execSelectSql(tarsDb, from, requestColumnsSqlColumnsMap); err != nil {
 		return SelectResult{}, Error{err.Error(), -1}
 	}
 
 	return selectResult, Error{"", 0}
 }
 
-func selectServerOption(tafDb *sql.DB) (SelectResult, Error) {
+func selectServerOption(tarsDb *sql.DB) (SelectResult, Error) {
 
 	requestColumnsSqlColumnsMap := RequestColumnSqlColumnMap{
 		"ServerId": SqlColumn{
@@ -360,14 +360,14 @@ func selectServerOption(tafDb *sql.DB) (SelectResult, Error) {
 		Count: nil,
 	}
 
-	if selectResult.Data, selectResult.Count, err = execSelectSql(tafDb, from, requestColumnsSqlColumnsMap); err != nil {
+	if selectResult.Data, selectResult.Count, err = execSelectSql(tarsDb, from, requestColumnsSqlColumnsMap); err != nil {
 		return SelectResult{}, Error{err.Error(), -1}
 	}
 
 	return selectResult, Error{"", 0}
 }
 
-func selectK8S(tafDb *sql.DB) (SelectResult, Error) {
+func selectK8S(tarsDb *sql.DB) (SelectResult, Error) {
 	requestColumnsSqlColumnsMap := RequestColumnSqlColumnMap{
 		"ServerId": SqlColumn{
 			ColumnName: "f_server_id",
@@ -410,13 +410,13 @@ func selectK8S(tafDb *sql.DB) (SelectResult, Error) {
 		Data:  nil,
 		Count: nil,
 	}
-	if selectResult.Data, selectResult.Count, err = execSelectSql(tafDb, from, requestColumnsSqlColumnsMap); err != nil {
+	if selectResult.Data, selectResult.Count, err = execSelectSql(tarsDb, from, requestColumnsSqlColumnsMap); err != nil {
 		return SelectResult{}, Error{err.Error(), -1}
 	}
 	return selectResult, Error{"", 0}
 }
 
-func selectTemplate(tafDb *sql.DB) (SelectResult, Error) {
+func selectTemplate(tarsDb *sql.DB) (SelectResult, Error) {
 	requestColumnsSqlColumnsMap := RequestColumnSqlColumnMap{
 		"TemplateId": SqlColumn{
 			ColumnName: "f_template_id",
@@ -470,13 +470,13 @@ func selectTemplate(tafDb *sql.DB) (SelectResult, Error) {
 		Data:  nil,
 		Count: nil,
 	}
-	if selectResult.Data, selectResult.Count, err = execSelectSql(tafDb, from, requestColumnsSqlColumnsMap); err != nil {
+	if selectResult.Data, selectResult.Count, err = execSelectSql(tarsDb, from, requestColumnsSqlColumnsMap); err != nil {
 		return SelectResult{}, Error{err.Error(), -1}
 	}
 	return selectResult, Error{"", 0}
 }
 
-func selectConfig(tafDb *sql.DB) (SelectResult, Error) {
+func selectConfig(tarsDb *sql.DB) (SelectResult, Error) {
 	requestColumnsSqlColumnsMap := RequestColumnSqlColumnMap{
 		"ConfigId": SqlColumn{
 			ColumnName: "f_config_id",
@@ -525,7 +525,7 @@ func selectConfig(tafDb *sql.DB) (SelectResult, Error) {
 		Count: nil,
 	}
 
-	if selectResult.Data, selectResult.Count, err = execSelectSql(tafDb, from, requestColumnsSqlColumnsMap); err != nil {
+	if selectResult.Data, selectResult.Count, err = execSelectSql(tarsDb, from, requestColumnsSqlColumnsMap); err != nil {
 		return SelectResult{}, Error{err.Error(), -1}
 	}
 

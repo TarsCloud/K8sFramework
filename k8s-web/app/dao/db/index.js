@@ -26,7 +26,7 @@ const logger = require('../../logger');
 
 let Db = {};
 
-let databases = ['db_taf', 'db_taf_web', 'db_base'];
+let databases = ['db_tars', 'db_tars_web', 'db_base'];
 
 Db.init = function() {
 	databases.forEach((database) => {

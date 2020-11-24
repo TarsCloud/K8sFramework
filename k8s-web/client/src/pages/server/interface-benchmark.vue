@@ -64,7 +64,7 @@
         </let-form-item>
         <let-form-item :label="$t('inf.benchmark.inputValue')">
           <let-input size="small" :rows="10" type="textarea" v-model="caseModel.in_values"></let-input>
-          <a target="_blank" href="https://github.com/TarsCloud/TarsDocs/blob/master/benchmark/taf-guide.md">
+          <a target="_blank" href="https://github.com/TarsCloud/TarsDocs/blob/master/benchmark/tars-guide.md">
             <let-table-operation>{{$t('inf.benchmark.inputValueDes')}}</let-table-operation>
           </a>
         </let-form-item>

@@ -44,7 +44,7 @@
         <let-form-item :label="$t('gateway.proxyPass')" required>
           <let-radio v-model="proxypassMode" label="ipport">ip:port</let-radio>
           <let-radio v-model="proxypassMode" label="upstream">upstream</let-radio>
-          <let-radio v-model="proxypassMode" label="taf">taf</let-radio>
+          <let-radio v-model="proxypassMode" label="tars">tars</let-radio>
           <let-input v-if="proxypassMode == 'ipport'"
             size="small"
             v-model="detailModal.model.f_proxy_pass"
@@ -66,7 +66,7 @@
               pattern-tip="/some/path"
             ></let-input>
           </div>
-          <ServantSelector  v-if="proxypassMode=='taf' && detailModal.model" v-model="detailModal.model.f_proxy_pass"></ServantSelector>
+          <ServantSelector  v-if="proxypassMode=='tars' && detailModal.model" v-model="detailModal.model.f_proxy_pass"></ServantSelector>
         </let-form-item>
       </let-form>
     </let-modal>
@@ -76,7 +76,7 @@
 <script>
 import ServantSelector from "./components/ServantSelector"
 
-const TAF_REG = /(obj|Obj)$/
+const TARS_REG = /(obj|Obj)$/
 const IP_PORT = /^(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[1-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d):\d+$/
 const HTTP_PREFIX = /^http:\/\//
 export default {
@@ -92,7 +92,7 @@ export default {
     return {
       items: [],
       upstreams:[],
-      // ipport / upstream / taf
+      // ipport / upstream / tars
       proxypassMode:"ipport",
       detailModal: {
         show: false,
@@ -163,8 +163,8 @@ export default {
       }
     },
     setProxypassMode(d){
-      if(TAF_REG.test(d.f_proxy_pass)){
-        this.proxypassMode = "taf"
+      if(TARS_REG.test(d.f_proxy_pass)){
+        this.proxypassMode = "tars"
       } else if(IP_PORT.test(d.f_proxy_pass)){
         this.proxypassMode = "ipport"
       } else {

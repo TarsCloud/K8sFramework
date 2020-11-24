@@ -1,6 +1,6 @@
 #include "NodeDescriptor.jce"
 
-module taf
+module tars
 {
     struct ServerStateDesc
     {
@@ -13,32 +13,32 @@ module taf
         6 require string patchUser;
     };
     
-    enum tafErrCode
+    enum tarsErrCode
     {
     	//请求的node节点没有注册或者节点心跳超时
-    	EM_TAF_NODE_NOT_REGISTRY_ERR = 1001,
+    	EM_TARS_NODE_NOT_REGISTRY_ERR = 1001,
     	//主控请求node节点超时
-    	EM_TAF_CALL_NODE_TIMEOUT_ERR = 1002,
+    	EM_TARS_CALL_NODE_TIMEOUT_ERR = 1002,
     	//从主控数据库获取服务的描述信息错误
-    	EM_TAF_LOAD_SERVICE_DESC_ERR = 1003,
+    	EM_TARS_LOAD_SERVICE_DESC_ERR = 1003,
     	//服务可能处在停止或者发布过程中
-    	EM_TAF_SERVICE_STATE_ERR = 1004,
+    	EM_TARS_SERVICE_STATE_ERR = 1004,
     	//同样的请求已经在处理了
-    	EM_TAF_REQ_ALREADY_ERR = 1005,
+    	EM_TARS_REQ_ALREADY_ERR = 1005,
     	//请求来自非法的ip地址,如并非合法的主控地址
-    	EM_TAF_INVALID_IP_ERR = 1006,
+    	EM_TARS_INVALID_IP_ERR = 1006,
     	//参数错误
-    	EM_TAF_PARAMETER_ERR = 1007,
-    	//非taf方面的问题，用于node判断业务机器问题等
-    	EM_TAF_OTHER_ERR = 1008,
+    	EM_TARS_PARAMETER_ERR = 1007,
+    	//非tars方面的问题，用于node判断业务机器问题等
+    	EM_TARS_OTHER_ERR = 1008,
         //获取patch file异常
-        EM_TAF_GET_PATCH_FILE_ERR = 1009,
+        EM_TARS_GET_PATCH_FILE_ERR = 1009,
         //调用patch server准备发布包失败
-        EM_TAF_PREPARE_ERR = 1010,
+        EM_TARS_PREPARE_ERR = 1010,
     	//未知错误
-    	EM_TAF_UNKNOWN_ERR = -1,
+    	EM_TARS_UNKNOWN_ERR = -1,
     	//成功
-    	EM_TAF_SUCCESS = 0
+    	EM_TARS_SUCCESS = 0
     };
 
     /**
@@ -243,7 +243,7 @@ module taf
          * @param out state  : 状态
          * @param out result : 结果描述
          *
-         * @return : 返回值详见tafErrCode枚举值
+         * @return : 返回值详见tarsErrCode枚举值
          */
         int getServerState(string application,string serverName, string nodeName, out ServerStateDesc state, out string result);
 
@@ -266,7 +266,7 @@ module taf
          * @param nodeName   : node id
          * @param out result : 结果描述
          *
-         * @return : 返回值详见tafErrCode枚举值
+         * @return : 返回值详见tarsErrCode枚举值
          */
         int startServer(string application,string serverName, string nodeName, out string result);
 
@@ -278,7 +278,7 @@ module taf
          * @param nodeName   : node id
          * @param out result : 结果描述
          *
-         * @return : 返回值详见tafErrCode枚举值
+         * @return : 返回值详见tarsErrCode枚举值
          */
         int stopServer(string application,string serverName, string nodeName, out string result);
 
@@ -290,7 +290,7 @@ module taf
          * @param nodeName   : node id
          * @param out result : 结果描述
          *
-         * @return : 返回值详见tafErrCode枚举值
+         * @return : 返回值详见tarsErrCode枚举值
          */
         int restartServer(string application,string serverName, string nodeName, out string result);
 
@@ -303,7 +303,7 @@ module taf
          * @param command    : 命令
          * @param out result : 结果描述
          *
-         * @return : 返回值详见tafErrCode枚举值
+         * @return : 返回值详见tarsErrCode枚举值
          */
         int notifyServer(string application,string serverName, string nodeName, string command, out string result);
 
@@ -318,7 +318,7 @@ module taf
          * @param user       : 发布者
          * @param out result : 结果描述
          *
-         * @return : 返回值详见tafErrCode枚举值
+         * @return : 返回值详见tarsErrCode枚举值
          */
 //        int patchServer(string application, string serverName, string nodeName, bool shutdown, string version, string user, out string result);
 
@@ -337,7 +337,7 @@ module taf
          * @param vector<PatchRequest>: 批量发布的请求
          * @param out result : 结果描述
          *
-         * @return : 返回值详见tafErrCode枚举值
+         * @return : 返回值详见tarsErrCode枚举值
          */
         int batchPatch(PatchRequest req, out string result);
 
@@ -345,7 +345,7 @@ module taf
          * 更新发布状态
          *
          *
-         * @return : 返回值详见tafErrCode枚举值
+         * @return : 返回值详见tarsErrCode枚举值
          */
         int updatePatchLog(string application, string serverName, string nodeName, string patchId, string user, string patchType, bool succ);
 
@@ -375,7 +375,7 @@ module taf
          * @param sDstFile   : node服务器上的目标路径
          * @param out result : 结果描述
          *
-         * @return : 返回值详见tafErrCode枚举值
+         * @return : 返回值详见tarsErrCode枚举值
          */
 //        int patchSubborn(string application, string serverName, string nodeName, string sSrcFile, string sDstFile, out string result);
 
@@ -386,7 +386,7 @@ module taf
         * @param nodeName     : node id
         * @out tPatchInfo     ：发布信息
         *
-        * @return : 返回值详见tafErrCode枚举值
+        * @return : 返回值详见tarsErrCode枚举值
         */
         int getPatchPercent(string application,string serverName,string nodeName,out PatchInfo tPatchInfo);
 
@@ -398,7 +398,7 @@ module taf
          * @param nodeName   : node id
          * @param out result : 结果描述
          *
-         * @return : 返回值详见tafErrCode枚举值
+         * @return : 返回值详见tarsErrCode枚举值
          */
         int loadServer(string application, string serverName, string nodeName, out string result);
 
@@ -442,7 +442,7 @@ module taf
          * @param nodeName   : node id
          * @param out result : 结果描述
          *
-         * @return : 返回值详见tafErrCode枚举值
+         * @return : 返回值详见tarsErrCode枚举值
          */
         int getLogFileList(string application, string serverName, string nodeName, out vector<string> logFileList);
 

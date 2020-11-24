@@ -151,7 +151,7 @@ type TServerNormal struct {
 type TServerSubType string
 
 const (
-	TAF    TServerSubType = "tars"
+	TARS    TServerSubType = "tars"
 	Normal TServerSubType = "normal"
 )
 

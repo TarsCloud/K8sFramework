@@ -8,7 +8,7 @@ struct RouterParam
 	1 require string serverName;				//服务名， 如MqqRouterServer
 	2 require string appName;					//业务名称，即子菜单名称	added by spinnerxu@20101104
 	3 require vector<string> vtServerHost;		//IP地址集合,支持在不同机器上安装同一路由，bRouter为true时有效,,modified by spinnerxu@20110812
-	4 require string templateFile;				//服务用的taf模板文件名，bRouter为true时有效
+	4 require string templateFile;				//服务用的tars模板文件名，bRouter为true时有效
 	5 require string dbName;					//数据库名
 	6 require string dbIp;						//数据库IP
 	7 require string dbPort;					//数据库Port
@@ -34,7 +34,7 @@ struct ProxyParam
 	0 require bool bProxy;						//是否安装Proxy服务
 	1 require string serverName;				//服务名， 如MqqProxyServer
 	2 require vector<ProxyAddr> vtServerAddr;	//IP地址，bProxy为true时有效
-	3 require string templateFile;				//服务用的taf模板文件名，bProxy为true时有效
+	3 require string templateFile;				//服务用的tars模板文件名，bProxy为true时有效
 };
 
 struct transferProgress
@@ -48,7 +48,7 @@ struct CacheHostParam
 {
 	0 require string serverName;		//服务名， 如MqqCacheServer
 	1 require string serverIp;			//IP地址
-	2 require string templateFile;		//服务用的taf模板文件名
+	2 require string templateFile;		//服务用的tars模板文件名
 	3 require string type;				//表明服务是主还是备， M/S	
 	4 require string bakSrcServerName;	//如果服务是备机，指定备份的源机，否则为空
 	5 require string idc;				//服务所在idc
@@ -253,13 +253,13 @@ interface DCacheOpt
     /*
 	应用安装
 	*/
-//	int installApp(string appName, RouterParam stRouter, ProxyParam stProxy, string sTafVersion, bool bEnableGroup,bool bReplace, out string err);
+//	int installApp(string appName, RouterParam stRouter, ProxyParam stProxy, string sTarsVersion, bool bEnableGroup,bool bReplace, out string err);
 
 	/*
 	模块安装
 	*/
-//	int installSingleModule(string appName,string moduleName,  vector<CacheHostParam> vtCacheHost, SingleKeyConfParam stSingleKeyConf, string sTafVersion, bool bReplace, out RouterConsistRes rcRes, out string err);
-//	int installMulitModule(string appName,string moduleName,  vector<CacheHostParam> vtCacheHost, MultiKeyConfParam stMultiKeyConf, vector<RecordParam> vtRecord,  string sTafVersion,bool bReplace,out RouterConsistRes rcRes, out string err);
+//	int installSingleModule(string appName,string moduleName,  vector<CacheHostParam> vtCacheHost, SingleKeyConfParam stSingleKeyConf, string sTarsVersion, bool bReplace, out RouterConsistRes rcRes, out string err);
+//	int installMulitModule(string appName,string moduleName,  vector<CacheHostParam> vtCacheHost, MultiKeyConfParam stMultiKeyConf, vector<RecordParam> vtRecord,  string sTarsVersion,bool bReplace,out RouterConsistRes rcRes, out string err);
 	/*
 
 	/*
@@ -277,7 +277,7 @@ interface DCacheOpt
 	 *@bReplace：当安装时数据库记录冲突是是否replace，建议使用false，防止填写错误更改正在使用的配置
 	 *返回值：0 成功，其他失败
 	 */
-	int installSingleKey(string moduleName, string serviceSetName, string serviceName, RouterParam stRouter, ProxyParam stProxy, vector<CacheHostParam> vtCacheHost, SingleKeyConfParam stSingleKeyConf, string sTafVersion, bool bReplace, out RouterConsistRes rcRes, out string err);
+	int installSingleKey(string moduleName, string serviceSetName, string serviceName, RouterParam stRouter, ProxyParam stProxy, vector<CacheHostParam> vtCacheHost, SingleKeyConfParam stSingleKeyConf, string sTarsVersion, bool bReplace, out RouterConsistRes rcRes, out string err);
 
 	/*
 	 *安装二期DCache（MultiKey）
@@ -287,7 +287,7 @@ interface DCacheOpt
 	 *@bReplace：当安装时数据库记录冲突是是否replace，建议使用false，防止填写错误更改正在使用的配置
 	 *返回值：0 成功，其他失败
 	 */
-	int installMultiKey(string moduleName, string serviceSetName, string serviceName, RouterParam stRouter, ProxyParam stProxy, vector<CacheHostParam> vtCacheHost, MultiKeyConfParam stMultiKeyConf, vector<RecordParam> vtRecord,  string sTafVersion,bool bReplace,out RouterConsistRes rcRes, out string err);
+	int installMultiKey(string moduleName, string serviceSetName, string serviceName, RouterParam stRouter, ProxyParam stProxy, vector<CacheHostParam> vtCacheHost, MultiKeyConfParam stMultiKeyConf, vector<RecordParam> vtRecord,  string sTarsVersion,bool bReplace,out RouterConsistRes rcRes, out string err);
         
     /*
 	 *获取模块信息
@@ -405,7 +405,7 @@ interface DCacheOpt
 	 *@bReplace：当安装时数据库记录冲突是是否replace，建议使用false，防止填写错误更改正在使用的配置
 	 *返回值：0 成功，其他失败
 	 */
-	int expandDCache(string appName,string moduleName, string serviceSetName, string serviceName, vector<CacheHostParam> vtCacheHost, string sTafVersion, int expandType, bool bReplace, out RouterConsistRes rcRes,  out string err);
+	int expandDCache(string appName,string moduleName, string serviceSetName, string serviceName, vector<CacheHostParam> vtCacheHost, string sTarsVersion, int expandType, bool bReplace, out RouterConsistRes rcRes,  out string err);
 
     /*
     *检测路由配置是否正确，检测规则可参考《DCache路由配置检查规则修订版.doc》
@@ -417,7 +417,7 @@ interface DCacheOpt
 	/*
 	*从数据库中重新加载路由配置信息
 	*参数说明:
-	*	sApp: taf应用名,设置为DCache即可
+	*	sApp: tars应用名,设置为DCache即可
 	*      sRouterServerName: 路由服务名
 	*      sResult: 结果,成功时为空，失败时错误信息
 	*返回值:true 加载成功,false加载失败
@@ -427,7 +427,7 @@ interface DCacheOpt
 	/*
 	*从数据库中重新加载路由配置信息
 	*参数说明:
-	*	sApp: taf应用名,设置为DCache即可
+	*	sApp: tars应用名,设置为DCache即可
 	*      sRouterServerName: 路由服务名
 	*      sResult: 结果,成功时为空，失败时错误信息
 	*返回值:true 加载成功,false加载失败
@@ -435,13 +435,13 @@ interface DCacheOpt
 	bool reloadRouterConfByModuleFromDB(string sApp,string moduleName, string sRouterServerName, out string sResult);
 
 	/**
-	*功能:下线taf服务
-	*@param sTafServerName: 待下线taf服务名称
-	*@param sIp: taf服务所在ip
+	*功能:下线tars服务
+	*@param sTarsServerName: 待下线tars服务名称
+	*@param sIp: tars服务所在ip
 	*@param sError: 错误信息，当调用成功时为空，反之则存放调用失败原因
 	*@return int: 0时调用成功，非0则失败
 	*/
-	int uninstall4TafServer(string sTafServerName, string sIp, out string sError);
+	int uninstall4TarsServer(string sTarsServerName, string sIp, out string sError);
 
 	/**
 	*功能: 下线DCache
@@ -463,13 +463,13 @@ interface DCacheOpt
 	*@param  appName：应用名，用来定位路由数据库
 	*@param  moduleName：模块名
 	*@param  srcGroupName：迁移源服务组
-	*@param   string sTafVersion：taf的版本
+	*@param   string sTarsVersion：tars的版本
 	*@param   int serverType: 1表示一期cache 2表示二期cache
 	*@praram  isDestServerExist：指示目的服务组是否为已存在服务
 	*@praram  vtCacheHost： 迁移目的服务组的cache信息
 	*return int：0成功，非0失败
 	*/
-	int configureTransfer(string appName,string moduleName,string srcGroupName,string sTafVersion,int serverType,bool isDestServerExist,vector<CacheHostParam> vtCacheHost,out string err);
+	int configureTransfer(string appName,string moduleName,string srcGroupName,string sTarsVersion,int serverType,bool isDestServerExist,vector<CacheHostParam> vtCacheHost,out string err);
 
 	/*
 	*功能：一键迁移:发布阶段接口，完成服务的发布
@@ -543,13 +543,13 @@ interface DCacheOpt
 	*@param  appName：应用名，用来定位路由数据库
 	*@param  moduleName：模块名
 	*@param  srcGroupName：迁移源服务组
-	*@param   string sTafVersion：taf的版本
+	*@param   string sTarsVersion：tars的版本
 	*@param   int serverType: 1表示一期cache 2表示二期cache
 	*@praram  isDestServerExist：指示目的服务组是否为已存在服务
 	*@praram  vtCacheHost： 迁移目的服务组的cache信息
 	*return int：0成功，非0失败
 	*/
-	int configureTransferV2(string appName,string moduleName,string srcGroupName,string sTafVersion,int serverType,bool isDestServerExist,vector<CacheHostParam> vtCacheHost,out string err);
+	int configureTransferV2(string appName,string moduleName,string srcGroupName,string sTarsVersion,int serverType,bool isDestServerExist,vector<CacheHostParam> vtCacheHost,out string err);
 
 	/*
 	*功能：新一键迁移:发起迁移阶段接口，设置路由数据库的迁移记录，开始迁移
@@ -584,12 +584,12 @@ interface DCacheOpt
 	*功能：一键扩容:配置阶段接口，完成路由表的修改和服务的部署
 	*@param  appName：应用名，用来定位路由数据库
 	*@param  moduleName：模块名
-	*@param   string sTafVersion：taf的版本
+	*@param   string sTarsVersion：tars的版本
 	*@param   int serverType: 1表示一期cache 2表示二期cache
 	*@praram  vtCacheHost： 迁移目的服务组的cache信息
 	*return int：0成功，非0失败
 	*/
-	int configureExpand(string appName,string moduleName,string sTafVersion,int serverType,vector<CacheHostParam> vtCacheHost,out string err);
+	int configureExpand(string appName,string moduleName,string sTarsVersion,int serverType,vector<CacheHostParam> vtCacheHost,out string err);
 
 	/*
 	*功能：一键扩容:发布阶段接口，完成服务的发布

@@ -20,12 +20,12 @@ type DBConfig struct {
 }
 
 type ConfigDBContent struct {
-	TafDBConfig        DBConfig        `json:"TafDBConfig",valid:"required,matches-DBConfig"`
+	TarsDBConfig        DBConfig        `json:"TarsDBConfig",valid:"required,matches-DBConfig"`
 	K8sDBConfig        DBConfig        `json:"K8SDBConfig",valid:"required,matches-DBConfig"`
 }
 
 var globalK8SDb *sql.DB
-var globalTafDb *sql.DB
+var globalTarsDb *sql.DB
 var globalDBConfig ConfigDBContent
 
 
@@ -56,8 +56,8 @@ var genTemplate = flag.Bool("genTemplate", false, "bool类型参数：是否生�
 var initRelease = flag.Bool("initRelease", true, "bool类型参数：是否初始化TRelease文件")
 
 var fromK8SDB = flag.Bool("fromK8SDB", false, "bool类型参数：是否从K8S DB生成TServer+TRelease")
-var fromTAFDB = flag.Bool("fromTAFDB", true, "bool类型参数：是否从TAF DB生成TServer+TRelease")
-var dumpedTafFile = flag.String("dumpedTafFile", "", "string类型参数：当fromK8SDB和fromTAFDB都是false，则从该文件生成TServer+TRelease")
+var fromTARSDB = flag.Bool("fromTARSDB", true, "bool类型参数：是否从TARS DB生成TServer+TRelease")
+var dumpedTarsFile = flag.String("dumpedTarsFile", "", "string类型参数：当fromK8SDB和fromTARSDB都是false，则从该文件生成TServer+TRelease")
 
 // 迁移配置文件
 const migrateConfigPath = "./Config/migrate.json"
@@ -104,7 +104,7 @@ func main()  {
 
 	// 是否生成TTemplate
 	if *genTemplate {
-		LoadTafDBTemplateData()
+		LoadTarsDBTemplateData()
 		// yaml模板
 		DumpTTempateData()
 	}
@@ -113,10 +113,10 @@ func main()  {
 	if FromK8SDB {
 		LoadK8SDBServerData()
 	} else {
-		if *fromTAFDB {
-			LoadTafDBServerData()
+		if *fromTARSDB {
+			LoadTarsDBServerData()
 		} else {
-			LoadDumpFromHZServerData(*dumpedTafFile)
+			LoadDumpFromHZServerData(*dumpedTarsFile)
 		}
 	}
 
@@ -142,19 +142,19 @@ func LoadDBConfig() {
 		}
 	}
 
-	tafSqlUrl := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8", globalDBConfig.TafDBConfig.DbUser, globalDBConfig.TafDBConfig.DbPass, globalDBConfig.TafDBConfig.DbHost, globalDBConfig.TafDBConfig.DbPort, globalDBConfig.TafDBConfig.DbName)
+	tarsSqlUrl := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8", globalDBConfig.TarsDBConfig.DbUser, globalDBConfig.TarsDBConfig.DbPass, globalDBConfig.TarsDBConfig.DbHost, globalDBConfig.TarsDBConfig.DbPort, globalDBConfig.TarsDBConfig.DbName)
 
 	k8sSqlUrl := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8", globalDBConfig.K8sDBConfig.DbUser, globalDBConfig.K8sDBConfig.DbPass, globalDBConfig.K8sDBConfig.DbHost, globalDBConfig.K8sDBConfig.DbPort, globalDBConfig.K8sDBConfig.DbName)
 
 	var err error
 
-	if globalTafDb, err = sql.Open("mysql", tafSqlUrl); err != nil || globalTafDb == nil {
-		fmt.Println("Open Taf MySQl Error , Did You Set Right TafDBConfig Params ? ")
+	if globalTarsDb, err = sql.Open("mysql", tarsSqlUrl); err != nil || globalTarsDb == nil {
+		fmt.Println("Open Tars MySQl Error , Did You Set Right TarsDBConfig Params ? ")
 		return
 	}
 
 	if globalK8SDb, err = sql.Open("mysql", k8sSqlUrl); err != nil || globalK8SDb == nil {
-		fmt.Println("Open TafK8S MySQl Error , Did You Set Right K8SDBConfig Params ? ")
+		fmt.Println("Open TarsK8S MySQl Error , Did You Set Right K8SDBConfig Params ? ")
 		return
 	}
 }
@@ -171,8 +171,8 @@ func LoadImageConfig() {
 	}
 
 	// 基础镜像
-	imageBaseMap["taf_cpp"] = configmap.Data.CppImageBase
-	imageBaseMap["taf_node10"] = configmap.Data.Node10ImageBase
+	imageBaseMap["tars_cpp"] = configmap.Data.CppImageBase
+	imageBaseMap["tars_node10"] = configmap.Data.Node10ImageBase
 
 	Namespace = configmap.Data.Namespace
 	DockerRegistryUrl = configmap.Data.DockerRegistryURL

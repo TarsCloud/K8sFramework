@@ -21,7 +21,7 @@ const MonitorPropertyService = require('../../service/monitor/MonitorPropertySer
 
 const MonitorController = {};
 
-MonitorController.tafstat = async (ctx) => {
+MonitorController.tarsstat = async (ctx) => {
 	let {thedate, predate, startshowtime, endshowtime, master_name, slave_name, interface_name, master_ip, slave_ip, group_by,userpc} = ctx.paramsObj;
 	try {
 		let list = await MonitorStatService.getData({
@@ -67,7 +67,7 @@ MonitorController.tafstat = async (ctx) => {
 	}
 };
 
-MonitorController.tafproperty = async (ctx) => {
+MonitorController.tarsproperty = async (ctx) => {
 	let {thedate, predate, startshowtime, endshowtime, master_name, master_ip, property_name, policy, group_by,userpc} = ctx.paramsObj;
 	try {
 		let list = await MonitorPropertyService.getData({

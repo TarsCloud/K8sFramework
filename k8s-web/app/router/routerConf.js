@@ -145,8 +145,8 @@ const apiConf = [
 	['get', '/send_command', ServerController.sendCommand, { serverApp: 'notEmpty', serverName: 'notEmpty', podIp: 'notEmpty', command: 'notEmpty' }],
 
 	// 监控
-    ['get', '/tafstat_monitor_data', MonitorController.tafstat],
-	['get', '/tafproperty_monitor_data', MonitorController.tafproperty],
+    ['get', '/tarsstat_monitor_data', MonitorController.tarsstat],
+	['get', '/tarsproperty_monitor_data', MonitorController.tarsproperty],
 	
 	//网关配置
     ['get', '/station_list', GatewayController.getStationList], 
@@ -210,7 +210,7 @@ const apiConf = [
 ];
 
 const clientConf = [
-    ['get', '/get_tafnode', ResourceController.getTafNode],
+    ['get', '/get_tarsnode', ResourceController.getTarsNode],
 ];
 
 module.exports = {pageConf, apiConf, clientConf};

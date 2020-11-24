@@ -2,7 +2,7 @@
   <div class="app_index__header">
     <div class="main-width">
 
-      <h1 class="hidden">TAF</h1>
+      <h1 class="hidden">TARS</h1>
 
       <div class="logo-wrap">
         <a href="/"><img class="logo" src="@/assets/img/logo.png"></a>

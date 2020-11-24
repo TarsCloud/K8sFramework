@@ -50,7 +50,7 @@ func (s *SelectPodAliveHandler) Handle(params server_pod.SelectPodAliveParams) m
 
 	filterItems := make([]*crdv1alpha1.TEndpoint, 0, 10)
 	for _, Endpoint := range allEndpointItems {
-		if Endpoint.Spec.SubType != crdv1alpha1.TAF {
+		if Endpoint.Spec.SubType != crdv1alpha1.TARS {
 			continue
 		}
 		if len(Endpoint.Status.PodStatus) <= 0 {

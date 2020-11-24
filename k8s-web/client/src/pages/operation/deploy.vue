@@ -98,8 +98,8 @@
             <span class="required">{{props.column.title}}</span>
           </template>
           <template slot-scope="props">
-            <let-radio v-model="props.row.IsTaf" :label="true">TAF</let-radio>
-            <let-radio v-model="props.row.IsTaf" :label="false">{{$t('serverList.servant.notTAF')}}</let-radio>
+            <let-radio v-model="props.row.IsTars" :label="true">TARS</let-radio>
+            <let-radio v-model="props.row.IsTars" :label="false">{{$t('serverList.servant.notTARS')}}</let-radio>
           </template>
         </let-table-column>
         <let-table-column :title="$t('deployService.table.th.threads')" width="80px">
@@ -249,8 +249,8 @@
                     <span class="required">{{props.column.title}}</span>
                   </template>
                   <template slot-scope="props">
-                    <span v-if="props.row.IsTaf">TAF</span>
-                    <span v-else>{{$t('serverList.servant.notTAF')}}</span>
+                    <span v-if="props.row.IsTars">TARS</span>
+                    <span v-else>{{$t('serverList.servant.notTARS')}}</span>
                   </template>
                 </let-table-column>
               </let-table>
@@ -298,12 +298,12 @@
 import SetInputer from '@/components/set-inputer';
 
 const types = [
-  'taf_cpp',
-  'taf_java',
-  'taf_php',
-  'taf_nodejs',
-  'not_taf',
-  'taf_go'
+  'tars_cpp',
+  'tars_java',
+  'tars_php',
+  'tars_nodejs',
+  'not_tars',
+  'tars_go'
 ];
 
 const getInitialModel = () => ({
@@ -323,7 +323,7 @@ const getInitialModel = () => ({
       Capacity: 0,
       Timeout: 0,
       IsTcp: true,
-      IsTaf: false,
+      IsTars: false,
     }
   ],
   ServerOption: {
@@ -354,7 +354,7 @@ const getInitialModel = () => ({
   //   bind_ip: '',
   //   port: '',
   //   port_type: 'tcp',
-  //   protocol: 'taf',
+  //   protocol: 'tars',
   //   thread_num: 5,
   //   max_connections: 200000,
   //   queuecap: 10000,
@@ -564,7 +564,7 @@ export default {
             item.Threads = data.ServerServantElem.Threads
             item.Timeout = data.ServerServantElem.Timeout
             item.IsTcp = data.ServerServantElem.IsTcp
-            item.IsTaf = data.ServerServantElem.IsTaf
+            item.IsTars = data.ServerServantElem.IsTars
           })
         }
         if(data.ServerOption){

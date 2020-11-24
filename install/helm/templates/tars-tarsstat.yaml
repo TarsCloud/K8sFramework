@@ -2,6 +2,7 @@ apiVersion: k8s.tars.io/v1alpha1
 kind: TRelease
 metadata:
   name: tars-tarsstat
+  namespace: {{.Release.Namespace}}
 spec:
   list:
     - image: {{.Values.global.registry.url}}/tars.tarsstat:10000
@@ -14,6 +15,7 @@ apiVersion: k8s.tars.io/v1alpha1
 kind: TServer
 metadata:
   name: tars-tarsstat
+  namespace: {{.Release.Namespace}}
   labels:
     tars.io/ReleaseSource: tars-tarsstat
     tars.io/ReleaseTag: "10000"
@@ -39,7 +41,7 @@ spec:
           slavefile=hashmap_slave.txt
           insertInterval=5
           enableStatCount=0
-          size=64M
+          size=256M
           countsize=1M
         </hashmap>
         <reapSql>
@@ -91,7 +93,7 @@ spec:
             path: /usr/local/app/tars/app_log
             type: DirectoryOrCreate
         mountPath: /usr/local/app/tars/app_log
-        subPathExpr: $(Namespace).$(PodName)
+        subPathExpr: $(Namespace)/$(PodName)
     readinessGate: tars.io/active
   release:
     source: tars-tarsstat

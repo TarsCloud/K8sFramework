@@ -21,7 +21,7 @@
       :width="'1000px'"
       :title="$t(`dcache.batch.${type}`)"
     >
-      <taf-release-progress v-if="!!releaseId && releaseIng" :release-id="releaseId" @close-fn="this.getServerList"></taf-release-progress>
+      <tars-release-progress v-if="!!releaseId && releaseIng" :release-id="releaseId" @close-fn="this.getServerList"></tars-release-progress>
     </let-modal>
   </section>
 </template>

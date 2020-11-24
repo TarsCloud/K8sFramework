@@ -14,11 +14,11 @@ void RegistryServer::initialize() {
     K8SParams::instance().init();
 
     std::string tendpointsWatchUrl =
-            std::string("/apis/k8s.taf.io/v1alpha1/namespaces/") + K8SParams::instance().bindNamespace() + "/tendpoints";
+            std::string("/apis/k8s.tars.io/v1alpha1/namespaces/") + K8SParams::instance().bindNamespace() + "/tendpoints";
     K8SWatcher::instance().postWatch(tendpointsWatchUrl, handleEndpointsEvent);
 
     std::string ttemplatesWatchUrl =
-            std::string("/apis/k8s.taf.io/v1alpha1/namespaces/") + K8SParams::instance().bindNamespace() + "/ttemplates";
+            std::string("/apis/k8s.tars.io/v1alpha1/namespaces/") + K8SParams::instance().bindNamespace() + "/ttemplates";
     K8SWatcher::instance().postWatch(ttemplatesWatchUrl, handleTemplateEvent);
 
     K8SClient::instance().start();
@@ -33,8 +33,8 @@ void RegistryServer::initialize() {
     }
 
     try {
-        constexpr char FIXED_QUERY_SERVANT[] = "taf.tafregistry.QueryObj";
-        constexpr char FIXED_REGISTRY_SERVANT[] = "taf.tafregistry.RegistryObj";
+        constexpr char FIXED_QUERY_SERVANT[] = "tars.tarsregistry.QueryObj";
+        constexpr char FIXED_REGISTRY_SERVANT[] = "tars.tarsregistry.RegistryObj";
         addServant<QueryImp>(FIXED_QUERY_SERVANT);
         addServant<RegistryImp>(FIXED_REGISTRY_SERVANT);
     } catch (TC_Exception &ex) {
@@ -50,7 +50,7 @@ void RegistryServer::initialize() {
               << "/status";
     const std::string setActiveUrl = strStream.str();
     strStream.str("");
-    strStream << R"({"status":{"conditions":[{"type":"taf.io/active","status":"True","reason":"Active/Active"}]}})";
+    strStream << R"({"status":{"conditions":[{"type":"tars.io/active","status":"True","reason":"Active/Active"}]}})";
     const std::string setActiveBody = strStream.str();
 
     auto setActiveTask = K8SClient::instance().postRequest(K8SClientRequestMethod::StrategicMergePatch, setActiveUrl, setActiveBody);

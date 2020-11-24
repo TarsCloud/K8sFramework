@@ -230,10 +230,10 @@ func getServerType(dir, file string) (string, string) {
 		panic(fmt.Sprintf("chmod directory %s err: %s\n", unTarDir, err))
 	}
 
-	serverType := "taf_cpp"
+	serverType := "tars_cpp"
 	for _, file := range server {
 		if file.Name() == "app.js" || file.Name() == "package.json" {
-			serverType = "taf_node10"
+			serverType = "tars_node10"
 		}
 	}
 
@@ -260,7 +260,7 @@ func createImageDir(request BuildRequest) {
 func writeImageConfig(request BuildRequest) {
 	baseImage := imageBaseMap[request.ServerType]
 
-	// 创建etc文件，tafnode使用
+	// 创建etc文件，tarsnode使用
 	bytes := []byte(fmt.Sprintf("#!/bin/bash\nexport ServerName=%s\nexport ServerType=%s\nexport BuildPerson=%s\nexport BuildTime=%s\n",
 		request.ServerName, request.ServerType, "BatchScript", time.Now().Format("2006-01-02 15:04:05")))
 	detailFile := fmt.Sprintf("%s/root/etc/detail", request.ServerDir)
@@ -331,21 +331,21 @@ func writeTServerFile(request BuildRequest, release ReleaseImageItem) {
 	if err != nil {
 		panic(fmt.Sprintf("read from %s err: %s\n", "tserver.yaml", err))
 	}
-	tafserver := &TServer{}
-	err = yaml.Unmarshal(server, &tafserver)
+	tarsserver := &TServer{}
+	err = yaml.Unmarshal(server, &tarsserver)
 	if err != nil {
 		panic(fmt.Sprintf("unmarshal from %s err: %s\n", "tserver.yaml", err))
 	}
 
 	if FromK8SDB {
-		ok := AdapterK8SDBTServerData(tafserver, request, release)
+		ok := AdapterK8SDBTServerData(tarsserver, request, release)
 		if !ok {
 			fmt.Println(fmt.Sprintf("cannot find tserver: %s.%s in k8s db.", request.ServerApp, request.ServerName))
 		}
 	} else {
-		ok := AdapterTafDBTServerData(tafserver, request, release)
+		ok := AdapterTarsDBTServerData(tarsserver, request, release)
 		if !ok {
-			fmt.Println(fmt.Sprintf("cannot find tserver: %s.%s in taf db.", request.ServerApp, request.ServerName))
+			fmt.Println(fmt.Sprintf("cannot find tserver: %s.%s in tars db.", request.ServerApp, request.ServerName))
 		}
 	}
 }

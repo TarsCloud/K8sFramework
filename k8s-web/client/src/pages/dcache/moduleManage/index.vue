@@ -176,7 +176,7 @@
             v-model="configModal.model.async_thread_num"
             :placeholder="$t('serverList.dlg.placeholder.thread')"
             required
-            :pattern="configModal.model.server_type === 'taf.nodejs' ? '^[1-9][0-9]*$' : '^([3-9]|[1-9][0-9]+)$'"
+            :pattern="configModal.model.server_type === 'tars.nodejs' ? '^[1-9][0-9]*$' : '^([3-9]|[1-9][0-9]+)$'"
             pattern-tip="$t('serverList.dlg.placeholder.thread')"
           ></let-input>
         </let-form-item>
@@ -326,7 +326,7 @@
           <let-radio-group
             size="small"
             v-model="servantDetailModal.model.protocol"
-            :data="[{ value: 'taf', text: 'TAF' }, { value: 'not_tars', text: $t('serverList.servant.notTAF') }]">
+            :data="[{ value: 'tars', text: 'TARS' }, { value: 'not_tars', text: $t('serverList.servant.notTARS') }]">
           </let-radio-group>
         </let-form-item>
         <let-form-item :label="$t('serverList.servant.treatmentGroup')" labelWidth="150px">
@@ -1091,16 +1091,16 @@
           this.undeployServer(server.id);
           // 设置日志等级
         } else if (model.selected === 'setloglevel') {
-          this.sendCommand(server.id, `taf.setloglevel ${model.setloglevel}`);
+          this.sendCommand(server.id, `tars.setloglevel ${model.setloglevel}`);
           // push 日志文件
         } else if (model.selected === 'loadconfig' && this.$refs.moreCmdForm.validate()) {
-          this.sendCommand(server.id, `taf.loadconfig ${model.loadconfig}`);
+          this.sendCommand(server.id, `tars.loadconfig ${model.loadconfig}`);
           // 发送自定义命令
         } else if (model.selected === 'command' && this.$refs.moreCmdForm.validate()) {
           this.sendCommand(server.id, model.command);
           // 查看服务链接
         } else if (model.selected === 'connection') {
-          this.sendCommand(server.id, `taf.connection`, true);
+          this.sendCommand(server.id, `tars.connection`, true);
         }
       },
       closeMoreCmdModal() {

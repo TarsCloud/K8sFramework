@@ -133,8 +133,8 @@
               <span class="required">{{props.column.title}}</span>
             </template>
             <template slot-scope="props">
-              <let-radio v-model="props.row.IsTaf" :label="true">TAF</let-radio>
-              <let-radio v-model="props.row.IsTaf" :label="false">{{$t('serverList.servant.notTAF')}}</let-radio>
+              <let-radio v-model="props.row.IsTars" :label="true">TARS</let-radio>
+              <let-radio v-model="props.row.IsTars" :label="false">{{$t('serverList.servant.notTARS')}}</let-radio>
             </template>
           </let-table-column>
           <let-table-column :title="$t('deployService.table.th.threads')" width="80px">
@@ -342,8 +342,8 @@
               <span class="required">{{props.column.title}}</span>
             </template>
             <template slot-scope="props">
-              <let-radio disabled v-model="props.row.IsTaf" :label="true">TAF</let-radio>
-              <let-radio disabled v-model="props.row.IsTaf" :label="false">{{$t('serverList.servant.notTAF')}}</let-radio>
+              <let-radio disabled v-model="props.row.IsTars" :label="true">TARS</let-radio>
+              <let-radio disabled v-model="props.row.IsTars" :label="false">{{$t('serverList.servant.notTARS')}}</let-radio>
             </template>
           </let-table-column>
           <let-table-column :title="$t('deployService.table.th.threads')" width="80px">

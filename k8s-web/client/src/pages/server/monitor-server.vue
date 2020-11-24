@@ -13,21 +13,21 @@
       <let-form-item :label="$t('monitor.search.end')">
         <let-input size="small" v-model="query.endshowtime"></let-input>
       </let-form-item>
-      <taf-form-item :label="$t('monitor.search.interfaceName')" @onLabelClick="groupBy('interface_name')">
+      <tars-form-item :label="$t('monitor.search.interfaceName')" @onLabelClick="groupBy('interface_name')">
         <let-input size="small" v-model="query.interface_name"></let-input>
-      </taf-form-item>
-      <taf-form-item :label="$t('monitor.search.master')" @onLabelClick="groupBy('master_name')">
+      </tars-form-item>
+      <tars-form-item :label="$t('monitor.search.master')" @onLabelClick="groupBy('master_name')">
         <let-input size="small" v-model="query.master_name"></let-input>
-      </taf-form-item>
-      <taf-form-item :label="$t('monitor.search.slave')" @onLabelClick="groupBy('slave_name')">
+      </tars-form-item>
+      <tars-form-item :label="$t('monitor.search.slave')" @onLabelClick="groupBy('slave_name')">
         <let-input size="small" v-model="query.slave_name"></let-input>
-      </taf-form-item>
-      <taf-form-item :label="$t('monitor.search.masterIP')" @onLabelClick="groupBy('master_ip')">
+      </tars-form-item>
+      <tars-form-item :label="$t('monitor.search.masterIP')" @onLabelClick="groupBy('master_ip')">
         <let-input size="small" v-model="query.master_ip"></let-input>
-      </taf-form-item>
-      <taf-form-item :label="$t('monitor.search.slaveIP')" @onLabelClick="groupBy('slave_ip')">
+      </tars-form-item>
+      <tars-form-item :label="$t('monitor.search.slaveIP')" @onLabelClick="groupBy('slave_ip')">
         <let-input size="small" v-model="query.slave_ip"></let-input>
-      </taf-form-item>
+      </tars-form-item>
       <let-form-item>
         <let-button size="small" type="submit" theme="primary">{{$t('operate.search')}}</let-button>
       </let-form-item>
@@ -244,7 +244,7 @@ export default {
     fetchData() {
       const chartLoading = this.$refs.chart && this.$refs.chart.$loading.show();
       const tableLoading = this.$refs.table.$loading.show();
-      return this.$ajax.getJSON('/server/api/tafstat_monitor_data', this.query).then((data) => {
+      return this.$ajax.getJSON('/server/api/tarsstat_monitor_data', this.query).then((data) => {
         chartLoading && chartLoading.hide();
         tableLoading.hide();
         this.allItems = dataFormatter(data);

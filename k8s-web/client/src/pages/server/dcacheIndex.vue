@@ -149,9 +149,9 @@
             // this.$router.push(`/server/6${nodeInfo.moduleName}/cache`)
           }
         } else {
-          // 正常的服务展示, taf 的就是正常的，  只有dcache、router、proxy才有serverType
+          // 正常的服务展示, tars 的就是正常的，  只有dcache、router、proxy才有serverType
           let {serverType} = nodeInfo;
-          !serverType? serverType='taf':'';
+          !serverType? serverType='tars':'';
           this.$router.push(`/server/${nodeKey}/manage/${serverType}`);
         }
 

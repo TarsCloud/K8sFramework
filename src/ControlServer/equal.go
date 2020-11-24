@@ -574,7 +574,7 @@ func equalTServerAndTEndpoint(server *crdV1Alpha1.TServer, endpoint *crdV1Alpha1
 	}
 
 	switch server.Spec.SubType {
-	case crdV1Alpha1.TAF:
+	case crdV1Alpha1.TARS:
 		return equalTars(server.Spec.Tars, endpoint.Spec.Tars)
 	case crdV1Alpha1.Normal:
 		return equalNormal(server.Spec.Normal, endpoint.Spec.Normal)

@@ -3,13 +3,6 @@ kind: TRelease
 metadata:
   name: tars-tarslog
   namespace: {{.Release.Namespace}}
-  labels:
-    tars.io/ReleaseSource: tars-tarslog
-    tars.io/ReleaseTag: "10000"
-    tars.io/ServerApp: tars
-    tars.io/ServerName: tarslog
-    tars.io/SubType: tars
-    tars.io/Template: tars.default
 spec:
   list:
     - image: {{.Values.global.registry.url}}/tars.tarslog:10000
@@ -22,6 +15,14 @@ apiVersion: k8s.tars.io/v1alpha1
 kind: TServer
 metadata:
   name: tars-tarslog
+  namespace: {{.Release.Namespace}}
+  labels:
+    tars.io/ReleaseSource: tars-tarslog
+    tars.io/ReleaseTag: "10000"
+    tars.io/ServerApp: tars
+    tars.io/ServerName: tarslog
+    tars.io/SubType: tars
+    tars.io/Template: tars.default
 spec:
   app: tars
   server: tarslog
@@ -62,7 +63,7 @@ spec:
             path: /usr/local/app/tars/app_log
             type: DirectoryOrCreate
         mountPath: /usr/local/app/tars/app_log
-        subPathExpr: $(Namespace).$(PodName)
+        subPathExpr: $(Namespace)/$(PodName)
     readinessGate: tars.io/active
   release:
     source: tars-tarslog

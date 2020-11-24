@@ -16,12 +16,12 @@
         </let-form-item>
       </let-form-group>
       <let-form-group>
-        <taf-form-item :label="$t('module.name')" @onLabelClick="groupBy('moduleName')">
+        <tars-form-item :label="$t('module.name')" @onLabelClick="groupBy('moduleName')">
           <let-input size="small" v-model="query.moduleName"></let-input>
-        </taf-form-item>
-        <taf-form-item :label="$t('service.serverName')" @onLabelClick="groupBy('serverName')">
+        </tars-form-item>
+        <tars-form-item :label="$t('service.serverName')" @onLabelClick="groupBy('serverName')">
           <let-input size="small" v-model="query.serverName"></let-input>
-        </taf-form-item>
+        </tars-form-item>
         <let-form-item>
           <let-button size="small" type="submit" theme="primary">{{$t('operate.search')}}</let-button>
         </let-form-item>

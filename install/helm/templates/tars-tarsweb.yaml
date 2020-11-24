@@ -8,7 +8,7 @@ spec:
     - image: {{.Values.global.registry.url}}/tars.tarsweb:10000
       imagePullSecret: tars-image-secret
       tag: "10000"
-      serverType: tars_nodejs
+      serverType: tars_node10
 ---
 
 apiVersion: k8s.tars.io/v1alpha1
@@ -34,4 +34,4 @@ spec:
     tag: '10000'
     image: {{.Values.global.registry.url}}/tars.tarsweb:10000
     imagePullSecret: tars-image-secret
-    serverType: tars_nodejs
+    serverType: tars_node10

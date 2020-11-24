@@ -1,0 +1,279 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: tendpoints.k8s.tars.io
+spec:
+  conversion:
+    strategy: None
+  group: k8s.tars.io
+  names:
+    kind: TEndpoint
+    listKind: TEndpointList
+    plural: tendpoints
+    shortNames:
+      - te
+    singular: tendpoint
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          properties:
+            spec:
+              oneOf:
+                - required:
+                    - tars
+                - required:
+                    - normal
+              properties:
+                app:
+                  pattern: ^[a-zA-Z][a-zA-Z0-9]{0,23}$
+                  type: string
+                important:
+                  default: 3
+                  maximum: 20
+                  minimum: 1
+                  type: integer
+                normal:
+                  properties:
+                    ports:
+                      items:
+                        properties:
+                          isTcp:
+                            default: true
+                            type: boolean
+                          name:
+                            pattern: ^[a-zA-Z][a-zA-Z0-9-]{0,44}$
+                            type: string
+                          port:
+                            maximum: 65535
+                            minimum: 1
+                            type: integer
+                        required:
+                          - name
+                          - port
+                        type: object
+                      minItems: 1
+                      type: array
+                  required:
+                    - ports
+                  type: object
+                release:
+                  properties:
+                    image:
+                      pattern: ^([a-zA-Z0-9.:-]{1,}\/){0,}[a-zA-Z0-9.-]{1,120}:[a-zA-Z0-9.]{1,32}$
+                      type: string
+                    imagePullSecret:
+                      pattern: ^([a-zA-Z][a-zA-Z0-9-.]{1,50}){0,1}$
+                      type: string
+                    source:
+                      pattern: ^[a-zA-Z][a-zA-Z0-9-_]{1,47}$
+                      type: string
+                    tag:
+                      pattern: ^[1-9][0-9]{4,5}$
+                      type: string
+                  type: object
+                server:
+                  pattern: ^[a-zA-Z][a-zA-Z0-9]{1,35}$
+                  type: string
+                subType:
+                  enum:
+                    - tars
+                    - normal
+                  type: string
+                tars:
+                  properties:
+                    asyncThread:
+                      default: 1
+                      maximum: 5
+                      minimum: 0
+                      type: integer
+                    foreground:
+                      default: false
+                      type: boolean
+                    profile:
+                      type: string
+                    servants:
+                      items:
+                        properties:
+                          capacity:
+                            default: 10000
+                            maximum: 3000000
+                            minimum: 1
+                            type: integer
+                          connection:
+                            default: 10000
+                            maximum: 3000000
+                            minimum: 1
+                            type: integer
+                          isTars:
+                            default: true
+                            type: boolean
+                          isTcp:
+                            default: true
+                            type: boolean
+                          name:
+                            pattern: ^[a-zA-Z][a-zA-Z0-9]{0,44}Obj$
+                            type: string
+                          port:
+                            maximum: 65535
+                            minimum: 1
+                            type: integer
+                          thread:
+                            default: 1
+                            maximum: 16
+                            minimum: 1
+                            type: integer
+                          timeout:
+                            default: 60000
+                            maximum: 6000000
+                            minimum: 0
+                            type: integer
+                        required:
+                          - name
+                          - port
+                        type: object
+                      minItems: 1
+                      type: array
+                    template:
+                      pattern: ^[a-zA-Z][a-zA-Z0-9-.]{1,35}$
+                      type: string
+                  type: object
+              required:
+                - app
+                - server
+                - subType
+              type: object
+            status:
+              properties:
+                pods:
+                  items:
+                    properties:
+                      containerStatuses:
+                        items:
+                          properties:
+                            containerID:
+                              type: string
+                            image:
+                              type: string
+                            imageID:
+                              type: string
+                            lastState:
+                              properties:
+                                running:
+                                  properties:
+                                    startedAt:
+                                      type: string
+                                  type: object
+                                terminated:
+                                  properties:
+                                    containerID:
+                                      type: string
+                                    exitCode:
+                                      type: integer
+                                    finishedAt:
+                                      type: string
+                                    message:
+                                      type: string
+                                    reason:
+                                      type: string
+                                    signal:
+                                      type: integer
+                                    startedAt:
+                                      type: string
+                                  type: object
+                                waiting:
+                                  properties:
+                                    message:
+                                      type: string
+                                    reason:
+                                      type: string
+                                  type: object
+                              type: object
+                            name:
+                              type: string
+                            ready:
+                              type: boolean
+                            restartCount:
+                              type: integer
+                            started:
+                              type: boolean
+                            state:
+                              oneOf:
+                                - required:
+                                    - waiting
+                                - required:
+                                    - running
+                                - required:
+                                    - terminated
+                              properties:
+                                running:
+                                  properties:
+                                    startedAt:
+                                      type: string
+                                  type: object
+                                terminated:
+                                  properties:
+                                    containerID:
+                                      type: string
+                                    exitCode:
+                                      type: integer
+                                    finishedAt:
+                                      type: string
+                                    message:
+                                      type: string
+                                    reason:
+                                      type: string
+                                    signal:
+                                      type: integer
+                                    startedAt:
+                                      type: string
+                                  type: object
+                                waiting:
+                                  properties:
+                                    message:
+                                      type: string
+                                    reason:
+                                      type: string
+                                  type: object
+                              type: object
+                          type: object
+                        type: array
+                      hostIP:
+                        type: string
+                      name:
+                        type: string
+                      podIP:
+                        type: string
+                      presentMessage:
+                        type: string
+                      presentState:
+                        type: string
+                      settingState:
+                        type: string
+                      startTime:
+                        type: string
+                      tag:
+                        type: string
+                      uid:
+                        type: string
+                        format: uuid
+                    required:
+                      - uid
+                      - name
+                      - podIP
+                      - hostIP
+                      - settingState
+                      - presentState
+                      - presentMessage
+                      - tag
+                    type: object
+                  type: array
+              required:
+                - pods
+              type: object
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: { }

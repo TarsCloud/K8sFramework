@@ -1,0 +1,58 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: texitedrecords.k8s.tars.io
+spec:
+  conversion:
+    strategy: None
+  group: k8s.tars.io
+  names:
+    kind: TExitedRecord
+    listKind: TExitedRecordList
+    plural: texitedrecords
+    singular: texitedrecord
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          properties:
+            app:
+              type: string
+            server:
+              type: string
+            pods:
+              items:
+                properties:
+                  uid:
+                    type: string
+                  name:
+                    type: string
+                  tag:
+                    type: string
+                  nodeIP:
+                    type: string
+                  podIP:
+                    type: string
+                  createTime:
+                    type: string
+                  deleteTime:
+                    type: string
+                required:
+                  - uid
+                  - name
+                  - tag
+                  - nodeIP
+                  - podIP
+                  - createTime
+                  - deleteTime
+                type: object
+              maxItems: 150
+              type: array
+          required:
+            - app
+            - server
+            - pods
+          type: object
+      served: true
+      storage: true

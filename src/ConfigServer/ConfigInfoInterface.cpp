@@ -74,8 +74,8 @@ int ConfigInfoInterface::loadConfig(const std::string &sSeverApp, const std::str
 int ConfigInfoInterface::loadAppConfig(const std::string &sServerApp, const std::string &sConfigName, std::string &sConfigContent) {
     sConfigContent.clear();
     std::ostringstream stream;
-    stream << "/apis/k8s.taf.io/v1alpha1/namespaces/" << K8SParams::instance().bindNamespace() << "/tconfigs?labelSelector=taf.io/ServerApp=" << sServerApp
-           << ",taf.io/ServerName=" << "";
+    stream << "/apis/k8s.tars.io/v1alpha1/namespaces/" << K8SParams::instance().bindNamespace() << "/tconfigs?labelSelector=tars.io/ServerApp=" << sServerApp
+           << ",tars.io/ServerName=" << "";
     auto k8sClientRequest = K8SClient::instance().postRequest(K8SClientRequestMethod::Get, stream.str(), "");
     bool bTaskFinish = k8sClientRequest->waitFinish(std::chrono::seconds(1));
     if (!bTaskFinish) {
@@ -116,8 +116,8 @@ int ConfigInfoInterface::loadServerConfig(const std::string &sServerApp, const s
         }
     }
     std::ostringstream stream;
-    stream << "/apis/k8s.taf.io/v1alpha1/namespaces/" << K8SParams::instance().bindNamespace() << "/tconfigs?labelSelector=taf.io/ServerApp=" << sServerApp
-           << ",taf.io/ServerName=" << sSeverName << ",taf.io/ConfigName=" << sConfigName << ",taf.io/PodSeq+in+(m";
+    stream << "/apis/k8s.tars.io/v1alpha1/namespaces/" << K8SParams::instance().bindNamespace() << "/tconfigs?labelSelector=tars.io/ServerApp=" << sServerApp
+           << ",tars.io/ServerName=" << sSeverName << ",tars.io/ConfigName=" << sConfigName << ",tars.io/PodSeq+in+(m";
     if (podSeq != -1) {
         stream << "," << podSeq;
     }
@@ -182,8 +182,8 @@ int ConfigInfoInterface::listAppConfig(const std::string &sServerApp, std::vecto
 
     vector.clear();
     std::ostringstream stream;
-    stream << "/apis/k8s.taf.io/v1alpha1/namespaces/" << K8SParams::instance().bindNamespace() << "/tconfigs?labelSelector=taf.io/ServerApp=" << sServerApp
-           << ",taf.io/ServerName=" << "";
+    stream << "/apis/k8s.tars.io/v1alpha1/namespaces/" << K8SParams::instance().bindNamespace() << "/tconfigs?labelSelector=tars.io/ServerApp=" << sServerApp
+           << ",tars.io/ServerName=" << "";
     auto k8sClientRequest = K8SClient::instance().postRequest(K8SClientRequestMethod::Get, stream.str(), "");
     bool bTaskFinish = k8sClientRequest->waitFinish(std::chrono::seconds(1));
     if (!bTaskFinish) {
@@ -217,8 +217,8 @@ int ConfigInfoInterface::listServerConfig(const std::string &sServerApp, const s
 
     vector.clear();
     std::ostringstream stream;
-    stream << "/apis/k8s.taf.io/v1alpha1/namespaces/" << K8SParams::instance().bindNamespace() << "/tconfigs?labelSelector=taf.io/ServerApp=" << sServerApp
-           << ",taf.io/ServerName=" << sServerName;
+    stream << "/apis/k8s.tars.io/v1alpha1/namespaces/" << K8SParams::instance().bindNamespace() << "/tconfigs?labelSelector=tars.io/ServerApp=" << sServerApp
+           << ",tars.io/ServerName=" << sServerName;
     auto k8sClientRequest = K8SClient::instance().postRequest(K8SClientRequestMethod::Get, stream.str(), "");
     bool bTaskFinish = k8sClientRequest->waitFinish(std::chrono::seconds(1));
     if (!bTaskFinish) {

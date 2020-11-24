@@ -27,7 +27,7 @@ struct Adapter {
     uint timeout;
     uint capacity;
     bool isTcp;
-    bool isTaf;
+    bool isTars;
 };
 
 struct UpChain {
@@ -35,7 +35,7 @@ struct UpChain {
     std::vector<EndpointF> defaultUpChain;
 };
 
-struct TafInfo {
+struct TarsInfo {
     int asyncThread;
     std::string profileContent;
     std::string templateName;
@@ -43,7 +43,7 @@ struct TafInfo {
 };
 
 enum class ServerSubType {
-    Taf,
+    Tars,
     Normal,
 };
 
@@ -51,7 +51,7 @@ struct ServerInfo {
     ServerSubType subType{};
     std::string serverApp{};
     std::string serverName{};
-    std::shared_ptr<TafInfo> tafInfo{};
+    std::shared_ptr<TarsInfo> tarsInfo{};
     std::vector<std::shared_ptr<PodStatus>> pods{};
 };
 
@@ -97,9 +97,9 @@ private:
 
     bool joinParentTemplate(const string &sTemplateName, TC_Config &conf, std::string &result);
 
-    int getTafServerDescriptor(const shared_ptr<ServerInfo> &serverInfo, ServerDescriptor &descriptor);
+    int getTarsServerDescriptor(const shared_ptr<ServerInfo> &serverInfo, ServerDescriptor &descriptor);
 
-    void findTafEndpoint(const std::shared_ptr<ServerInfo> &serverInfo, const string &sPortName, vector<EndpointF> *pActiveEp, vector<EndpointF> *pInactiveEp);
+    void findTarsEndpoint(const std::shared_ptr<ServerInfo> &serverInfo, const string &sPortName, vector<EndpointF> *pActiveEp, vector<EndpointF> *pInactiveEp);
 
     void findUpChainEndpoint(const std::string &id, vector<EndpointF> *pActiveEp, vector<EndpointF> *pInactiveEp);
 };

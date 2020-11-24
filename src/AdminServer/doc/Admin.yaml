@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  title: TAF-K8S Admin
+  title: TARS-K8S Admin
   description: Tars Admin接口文档
   version: 1.0.0
 host: tarsadmin.com

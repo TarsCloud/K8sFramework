@@ -19,8 +19,8 @@ module.exports = {
     dbConf: {
         host: '172.16.8.90',       // 数据库地址
         port: '3306',            // 数据库端口
-        user: 'taf',            // 用户名
-        password: 'taf2015',       // 密码
+        user: 'tars',            // 用户名
+        password: 'tars2015',       // 密码
         charset: 'utf8_bin',     // 数据库编码
         pool: {
             max: 10,             // 连接池中最大连接数量
@@ -41,7 +41,7 @@ module.exports = {
         enable : false,
         kafkaHost : 'localhost:9092',
         zkHost : 'localhost:2181',
-        topic : 'tafTask',
+        topic : 'tarsTask',
         maxCount : 100              // 后台并行处理的最大任务数
     },
     pkgUploadPath : {
@@ -59,9 +59,9 @@ module.exports = {
 
     // 与k8s的交互配置
 
-    // tafimage上传交互
-    uploadDomain: 'http://image.tafk8s.whup.com',
-    // tafadmin操作交互
+    // tarsimage上传交互
+    uploadDomain: 'http://image.tarsk8s.whup.com',
+    // tarsadmin操作交互
     rpcDomain: 'http://localhost:18080/admin/v1alpha1',
     // kubeshel操作交互
     shellDomain: {

@@ -121,14 +121,14 @@
       }
     },
     "resource": {
-      "tafNodeExist": "Taf Node is already exist",
-      "installFailed": "Install Taf Node failed",
-      "uninstallFailed": "Uninstall Taf Node failed",
+      "tarsNodeExist": "Tars Node is already exist",
+      "installFailed": "Install Tars Node failed",
+      "uninstallFailed": "Uninstall Tars Node failed",
       "notConfig": "No machine configuration was found",
-      "serverExist": "There is a service on the machine that does not allow uninstall the taf node",
+      "serverExist": "There is a service on the machine that does not allow uninstall the tars node",
       "sshFailed": "SSH link failed",
-      "installSuccess": "Install Taf Node successfully",
-      "uninstallSuccess": "Uninstall Taf Node successfully"
+      "installSuccess": "Install Tars Node successfully",
+      "uninstallSuccess": "Uninstall Tars Node successfully"
     }
   },
   "apply": {
@@ -571,7 +571,7 @@
       "queueTimeout": "queue timeout(ms)",
       "allowIP": "allow ip",
       "protocol": "protocol",
-      "notTAF": "not TAF",
+      "notTARS": "not TARS",
       "treatmentGroup": "treatment group",
       "releasePackage": "release package",
       "comment": "comment",
@@ -868,7 +868,7 @@
     }
   },
   "resource": {
-    "installRstMsg": ",The results of installment of Tafnode are as follows:",
+    "installRstMsg": ",The results of installment of Tarsnode are as follows:",
     "installResult": "Install result"
   },
   "inf": {
@@ -876,14 +876,14 @@
       "debug": "debug"
     },
     "title": {
-      "listTitle": "Taf Files",
-      "dlgTitle": "Upload Taf File"
+      "listTitle": "Tars Files",
+      "dlgTitle": "Upload Tars File"
     },
     "dlg": {
       "selectLabel": "modules/interfaces/functions",
       "inParam": "in params",
       "outParam": "out params",
-      "tafFile": "taf file",
+      "tarsFile": "tars file",
       "deleteMsg": "are you sure to delete this file?",
       "objName": "Servant Name"
     }
@@ -975,7 +975,7 @@
       "weightFormatTips":"please input weight",
       "serverNameTip":"support wildcards or regular expressions. if empty, matchs all",
       "pathRuleTip":"please input path rule",
-      "proxyPassTip":"please input ProxyPass，support ip:port, upstream, taf obj",
+      "proxyPassTip":"please input ProxyPass，support ip:port, upstream, tars obj",
       "title": "add station",
       "upstream": "add upstream"
     },

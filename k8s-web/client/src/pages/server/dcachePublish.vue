@@ -65,7 +65,7 @@
           <let-form-item :label="$t('pub.dlg.ip')">
             <div v-for="server in publishModal.model.serverList" :key="server.id">{{server.node_name}}</div>
           </let-form-item>
-          <let-form-item :label="$t('serverList.servant.comment')" v-if="serverType == 'taf'">
+          <let-form-item :label="$t('serverList.servant.comment')" v-if="serverType == 'tars'">
             <let-input v-model="publishModal.model.update_text"></let-input>
           </let-form-item>
           <let-form-item :label="$t('pub.dlg.patchType')" v-if="patchRadioData.length>1">
@@ -79,18 +79,18 @@
               v-model="publishModal.model.patch_id"
               required
               :required-tip="$t('pub.dlg.ab')"
-              v-if="serverType == 'taf'"
+              v-if="serverType == 'tars'"
             >
               <let-option v-for="d in publishModal.model.patchList" :key="d.id" :value="d.id">
                 {{d.id}} | {{d.posttime}} | {{d.comment}}
               </let-option>
             </let-select>
-            <let-button v-if="serverType == 'taf'" theme="primary" size="small" class="mt10" @click="showUploadModal">
+            <let-button v-if="serverType == 'tars'" theme="primary" size="small" class="mt10" @click="showUploadModal">
               {{$t('pub.dlg.upload')}}
             </let-button>
             <br>
             <!--proxy、router、dcache 发布选择框-->
-            <let-table :data="publishModal.model.patchList" :empty-msg="$t('common.nodata')" v-if="serverType !== 'taf'">
+            <let-table :data="publishModal.model.patchList" :empty-msg="$t('common.nodata')" v-if="serverType !== 'tars'">
               <let-table-column>
                 <template slot-scope="scope">
                   <!--<let-checkbox v-model="scope.row.isChecked" :value="scope.row.id"></let-checkbox>-->
@@ -309,7 +309,7 @@
     name: 'ServerDcachePublish',
     data() {
       return {
-        serverType: this.$route.params.serverType || 'taf',
+        serverType: this.$route.params.serverType || 'tars',
         activeKey: '',
         treeData: [],
         totalServerList: [],
@@ -490,7 +490,7 @@
         // 发布
         if (this.$refs.publishForm.validate()) {
           const items = [];
-          let patch_id = this.serverType === 'taf'? this.publishModal.model.patch_id.toString() : this.publishModal.publishId;
+          let patch_id = this.serverType === 'tars'? this.publishModal.model.patch_id.toString() : this.publishModal.publishId;
           if (!patch_id) return this.$tip.warning(this.$t('pub.dlg.ab'));
           // 区分服务的类型，获取发布包 router、proxy、dcache、tars
           let {serverType} = this;

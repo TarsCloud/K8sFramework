@@ -264,7 +264,7 @@ export default {
       this.$ajax.getJSON('/server/api/server_adapter_select', {
         ServerId,
         isAll: true,
-        IsTaf: false,
+        IsTars: false,
       }).then((data) => {
         this.ServerAdapter = data.Data
       })

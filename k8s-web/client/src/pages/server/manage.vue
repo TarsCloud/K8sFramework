@@ -118,7 +118,7 @@
             v-model="configModal.model.AsyncThread"
             :placeholder="$t('serverList.dlg.placeholder.thread')"
             required
-            :pattern="configModal.model.ServerTemplate === 'taf.nodejs' ? '^[1-9][0-9]*$' : '^([3-9]|[1-9][0-9]+)$'"
+            :pattern="configModal.model.ServerTemplate === 'tars.nodejs' ? '^[1-9][0-9]*$' : '^([3-9]|[1-9][0-9]+)$'"
             pattern-tip="$t('serverList.dlg.placeholder.thread')"
           ></let-input>
         </let-form-item>
@@ -167,8 +167,8 @@
         <let-table-column :title="$t('deployService.table.th.port')" prop="Port"></let-table-column>
         <let-table-column :title="$t('deployService.table.th.protocol')" width="150px">
           <template slot-scope="props">
-            <let-radio v-model="props.row.IsTaf" :label="true" v-if="props.row.IsTaf">TAF</let-radio>
-            <let-radio v-model="props.row.IsTaf" :label="false" v-else>{{$t('serverList.servant.notTAF')}}</let-radio>
+            <let-radio v-model="props.row.IsTars" :label="true" v-if="props.row.IsTars">TARS</let-radio>
+            <let-radio v-model="props.row.IsTars" :label="false" v-else>{{$t('serverList.servant.notTARS')}}</let-radio>
           </template>
         </let-table-column>
         <let-table-column :title="$t('deployService.form.portType')" width="150px">
@@ -257,8 +257,8 @@
             <span class="required">{{props.column.title}}</span>
           </template>
           <template slot-scope="props">
-            <let-radio v-model="props.row.IsTaf" :label="true">TAF</let-radio>
-            <let-radio v-model="props.row.IsTaf" :label="false">{{$t('serverList.servant.notTAF')}}</let-radio>
+            <let-radio v-model="props.row.IsTars" :label="true">TARS</let-radio>
+            <let-radio v-model="props.row.IsTars" :label="false">{{$t('serverList.servant.notTARS')}}</let-radio>
           </template>
         </let-table-column>
         <let-table-column :title="$t('deployService.table.th.threads')" width="80px">
@@ -396,8 +396,8 @@
           ></let-input>
         </let-form-item>
         <let-form-item :label="$t('serverList.servant.protocol')" required>
-          <let-radio v-model="servantDetailModal.model.ServerServant[0].IsTaf" :label="true">TAF</let-radio>
-          <let-radio v-model="servantDetailModal.model.ServerServant[0].IsTaf" :label="false">{{ $t('serverList.servant.notTAF') }}</let-radio>
+          <let-radio v-model="servantDetailModal.model.ServerServant[0].IsTars" :label="true">TARS</let-radio>
+          <let-radio v-model="servantDetailModal.model.ServerServant[0].IsTars" :label="false">{{ $t('serverList.servant.notTARS') }}</let-radio>
         </let-form-item>
         <let-form-item :label="$t('deployService.form.portType')" required>
           <let-radio v-model="servantDetailModal.model.ServerServant[0].IsTcp" :label="true">TCP</let-radio>
@@ -619,12 +619,12 @@ export default {
 
       // 编辑服务
       serverTypes: [
-        'taf_cpp',
-        'taf_java',
-        'taf_php',
-        'taf_nodejs',
-        'not_taf',
-        'taf_go'
+        'tars_cpp',
+        'tars_java',
+        'tars_php',
+        'tars_nodejs',
+        'not_tars',
+        'tars_go'
       ],
       configModal: {
         show: false,
@@ -1241,7 +1241,7 @@ export default {
             Capacity: defaultObj.Capacity || 0,
             Timeout: defaultObj.Timeout || 0,
             IsTcp: defaultObj.IsTcp,
-            IsTaf: defaultObj.IsTaf,
+            IsTars: defaultObj.IsTars,
           }
         ],
       }
@@ -1589,16 +1589,16 @@ export default {
         this.undeployServer(model.serverApp, model.serverName, model.podIp);
       // 设置日志等级
       } else if (model.selected === 'setloglevel') {
-        this.sendCommand(model.serverApp, model.serverName, model.podIp, `taf.setloglevel ${model.setloglevel}`);
+        this.sendCommand(model.serverApp, model.serverName, model.podIp, `tars.setloglevel ${model.setloglevel}`);
       // push 日志文件
       } else if (model.selected === 'loadconfig' && this.$refs.moreCmdForm.validate()) {
-        this.sendCommand(model.serverApp, model.serverName, model.podIp, `taf.loadconfig ${model.loadconfig}`);
+        this.sendCommand(model.serverApp, model.serverName, model.podIp, `tars.loadconfig ${model.loadconfig}`);
       // 发送自定义命令
       } else if (model.selected === 'command' && this.$refs.moreCmdForm.validate()) {
         this.sendCommand(model.serverApp, model.serverName, model.podIp, model.command);
       // 查看服务链接
       } else if (model.selected === 'connection') {
-        this.sendCommand(model.serverApp, model.serverName, model.podIp, `taf.connection`, true);
+        this.sendCommand(model.serverApp, model.serverName, model.podIp, `tars.connection`, true);
       }
     },
     closeMoreCmdModal() {

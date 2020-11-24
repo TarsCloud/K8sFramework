@@ -3,5 +3,5 @@ name: config
 version: 0.0.1
 kubeVersion: ">= 1.17.0 <= 1.19.0"
 type: application
-keywords: [ taf , heml, config ]
+keywords: [ tars , heml, config ]
 appVersion: v1

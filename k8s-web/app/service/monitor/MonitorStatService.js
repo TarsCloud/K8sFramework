@@ -89,7 +89,7 @@ async function callRpc(params, the) {
 		endshowtime = params.endshowtime || '2360';
 	let req = new monitorQueryStruct.MonitorQueryReq();
 	req.uid = uuid.v1()
-	req.dataid = "taf_stat"
+	req.dataid = "tars_stat"
 	req.indexs.readFromObject(['succ_count', 'timeout_count', 'exce_count', 'total_time'])
 	req.date = date;
 	req.tflag1 = startshowtime;

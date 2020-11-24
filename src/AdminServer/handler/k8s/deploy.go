@@ -178,7 +178,7 @@ func buildTDeploy(namespace string, metadata *models.DeployMeta) *crdv1alpha1.TD
 		metadata.ServerK8S.HostPort = make([]*models.HostPortElem, 0, 1)
 	}
 
-	// 通过管理平台的部署都是TAF服务
+	// 通过管理平台的部署都是TARS服务
 	serverSubType := "tars"
 	metadata.ServerOption.ServerSubType = &serverSubType
 

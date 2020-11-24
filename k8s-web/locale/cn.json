@@ -121,14 +121,14 @@
       }
     },
     "resource": {
-      "tafNodeExist": "Taf Node 已存在",
-      "installFailed": "安装Taf Node失败",
-      "uninstallFailed": "卸载Taf Node失败",
+      "tarsNodeExist": "Tars Node 已存在",
+      "installFailed": "安装Tars Node失败",
+      "uninstallFailed": "卸载Tars Node失败",
       "notConfig": "未找到机器配置",
-      "serverExist": "该机器上还存在服务，不允许删除Taf node",
+      "serverExist": "该机器上还存在服务，不允许删除Tars node",
       "sshFailed": "ssh链接失败",
-      "installSuccess": "安装TafNode成功",
-      "uninstallSuccess": "卸载TafNode成功"
+      "installSuccess": "安装TarsNode成功",
+      "uninstallSuccess": "卸载TarsNode成功"
     }
   },
   "apply": {
@@ -597,7 +597,7 @@
       "queueTimeout": "队列超时(ms)",
       "allowIP": "允许IP",
       "protocol": "协议",
-      "notTAF": "非TAF",
+      "notTARS": "非TARS",
       "treatmentGroup": "处理组",
       "releasePackage": "发布包",
       "comment": "备注",
@@ -894,7 +894,7 @@
     }
   },
   "resource": {
-    "installRstMsg": "，TafNode安装结果如下：",
+    "installRstMsg": "，TarsNode安装结果如下：",
     "installResult": "安装结果"
   },
   "inf": {
@@ -902,14 +902,14 @@
       "debug": "调试"
     },
     "title": {
-      "listTitle": "taf文件列表",
-      "dlgTitle": "上传Taf文件"
+      "listTitle": "tars文件列表",
+      "dlgTitle": "上传Tars文件"
     },
     "dlg": {
       "selectLabel": "模块/接口/方法",
       "inParam": "方法入参",
       "outParam": "方法出参",
-      "tafFile": "taf文件",
+      "tarsFile": "tars文件",
       "deleteMsg": "您确定要删除吗？",
       "objName": "Servant名"
     }
@@ -1002,7 +1002,7 @@
       "weightFormatTips":"请输入权重值",
       "serverNameTip":"支持通配符、正则表达式，为空则全匹配",
       "pathRuleTip":"请输入路径匹配规则",
-      "proxyPassTip":"请输入ProxyPass，支持ip:port / upstream / taf obj 三种方式",
+      "proxyPassTip":"请输入ProxyPass，支持ip:port / upstream / tars obj 三种方式",
       "title": "新增站点",
       "upstream": "新增Upstream"
     },

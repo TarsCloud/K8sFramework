@@ -76,7 +76,7 @@
             v-model="configModal.model.AsyncThread"
             :placeholder="$t('serverList.dlg.placeholder.thread')"
             required
-            :pattern="configModal.model.server_type === 'taf.nodejs' ? '^[1-9][0-9]*$' : '^([3-9]|[1-9][0-9]+)$'"
+            :pattern="configModal.model.server_type === 'tars.nodejs' ? '^[1-9][0-9]*$' : '^([3-9]|[1-9][0-9]+)$'"
             pattern-tip="$t('serverList.dlg.placeholder.thread')"
           ></let-input>
         </let-form-item>
@@ -202,8 +202,8 @@
           ></let-input>
         </let-form-item> -->
         <let-form-item :label="$t('serverList.servant.protocol')" required>
-          <let-radio v-model="servantDetailModal.model.IsTaf" :label="true">TAF</let-radio>
-          <let-radio v-model="servantDetailModal.model.IsTaf" :label="false">{{ $t('serverList.servant.notTAF') }}</let-radio>
+          <let-radio v-model="servantDetailModal.model.IsTars" :label="true">TARS</let-radio>
+          <let-radio v-model="servantDetailModal.model.IsTars" :label="false">{{ $t('serverList.servant.notTARS') }}</let-radio>
         </let-form-item>
         <!-- <let-form-item :label="$t('serverList.servant.treatmentGroup')" labelWidth="150px">
           <let-input
@@ -709,7 +709,7 @@ export default {
             Capacity: 0,
             Timeout: 0,
             IsTcp: true,
-            IsTaf: false,
+            IsTars: false,
           }
         ],
       };
@@ -912,16 +912,16 @@ export default {
         this.undeployServer(server.id);
       // 设置日志等级
       } else if (model.selected === 'setloglevel') {
-        this.sendCommand(server.id, `taf.setloglevel ${model.setloglevel}`);
+        this.sendCommand(server.id, `tars.setloglevel ${model.setloglevel}`);
       // push 日志文件
       } else if (model.selected === 'loadconfig' && this.$refs.moreCmdForm.validate()) {
-        this.sendCommand(server.id, `taf.loadconfig ${model.loadconfig}`);
+        this.sendCommand(server.id, `tars.loadconfig ${model.loadconfig}`);
       // 发送自定义命令
       } else if (model.selected === 'command' && this.$refs.moreCmdForm.validate()) {
         this.sendCommand(server.id, model.command);
       // 查看服务链接
       } else if (model.selected === 'connection') {
-        this.sendCommand(server.id, `taf.connection`, true);
+        this.sendCommand(server.id, `tars.connection`, true);
       }
     },
     closeMoreCmdModal() {

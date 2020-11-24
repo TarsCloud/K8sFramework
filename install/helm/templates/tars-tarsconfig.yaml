@@ -1,3 +1,39 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tars-tarsconfig
+  namespace: {{.Release.Namespace}}
+---
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tars-tarsconfig
+  namespace: {{.Release.Namespace}}
+rules:
+  - apiGroups: [ "" ]
+    resources: [ pods ]
+    verbs: [ get ,list, watch ]
+  - apiGroups: [ k8s.tars.io ]
+    resources: [ tconfigs ]
+    verbs: [ get ,list, watch ]
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tars-tarsconfig
+  namespace: {{.Release.Namespace}}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tars-tarsconfig
+subjects:
+  - kind: ServiceAccount
+    name: tars-tarsconfig
+    namespace: {{.Release.Namespace}}
+---
+
 apiVersion: k8s.tars.io/v1alpha1
 kind: TRelease
 metadata:
@@ -29,23 +65,6 @@ spec:
   subType: tars
   tars:
     template: tars.cpp
-    profile: |
-      <tars>
-        <application>
-          <server>
-            #log = tars.tarslog4other.LogObj
-            logLevel = DEBUG
-          </server>
-          </application>
-          <db>
-            charset=utf8
-            dbhost={{ .Values.tarsDB.host }}
-            dbport={{ .Values.tarsDB.port }}
-            dbname={{ .Values.tarsDB.name }}
-            dbuser={{ .Values.tarsDB.user }}
-            dbpass={{ .Values.tarsDB.password }}
-          </db>
-      </tars>
     servants:
       - name: ConfigObj
         port: 10000
@@ -54,6 +73,7 @@ spec:
     nodeSelector:
       abilityPool:
         values: [ ]
+    serviceAccount: tars-tarsconfig
     env:
       - name: Namespace
         valueFrom:
@@ -79,7 +99,7 @@ spec:
             path: /usr/local/app/tars/app_log
             type: DirectoryOrCreate
         mountPath: /usr/local/app/tars/app_log
-        subPathExpr: $(Namespace).$(PodName)
+        subPathExpr: $(Namespace)/$(PodName)
     readinessGate: tars.io/active
   release:
     source: tars-tarsconfig

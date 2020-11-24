@@ -38,10 +38,10 @@ type ServerAdapter struct {
 	Connections int    `json:"Connections" valid:"required,matches-ServantConnections"`
 	Capacity    int    `json:"Capacity" valid:"required,matches-ServantCapacity"`
 	Timeout     int    `json:"Timeout" valid:"required,matches-ServantTimeout"`
-	IsTaf       bool   `json:"IsTaf" valid:"-"`
+	IsTars       bool   `json:"IsTars" valid:"-"`
 }
 
-type InfoFromTaf struct {
+type InfoFromTars struct {
 	ServerApp      string                   `json:"ServerApp"`
 	ServerName     string                   `json:"ServerName"`
 	ServerOption   *ServerOption            `json:"ServerOption"`
@@ -51,7 +51,7 @@ type InfoFromTaf struct {
 
 func LoadOption(serverApp string, serverName string) (*ServerOption, error) {
 	var loadSql = "SELECT template_name,server_type,profile,async_thread_num ,server_important_type ,remote_log_reserve_time,remote_log_compress_time,remote_log_type FROM t_server_conf where application=? and server_name=?"
-	rowsFromTAdapterConf, err := globalTafDb.Query(loadSql, serverApp, serverName)
+	rowsFromTAdapterConf, err := globalTarsDb.Query(loadSql, serverApp, serverName)
 	defer func() {
 		if rowsFromTAdapterConf != nil {
 			_ = rowsFromTAdapterConf.Close()
@@ -83,7 +83,7 @@ func LoadOption(serverApp string, serverName string) (*ServerOption, error) {
 	}
 
 	if !getOption {
-		return nil, errors.New("no server option found in TafDB")
+		return nil, errors.New("no server option found in TarsDB")
 	}
 
 	return &ServerOption{
@@ -102,7 +102,7 @@ func LoadOption(serverApp string, serverName string) (*ServerOption, error) {
 
 func LoadAdapters(serverApp string, serverName string) map[string]ServerAdapter {
 	var loadSql = "SELECT distinct servant,queuecap,queuetimeout ,protocol,thread_num,max_connections FROM t_adapter_conf where application=? and server_name=?"
-	rowsFromTAdapterConf, err := globalTafDb.Query(loadSql, serverApp, serverName)
+	rowsFromTAdapterConf, err := globalTarsDb.Query(loadSql, serverApp, serverName)
 	defer func() {
 		if rowsFromTAdapterConf != nil {
 			_ = rowsFromTAdapterConf.Close()
@@ -136,7 +136,7 @@ func LoadAdapters(serverApp string, serverName string) map[string]ServerAdapter 
 			Connections: max_connections,
 			Capacity:    queuecap,
 			Timeout:     queuetimeout,
-			IsTaf:       protocol == "taf",
+			IsTars:       protocol == "tars",
 		}
 	}
 	return adapters
@@ -145,7 +145,7 @@ func LoadAdapters(serverApp string, serverName string) map[string]ServerAdapter 
 func LoadConfigFileWithHistory(configId int64) ServerConfigFile {
 
 	var loadSql = "select a.filename ,b.content,b.posttime from t_config_files a left join t_config_history_files b on a.id=b.configid where configid=? order by b.id desc limit 3"
-	rows, err := globalTafDb.Query(loadSql, configId)
+	rows, err := globalTarsDb.Query(loadSql, configId)
 	defer func() {
 		if rows != nil {
 			_ = rows.Close()
@@ -189,7 +189,7 @@ func LoadConfigFileWithHistory(configId int64) ServerConfigFile {
 func LoadConfigFile(serverApp string, serverName string) []ServerConfigFile {
 
 	var loadSql = "select id from t_config_files where server_name=? and host =''"
-	rows, err := globalTafDb.Query(loadSql, serverApp+"."+serverName)
+	rows, err := globalTarsDb.Query(loadSql, serverApp+"."+serverName)
 	defer func() {
 		if rows != nil {
 			_ = rows.Close()
@@ -214,8 +214,8 @@ func LoadConfigFile(serverApp string, serverName string) []ServerConfigFile {
 	return serverConfigFiles
 }
 
-func LoadInfoFromTaf(serverApp string, serverName string) (*InfoFromTaf, error) {
-	var info = new(InfoFromTaf)
+func LoadInfoFromTars(serverApp string, serverName string) (*InfoFromTars, error) {
+	var info = new(InfoFromTars)
 	info.ServerApp = serverApp
 	info.ServerName = serverName
 

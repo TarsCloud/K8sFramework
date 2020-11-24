@@ -3,7 +3,7 @@ package main
 type Servant struct {
 	Name  string `yaml:"name"`
 	Port  int    `yaml:"port"`
-	IsTaf bool   `yaml:"isTaf"`
+	IsTars bool   `yaml:"isTars"`
 }
 
 type Hostport struct {
@@ -31,11 +31,11 @@ type TServer struct {
 		App     string `yaml:"app"`
 		Server  string `yaml:"server"`
 		SubType string `yaml:"subType"`
-		Taf     struct {
+		Tars     struct {
 			Template string `yaml:"template"`
 			Profile  string `yaml:"profile"`
 			Servants []Servant `yaml:"servants"`
-		} `yaml:"taf"`
+		} `yaml:"tars"`
 		K8S struct {
 			Replicas     int `yaml:"replicas"`
 			//NodeSelector nodeSelector `yaml:"nodeSelector"`

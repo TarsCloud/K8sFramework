@@ -45,7 +45,7 @@
           <BwList v-if="viewModal.model" :station="viewModal.model" type="white"></BwList>
         </let-tab-pane>
       </let-tabs>
-      <let-tabs  v-if="stationMode == 'taf'">
+      <let-tabs  v-if="stationMode == 'tars'">
           <let-tab-pane :tab="$t('gateway.flowControl.title')">
             <FlowControl  v-if="viewModal.model" :station="viewModal.model"></FlowControl>
           </let-tab-pane>
@@ -69,7 +69,7 @@
       <let-form ref="detailForm" v-if="detailModal.model" itemWidth="700px">
         <let-form-item :label="$t('gateway.stationId')" required>
           <let-radio v-model="stationMode" label="http">http</let-radio>
-          <let-radio v-model="stationMode" label="taf">taf</let-radio>
+          <let-radio v-model="stationMode" label="tars">tars</let-radio>
           <let-input
             size="small" v-if="stationMode=='http'"
             v-model="detailModal.model.f_station_id"
@@ -79,7 +79,7 @@
             pattern="^[a-zA-Z](([a-zA-Z_0-9](?<!obj|Obj))+)?$"
             :pattern-tip="$t('gateway.add.idFormatTips')"
           ></let-input>
-          <ServantSelector  v-if="stationMode=='taf'" v-model="detailModal.model.f_station_id"></ServantSelector>
+          <ServantSelector  v-if="stationMode=='tars'" v-model="detailModal.model.f_station_id"></ServantSelector>
         </let-form-item>
         <let-form-item :label="$t('gateway.stationName')" required>
           <let-input
@@ -178,7 +178,7 @@ export default {
     },
     setStationMode(d){
       if(d.f_station_id.endsWith("obj") || d.f_station_id.endsWith("Obj")){
-        this.stationMode = "taf"
+        this.stationMode = "tars"
       } else {
         this.stationMode = "http"
       }
