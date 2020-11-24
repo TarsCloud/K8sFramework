@@ -14,7 +14,6 @@ import (
 	"k8s.io/client-go/tools/remotecommand"
 )
 
-
 const (
 	// Time allowed to write a message to the peer.
 	writeWait = 10 * time.Second
@@ -58,9 +57,10 @@ type terminalSessionID struct {
 	tsID int32
 	lock sync.Mutex
 }
+
 var tsGlobalID *terminalSessionID
 
-func init()  {
+func init() {
 	tsGlobalID = &terminalSessionID{}
 }
 func addTerminalSessionID() {
@@ -87,7 +87,7 @@ type PtyHandler interface {
 
 // WebSocket Terminal Session对象
 type TerminalSession struct {
-	wsID	 int32
+	wsID     int32
 	wsConn   *websocket.Conn
 	sizeChan chan remotecommand.TerminalSize
 	doneChan chan struct{}
@@ -153,9 +153,9 @@ func (ts *TerminalSession) Read(p []byte) (int, error) {
 	case "ping":
 		return 0, nil
 	default:
-		log.Printf("wsID:%d unknown message type '%s'",ts.wsID, msg.Operation)
+		log.Printf("wsID:%d unknown message type '%s'", ts.wsID, msg.Operation)
 		// return 0, nil
-		return copy(p, EndOfTransmission), fmt.Errorf("wsID:%d unknown message type '%s'",ts.wsID, msg.Operation)
+		return copy(p, EndOfTransmission), fmt.Errorf("wsID:%d unknown message type '%s'", ts.wsID, msg.Operation)
 	}
 }
 
@@ -181,4 +181,3 @@ func (ts *TerminalSession) Close() error {
 	//log.Printf("succ. to close wsID:%d", ts.wsID)
 	return ts.wsConn.Close()
 }
-

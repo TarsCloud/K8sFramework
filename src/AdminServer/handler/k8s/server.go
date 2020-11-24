@@ -2,20 +2,21 @@ package k8s
 
 import (
 	"fmt"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/applications"
+	"tarsadmin/openapi/restapi/operations/server"
+
 	"github.com/go-openapi/runtime/middleware"
 	"golang.org/x/net/context"
 	k8sCoreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
-	"tarsadmin/handler/util"
-	"tarsadmin/openapi/models"
-	"tarsadmin/openapi/restapi/operations/applications"
-	"tarsadmin/openapi/restapi/operations/server"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-type SelectServerHandler struct {}
+type SelectServerHandler struct{}
 
 func (s *SelectServerHandler) Handle(params server.SelectServerParams) middleware.Responder {
 
@@ -39,14 +40,14 @@ func (s *SelectServerHandler) Handle(params server.SelectServerParams) middlewar
 
 	allItems := make([]*crdv1alpha1.TServer, 0, 10)
 	if listAll {
-		requirements := BuildSubTypeTarsSelector()
-		allItems, err = K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
+		requirements := BuildSubTypeTafSelector()
+		allItems, err = K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements...))
 		if err != nil {
 			return server.NewSelectServerInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 		}
 	} else {
 		requirements := BuildDoubleEqualSelector(selectParams.Filter, KeyLabel)
-		allItems, err = K8sWatcher.tServerLister.TServers(namespace).List(labels.NewSelector().Add(requirements ...))
+		allItems, err = K8sWatcher.tServerLister.TServers(namespace).List(labels.NewSelector().Add(requirements...))
 		if err != nil {
 			return server.NewSelectServerInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 		}
@@ -107,7 +108,7 @@ func (s *SelectServerHandler) Handle(params server.SelectServerParams) middlewar
 	return server.NewSelectServerOK().WithPayload(result)
 }
 
-type UpdateServerHandler struct {}
+type UpdateServerHandler struct{}
 
 func (s *UpdateServerHandler) Handle(params server.UpdateServerParams) middleware.Responder {
 
@@ -140,7 +141,7 @@ func (s *UpdateServerHandler) Handle(params server.UpdateServerParams) middlewar
 	return server.NewUpdateServerOK().WithPayload(&server.UpdateServerOKBody{Result: 0})
 }
 
-type DeleteServerHandler struct {}
+type DeleteServerHandler struct{}
 
 func (s *DeleteServerHandler) Handle(params server.DeleteServerParams) middleware.Responder {
 	metadata := params.Params.Metadata
@@ -190,14 +191,14 @@ func buildTServer(namespace, serverApp, serverName string, serverServant models.
 		Servants = make([]crdv1alpha1.TServant, 0, len(serverServant))
 		for _, obj := range serverServant {
 			Servants = append(Servants, crdv1alpha1.TServant{
-				Name: obj.Name,
-				Port: obj.Port,
-				Thread: obj.Threads,
+				Name:       obj.Name,
+				Port:       obj.Port,
+				Thread:     obj.Threads,
 				Connection: obj.Connections,
-				Capacity: obj.Capacity,
-				IsTars: *obj.IsTars,
-				IsTcp: *obj.IsTCP,
-				Timeout: obj.Timeout,
+				Capacity:   obj.Capacity,
+				IsTars:      *obj.IsTars,
+				IsTcp:      *obj.IsTCP,
+				Timeout:    obj.Timeout,
 			})
 		}
 	}
@@ -206,7 +207,7 @@ func buildTServer(namespace, serverApp, serverName string, serverServant models.
 		{
 			Name: "Namespace",
 			ValueFrom: &k8sCoreV1.EnvVarSource{
-				FieldRef: &k8sCoreV1.ObjectFieldSelector {
+				FieldRef: &k8sCoreV1.ObjectFieldSelector{
 					FieldPath: "metadata.namespace",
 				},
 			},
@@ -214,7 +215,7 @@ func buildTServer(namespace, serverApp, serverName string, serverServant models.
 		{
 			Name: "PodName",
 			ValueFrom: &k8sCoreV1.EnvVarSource{
-				FieldRef: &k8sCoreV1.ObjectFieldSelector {
+				FieldRef: &k8sCoreV1.ObjectFieldSelector{
 					FieldPath: "metadata.name",
 				},
 			},
@@ -222,7 +223,7 @@ func buildTServer(namespace, serverApp, serverName string, serverServant models.
 		{
 			Name: "PodIP",
 			ValueFrom: &k8sCoreV1.EnvVarSource{
-				FieldRef: &k8sCoreV1.ObjectFieldSelector {
+				FieldRef: &k8sCoreV1.ObjectFieldSelector{
 					FieldPath: "status.podIP",
 				},
 			},
@@ -230,9 +231,9 @@ func buildTServer(namespace, serverApp, serverName string, serverServant models.
 		{
 			Name: "ServerApp",
 			ValueFrom: &k8sCoreV1.EnvVarSource{
-				FieldRef: &k8sCoreV1.ObjectFieldSelector {
+				FieldRef: &k8sCoreV1.ObjectFieldSelector{
 					APIVersion: "v1",
-					FieldPath: "metadata.labels['tars.io/ServerApp']",
+					FieldPath:  "metadata.labels['tars.io/ServerApp']",
 				},
 			},
 		},
@@ -250,11 +251,11 @@ func buildTServer(namespace, serverApp, serverName string, serverServant models.
 	HostPathType := k8sCoreV1.HostPathDirectoryOrCreate
 	Mounts := []crdv1alpha1.TK8SMount{
 		{
-			Name: "host-log-dir",
-			MountPath: "/usr/local/app/tars/app_log",
-			SubPathExpr: "$(Namespace).$(PodName)",
+			Name:        "host-log-dir",
+			MountPath:   "/usr/local/app/tars/app_log",
+			SubPathExpr: "$(Namespace)/$(PodName)",
 			Source: k8sCoreV1.VolumeSource{
-				HostPath: &k8sCoreV1.HostPathVolumeSource {
+				HostPath: &k8sCoreV1.HostPathVolumeSource{
 					Path: "/usr/local/app/tars/app_log",
 					Type: &HostPathType,
 				},
@@ -287,28 +288,28 @@ func buildTServer(namespace, serverApp, serverName string, serverServant models.
 			Name:      util.GetTServerName(serverId),
 			Namespace: namespace,
 		},
-		Spec: crdv1alpha1.TServerSpec {
-			App: serverApp,
-			Server: serverName,
-			SubType: crdv1alpha1.TServerSubType(*serverOption.ServerSubType),
+		Spec: crdv1alpha1.TServerSpec{
+			App:       serverApp,
+			Server:    serverName,
+			SubType:   crdv1alpha1.TServerSubType(*serverOption.ServerSubType),
 			Important: *serverOption.ServerImportant,
 			Tars: &crdv1alpha1.TServerTars{
-				Template: serverOption.ServerTemplate,
-				Profile: serverOption.ServerProfile,
-				Foreground: false,
+				Template:    serverOption.ServerTemplate,
+				Profile:     serverOption.ServerProfile,
+				Foreground:  false,
 				AsyncThread: *serverOption.AsyncThread,
-				Servants: Servants,
+				Servants:    Servants,
 			},
 			K8S: crdv1alpha1.TServerK8S{
 				ServiceAccount: "",
-				Env: Env,
-				HostIPC: serverK8S.HostIpc,
-				HostNetwork: serverK8S.HostNetwork,
-				HostPorts: HostPorts,
-				Mounts: Mounts,
-				NodeSelector: NodeSelector,
-				NotStacked: serverK8S.NotStacked,
-				Replicas: 0,
+				Env:            Env,
+				HostIPC:        serverK8S.HostIpc,
+				HostNetwork:    serverK8S.HostNetwork,
+				HostPorts:      HostPorts,
+				Mounts:         Mounts,
+				NodeSelector:   NodeSelector,
+				NotStacked:     serverK8S.NotStacked,
+				Replicas:       0,
 			},
 		},
 	}
@@ -331,4 +332,3 @@ func deleteServer(serverId string) error {
 	tReleaseInterface := K8sOption.CrdClientSet.CrdV1alpha1().TReleases(namespace)
 	return tReleaseInterface.Delete(context.TODO(), serverId, k8sMetaV1.DeleteOptions{})
 }
-

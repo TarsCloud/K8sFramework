@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	k8sCoreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -11,9 +14,7 @@ import (
 	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/workqueue"
-	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
-	"strings"
-	"time"
+	crdV1Alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
 type TEndpointReconcile struct {
@@ -118,10 +119,7 @@ func (r *TEndpointReconcile) reconcile(name string) ReconcileResult {
 			return RateLimit
 		}
 		err = r.k8sOption.crdClientSet.CrdV1alpha1().TEndpoints(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
-		if err != nil {
-			if errors.IsNotFound(err) {
-				return AllOk
-			}
+		if err != nil && !errors.IsNotFound(err) {
 			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "tendpoint", namespace, name, err.Error()))
 			return RateLimit
 		}
@@ -130,7 +128,7 @@ func (r *TEndpointReconcile) reconcile(name string) ReconcileResult {
 
 	if tserver.DeletionTimestamp != nil {
 		err = r.k8sOption.crdClientSet.CrdV1alpha1().TEndpoints(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
-		if err != nil {
+		if err != nil && !errors.IsNotFound(err) {
 			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "tendpoint", namespace, name, err.Error()))
 			return RateLimit
 		}
@@ -244,7 +242,7 @@ func (r *TEndpointReconcile) updateStatus(tendpoint *crdV1Alpha1.TEndpoint) Reco
 		case k8sCoreV1.ConditionTrue:
 			if readinessGatesCondition == nil {
 				podStatus.SettingState = "Active"
-				podStatus.PresentState = "Started:"
+				podStatus.PresentState = "Started"
 				podStatus.PresentMessage = fmt.Sprintf("pod/%s is started", pod.Name)
 				tendpointPodStatuses = append(tendpointPodStatuses, podStatus)
 				continue

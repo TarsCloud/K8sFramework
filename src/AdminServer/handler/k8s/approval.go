@@ -2,19 +2,20 @@ package k8s
 
 import (
 	"context"
-	"github.com/go-openapi/runtime/middleware"
-	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"sort"
 	"tarsadmin/handler/util"
 	"tarsadmin/openapi/models"
 	"tarsadmin/openapi/restapi/operations/approval"
 	"tarsadmin/openapi/restapi/operations/server_pod"
+
+	"github.com/go-openapi/runtime/middleware"
+	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-type CreateApprovalHandler struct {}
+type CreateApprovalHandler struct{}
 
 func (s *CreateApprovalHandler) Handle(params approval.CreateApprovalParams) middleware.Responder {
 	namespace := K8sOption.Namespace
@@ -55,7 +56,7 @@ func (s *CreateApprovalHandler) Handle(params approval.CreateApprovalParams) mid
 	return approval.NewCreateApprovalOK().WithPayload(&approval.CreateApprovalOKBody{Result: 0})
 }
 
-type SelectApprovalHandler struct {}
+type SelectApprovalHandler struct{}
 
 func (s *SelectApprovalHandler) Handle(params approval.SelectApprovalParams) middleware.Responder {
 	// fetch list
@@ -70,7 +71,7 @@ func (s *SelectApprovalHandler) Handle(params approval.SelectApprovalParams) mid
 	requirement, _ := labels.NewRequirement(TDeployApproveLabel, selection.In, []string{"Approved", "Reject"})
 	requirements := []labels.Requirement{*requirement}
 
-	allItems, err := K8sWatcher.tDeployLister.TDeploys(namespace).List(labels.NewSelector().Add(requirements ...))
+	allItems, err := K8sWatcher.tDeployLister.TDeploys(namespace).List(labels.NewSelector().Add(requirements...))
 	if err != nil {
 		return approval.NewSelectApprovalInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}

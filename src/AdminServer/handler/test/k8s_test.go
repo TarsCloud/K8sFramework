@@ -61,15 +61,15 @@ func TestCreateServicePoolHandler_Handle(t *testing.T) {
 	var params release.CreateServicePoolParams
 	serverID := "Semantics-AnalyserServer"
 	serverType := "tars.cpp"
-	serviceImage:= "registry.cn-hangzhou.aliyuncs.com/dtool/semantics.analyserserver:a1600911633405313000"
+	serviceImage := "registry.cn-hangzhou.aliyuncs.com/dtool/semantics.analyserserver:a1600911633405313000"
 
 	params.Params.Metadata = &release.CreateServicePoolParamsBodyMetadata{
 		ActivePerson: "jaminzou",
 		ActiveReason: "unit test",
-		ServerID: &serverID,
-		ServerType: &serverType,
+		ServerID:     &serverID,
+		ServerType:   &serverType,
 		ServiceImage: &serviceImage,
-		ServiceMark: "unit test",
+		ServiceMark:  "unit test",
 	}
 
 	handler := k8s.CreateServicePoolHandler{}
@@ -82,22 +82,21 @@ func TestDoEnableServiceHandler_Handle(t *testing.T) {
 
 	replicas := int32(3)
 	serverID := "Semantics-AnalyserServer"
-	serviceImage:= "registry.cn-hangzhou.aliyuncs.com/dtool/semantics.analyserserver:a1600911633405313000"
-	serviceVersion:= "10002"
+	serviceImage := "registry.cn-hangzhou.aliyuncs.com/dtool/semantics.analyserserver:a1600911633405313000"
+	serviceVersion := "10002"
 	serviceID := fmt.Sprintf("%s|%s", serviceImage, serviceVersion)
 
 	params.Params.Metadata = &release.DoEnableServiceParamsBodyMetadata{
 		EnableMark: "unit test",
-		Replicas: &replicas,
-		ServerID: &serverID,
-		ServiceID: &serviceID,
+		Replicas:   &replicas,
+		ServerID:   &serverID,
+		ServiceID:  &serviceID,
 	}
 
 	handler := k8s.DoEnableServiceHandler{}
 	response := handler.Handle(params)
 	fmt.Println(response)
 }
-
 
 func TestSelectPodAliveHandler_Handle(t *testing.T) {
 	filter, limiter, order := ConstructSelectParams()
@@ -110,10 +109,10 @@ func TestSelectPodAliveHandler_Handle(t *testing.T) {
 	lb, _ := limiter.MarshalBinary()
 	ls := string(lb)
 
-	order = []*models.SelectRequestOrderElem {
+	order = []*models.SelectRequestOrderElem{
 		{
 			Column: "PodName",
-			Order: "asc",
+			Order:  "asc",
 		},
 	}
 	ob, _ := json.Marshal(order)
@@ -129,17 +128,16 @@ func TestSelectPodAliveHandler_Handle(t *testing.T) {
 	fmt.Println(response)
 }
 
-
 func TestUpdateServerK8SHandler_Handle(t *testing.T) {
-	depolyMeta :=  CreateDeployMeta()
+	depolyMeta := CreateDeployMeta()
 	depolyMeta.ServerK8S.NodeSelector.AbilityPool = &models.NodeSelectorElem{
 		Value: make([]string, 0, 1),
 	}
 	/*
-	depolyMeta.ServerK8S.NodeSelector.AbilityPool = nil
-	depolyMeta.ServerK8S.NodeSelector.NodeBind = &models.NodeSelectorElem{
-		Value: []string{"kube.node117"},
-	}
+		depolyMeta.ServerK8S.NodeSelector.AbilityPool = nil
+		depolyMeta.ServerK8S.NodeSelector.NodeBind = &models.NodeSelectorElem{
+			Value: []string{"kube.node117"},
+		}
 	*/
 	notStacked := false
 	depolyMeta.ServerK8S.NotStacked = &notStacked
@@ -156,7 +154,7 @@ func TestUpdateServerK8SHandler_Handle(t *testing.T) {
 }
 
 func TestUpdateServerOptionHandler_Handle(t *testing.T) {
-	depolyMeta :=  CreateDeployMeta()
+	depolyMeta := CreateDeployMeta()
 
 	serverImportant := int32(5)
 	serverProfile := "<tars>\n\n</tars>"
@@ -185,7 +183,6 @@ func TestSelectServerAdapterHandler_Handle(t *testing.T) {
 	lb, _ := limiter.MarshalBinary()
 	ls := string(lb)
 
-
 	var params server_servant.SelectServerAdapterParams
 	params.Filter = &fs
 	params.Limiter = &ls
@@ -199,7 +196,7 @@ func TestDeleteServerAdapterHandler_Handle(t *testing.T) {
 	var params server_servant.DeleteServerAdapterParams
 
 	adapterId := "Semantics-AnalyserServer.TestUpdateObj"
-	params.Params.Metadata = &server_servant.DeleteServerAdapterParamsBodyMetadata {
+	params.Params.Metadata = &server_servant.DeleteServerAdapterParamsBodyMetadata{
 		AdapterID: &adapterId,
 	}
 
@@ -207,7 +204,6 @@ func TestDeleteServerAdapterHandler_Handle(t *testing.T) {
 	response := handler.Handle(params)
 	fmt.Println(response)
 }
-
 
 func TestDoListAffinityGroupByNodeHandler_Handle(t *testing.T) {
 	var params affinity.DoListAffinityGroupByNodeParams
@@ -218,19 +214,18 @@ func TestDoListAffinityGroupByNodeHandler_Handle(t *testing.T) {
 	bs, _ := json.Marshal(nodeName)
 	NodeName := string(bs)
 
-	params.NodeName  =&NodeName
+	params.NodeName = &NodeName
 
 	handler := compatible.DoListAffinityGroupByNodeHandler{}
 	response := handler.Handle(params)
 	fmt.Println(response)
 }
 
-
-func init()  {
+func init() {
 	var err error
-	mysql.TarsDb, err = loadTarsDBDev()
+	mysql.TafDb, err = loadTafDBDev()
 	if err != nil {
-		fmt.Println(fmt.Sprintf("load tars_db error: %v", err))
+		fmt.Println(fmt.Sprintf("load taf_db error: %v", err))
 	}
 
 	k8sNamespace, k8sConfig, err := loadK8SDev()

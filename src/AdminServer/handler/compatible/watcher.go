@@ -11,11 +11,11 @@ import (
 )
 
 func IsAbilityLabel(label string) bool {
-	return strings.HasPrefix(label, k8s.TarsAbilityNodeLabelPrefix)
+	return strings.HasPrefix(label, k8s.TafAbilityNodeLabelPrefix)
 }
 
 func IsPublicNodeLabel(label string) bool {
-	return label == k8s.TarsPublicNodeLabel
+	return label == k8s.TafPublicNodeLabel
 }
 
 type NodeAbility struct {
@@ -30,10 +30,10 @@ type AbilityNode struct {
 
 func (c *tNodeLabelRecord) onAddNode(node *k8sCoreV1.Node) {
 	// NodeLabel新增了namespace
-	TarsNodeLabel := k8s.TarsNodeLabelPrefix + k8s.K8sOption.Namespace
+	TafNodeLabel := k8s.TafNodeLabelPrefix + k8s.K8sOption.Namespace
 
 	nodeLabels := node.Labels
-	if _, ok := nodeLabels[TarsNodeLabel]; !ok {
+	if _, ok := nodeLabels[TafNodeLabel]; !ok {
 		return
 	}
 
@@ -54,7 +54,7 @@ func (c *tNodeLabelRecord) onAddNode(node *k8sCoreV1.Node) {
 		for {
 			if IsAbilityLabel(label) {
 				abilityMap[label] = nil
-				appArray = append(appArray, label[len(k8s.TarsAbilityNodeLabelPrefix):])
+				appArray = append(appArray, label[len(k8s.TafAbilityNodeLabelPrefix):])
 				break
 			}
 
@@ -85,23 +85,23 @@ func (c *tNodeLabelRecord) onAddNode(node *k8sCoreV1.Node) {
 
 func (c *tNodeLabelRecord) onUpdateNode(oldNode, newNode *k8sCoreV1.Node) {
 	// NodeLabel新增了namespace
-	TarsNodeLabel := k8s.TarsNodeLabelPrefix + k8s.K8sOption.Namespace
+	TafNodeLabel := k8s.TafNodeLabelPrefix + k8s.K8sOption.Namespace
 
 	oldNodeLabels := oldNode.Labels
 	newNodeLabels := newNode.Labels
 
-	_, oldNodeIsTarsNode := oldNodeLabels[TarsNodeLabel]
-	_, newNodeIsTarsNode := newNodeLabels[TarsNodeLabel]
+	_, oldNodeIsTafNode := oldNodeLabels[TafNodeLabel]
+	_, newNodeIsTafNode := newNodeLabels[TafNodeLabel]
 
-	if !oldNodeIsTarsNode {
-		if !newNodeIsTarsNode {
+	if !oldNodeIsTafNode {
+		if !newNodeIsTafNode {
 			return
 		}
 		c.onAddNode(newNode)
 		return
 	}
 
-	if !newNodeIsTarsNode {
+	if !newNodeIsTafNode {
 		c.onDeleteNode(newNode)
 		return
 	}
@@ -135,7 +135,7 @@ func (c *tNodeLabelRecord) onUpdateNode(oldNode, newNode *k8sCoreV1.Node) {
 		for {
 			if IsAbilityLabel(label) {
 				abilityMap[label] = nil
-				appArray = append(appArray, label[len(k8s.TarsAbilityNodeLabelPrefix):])
+				appArray = append(appArray, label[len(k8s.TafAbilityNodeLabelPrefix):])
 				break
 			}
 
@@ -203,7 +203,7 @@ func (c *tNodeLabelRecord) listAbilityNode(apps []string) []AbilityNode {
 					nodeArray = append(nodeArray, node)
 				}
 				result = append(result, AbilityNode{
-					ServerApp: abilityLabel[len(k8s.TarsAbilityNodeLabelPrefix):],
+					ServerApp: abilityLabel[len(k8s.TafAbilityNodeLabelPrefix):],
 					NodeName:  nodeArray,
 				})
 			}
@@ -211,7 +211,7 @@ func (c *tNodeLabelRecord) listAbilityNode(apps []string) []AbilityNode {
 	} else {
 		result = make([]AbilityNode, 0, len(apps))
 		for _, app := range apps {
-			abilityLabel := k8s.TarsAbilityNodeLabelPrefix + app
+			abilityLabel := k8s.TafAbilityNodeLabelPrefix + app
 			nodeMap, ok := c.abilities[abilityLabel]
 			if !ok {
 				result = append(result, AbilityNode{
@@ -246,7 +246,7 @@ func (c *tNodeLabelRecord) listNodeAbility(nodes []string) []NodeAbility {
 			appArray := make([]string, 0, len(addNodeAbilities))
 			for ability := range addNodeAbilities {
 				if IsAbilityLabel(ability) {
-					appArray = append(appArray, ability[len(k8s.TarsAbilityNodeLabelPrefix):])
+					appArray = append(appArray, ability[len(k8s.TafAbilityNodeLabelPrefix):])
 				}
 			}
 			result = append(result, NodeAbility{
@@ -270,7 +270,7 @@ func (c *tNodeLabelRecord) listNodeAbility(nodes []string) []NodeAbility {
 			appArray := make([]string, 0, len(abilityMap))
 			for ability := range abilityMap {
 				if IsAbilityLabel(ability) {
-					appArray = append(appArray, ability[len(k8s.TarsAbilityNodeLabelPrefix):])
+					appArray = append(appArray, ability[len(k8s.TafAbilityNodeLabelPrefix):])
 				}
 			}
 			result = append(result, NodeAbility{
@@ -289,7 +289,7 @@ func (c *tNodeLabelRecord) listPublicNode() []string {
 
 	result := make([]string, 0, 10)
 	for node, abilityMap := range c.nodes {
-		if _, ok := abilityMap[k8s.TarsPublicNodeLabel]; ok {
+		if _, ok := abilityMap[k8s.TafPublicNodeLabel]; ok {
 			result = append(result, node)
 		}
 	}

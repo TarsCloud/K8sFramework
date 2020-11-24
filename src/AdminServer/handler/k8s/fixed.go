@@ -2,7 +2,7 @@ package k8s
 
 const (
 	ResourceOutControlReason = "ResourceOutControlReason"
-	ResourceDeleteReason = "ResourceDeleteReason"
+	ResourceDeleteReason     = "ResourceDeleteReason"
 )
 
 const (
@@ -30,10 +30,10 @@ const (
 
 const ServiceImagePlaceholder = " "
 
-const TarsNodeLabelPrefix = "tars.io/node." // 此标签表示 该节点可以被 tars 使用
+const TafNodeLabelPrefix = "tars.io/node." // 此标签表示 该节点可以被 tars 使用
 
-const TarsAbilityNodeLabelPrefix = "tars.io/ability." // 此标签表示 该节点可以被 tars 当做 App节点池使用
-const TarsPublicNodeLabel = "tars.io/public"          // 此标签表示 该节点可以被 tars 当做 公用节点池使用
+const TafAbilityNodeLabelPrefix = "tars.io/ability." // 此标签表示 该节点可以被 tars 当做 App节点池使用
+const TafPublicNodeLabel = "tars.io/public"          // 此标签表示 该节点可以被 tars 当做 公用节点池使用
 
 const TemplateLabel = "tars.io/Template"
 const TSubTypeLabel = "tars.io/SubType"
@@ -42,6 +42,7 @@ const TServerAppLabel = "tars.io/ServerApp"
 const TServerNameLabel = "tars.io/ServerName"
 const TServerTagLabel = "tars.io/ServerTag"
 const TConfigNameLabel = "tars.io/ConfigName"
+const TConfigPodSeqLabel = "tars.io/PodSeq"
 const TDeployApproveLabel = "tars.io/Approve"
 
 const NodeServantName = "nodeobj"
@@ -57,17 +58,16 @@ const K8SHostNameLabel = "kubernetes.io/hostname"
 const ReleaseSourceLabel = "tars.io/ReleaseSource"
 const ReleaseTagLabel = "tars.io/ReleaseTag"
 
-//const WebhookCertFile = "/etc/tarsoperator-cert/cert.pem"
-//const WebhookCertKey = "/etc/tarsoperator-cert/cert.key"
+//const WebhookCertFile = "/etc/tafoperator-cert/cert.pem"
+//const WebhookCertKey = "/etc/tafoperator-cert/cert.key"
 
 const WebhookCertFile = "/home/adugeek/Cert/cert.pem"
 const WebhookCertKey = "/home/adugeek/Cert/cert.key"
 
-const TarsControlServiceAccount = "tars-tarscontrol"
+const TafControlServiceAccount = "tars-tafcontrol"
 
 // -----------------------------------------------------
 
-const TarsAgentDaemonSetName = "tars-tarsagent"
+const TafAgentDaemonSetName = "tars-tafagent"
 
-const TarsTreeName = "tars-tree"
-
+const TafTreeName = "tars-tree"

@@ -8,14 +8,15 @@ import (
 	"tarsadmin/handler/k8s"
 	"tarsadmin/handler/mysql"
 
+	"tarsadmin/openapi/restapi/operations"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
-	"tarsadmin/openapi/restapi/operations"
 )
 
-//go:generate swagger generate server --target ../../openapi --name TarsadminOpenapi --spec ../../doc/Admin.yaml --principal interface{} --exclude-main
+//go:generate swagger generate server --target ../../openapi --name TafadminOpenapi --spec ../../doc/Admin.yaml --principal interface{} --exclude-main
 
-type tarsAdminHandler struct {}
+type tarsAdminHandler struct{}
 
 func (h *tarsAdminHandler) ConfigureAPI(api *operations.TarsadminOpenapiAPI) http.Handler {
 	// configure the api here

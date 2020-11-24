@@ -2,18 +2,19 @@ package k8s
 
 import (
 	"fmt"
-	"github.com/go-openapi/runtime/middleware"
-	"golang.org/x/net/context"
-	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"strings"
 	"tarsadmin/handler/util"
 	"tarsadmin/openapi/models"
 	"tarsadmin/openapi/restapi/operations/server_servant"
+
+	"github.com/go-openapi/runtime/middleware"
+	"golang.org/x/net/context"
+	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-type CreateServerAdapterHandler struct {}
+type CreateServerAdapterHandler struct{}
 
 func (s *CreateServerAdapterHandler) Handle(params server_servant.CreateServerAdapterParams) middleware.Responder {
 	namespace := K8sOption.Namespace
@@ -38,7 +39,7 @@ func (s *CreateServerAdapterHandler) Handle(params server_servant.CreateServerAd
 		adapter.Thread = target.Threads
 		Servants = append(Servants, adapter)
 	}
-	tServerCopy.Spec.Tars.Servants = append(tServerCopy.Spec.Tars.Servants, Servants ...)
+	tServerCopy.Spec.Tars.Servants = append(tServerCopy.Spec.Tars.Servants, Servants...)
 
 	tServerInterface := K8sOption.CrdClientSet.CrdV1alpha1().TServers(namespace)
 	if _, err = tServerInterface.Update(context.TODO(), tServerCopy, k8sMetaV1.UpdateOptions{}); err != nil {
@@ -48,7 +49,7 @@ func (s *CreateServerAdapterHandler) Handle(params server_servant.CreateServerAd
 	return server_servant.NewCreateServerAdapterOK().WithPayload(&server_servant.CreateServerAdapterOKBody{Result: 0})
 }
 
-type SelectServerAdapterHandler struct {}
+type SelectServerAdapterHandler struct{}
 
 func (s *SelectServerAdapterHandler) Handle(params server_servant.SelectServerAdapterParams) middleware.Responder {
 
@@ -71,8 +72,8 @@ func (s *SelectServerAdapterHandler) Handle(params server_servant.SelectServerAd
 
 	allServerItems := make([]*crdv1alpha1.TServer, 0, 10)
 	if listAll {
-		requirements := BuildSubTypeTarsSelector()
-		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
+		requirements := BuildSubTypeTafSelector()
+		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements...))
 		if err != nil {
 			return server_servant.NewSelectServerAdapterInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 		}
@@ -103,15 +104,15 @@ func (s *SelectServerAdapterHandler) Handle(params server_servant.SelectServerAd
 		for _, elem := range allItems {
 			if selectParams.Filter.Eq != nil {
 				pattern, ok := selectParams.Filter.Eq["AdapterId"]
-				if ok && pattern != elem.Name{
+				if ok && pattern != elem.Name {
 					continue
 				}
 				pattern, ok = selectParams.Filter.Eq["IsTars"]
-				if ok && pattern != elem.IsTars{
+				if ok && pattern != elem.IsTars {
 					continue
 				}
 				pattern, ok = selectParams.Filter.Eq["IsTcp"]
-				if ok && pattern != elem.IsTcp{
+				if ok && pattern != elem.IsTcp {
 					continue
 				}
 			}
@@ -163,7 +164,7 @@ func (s *SelectServerAdapterHandler) Handle(params server_servant.SelectServerAd
 	return server_servant.NewSelectServerAdapterOK().WithPayload(result)
 }
 
-type UpdateServerAdapterHandler struct {}
+type UpdateServerAdapterHandler struct{}
 
 func (s *UpdateServerAdapterHandler) Handle(params server_servant.UpdateServerAdapterParams) middleware.Responder {
 
@@ -171,12 +172,12 @@ func (s *UpdateServerAdapterHandler) Handle(params server_servant.UpdateServerAd
 	metadata := params.Params.Metadata
 
 	fields := strings.Split(*metadata.AdapterID, ".")
-	if len(fields) != 2 {
+	if len(fields) != 3 {
 		return server_servant.NewUpdateServerAdapterInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("Invalid AdapterID syntax: %s", *metadata.AdapterID)})
 	}
 
-	ServerId := fields[0]
-	AdapterName := fields[1]
+	ServerId := util.GetServerId(fields[0], fields[1])
+	AdapterName := fields[2]
 
 	tServer, err := K8sWatcher.tServerLister.TServers(namespace).Get(util.GetTServerName(ServerId))
 	if err != nil {
@@ -216,15 +217,19 @@ func (s *UpdateServerAdapterHandler) Handle(params server_servant.UpdateServerAd
 	return server_servant.NewUpdateServerAdapterOK().WithPayload(&server_servant.UpdateServerAdapterOKBody{Result: 0})
 }
 
-type DeleteServerAdapterHandler struct {}
+type DeleteServerAdapterHandler struct{}
 
 func (s *DeleteServerAdapterHandler) Handle(params server_servant.DeleteServerAdapterParams) middleware.Responder {
 	namespace := K8sOption.Namespace
 	metadata := params.Params.Metadata
 
 	fields := strings.Split(*metadata.AdapterID, ".")
-	ServerId := fields[0]
-	AdapterName := fields[1]
+	if len(fields) != 3 {
+		return server_servant.NewDeleteServerAdapterInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("Invalid AdapterID syntax: %s", *metadata.AdapterID)})
+	}
+
+	ServerId := util.GetServerId(fields[0], fields[1])
+	AdapterName := fields[2]
 
 	tServer, err := K8sWatcher.tServerLister.TServers(namespace).Get(util.GetTServerName(ServerId))
 	if err != nil {
@@ -242,7 +247,7 @@ func (s *DeleteServerAdapterHandler) Handle(params server_servant.DeleteServerAd
 	}
 
 	tServerCopy := tServer.DeepCopy()
-	tServerCopy.Spec.Tars.Servants = append(tServerCopy.Spec.Tars.Servants[0:index], tServerCopy.Spec.Tars.Servants[index+1:] ...)
+	tServerCopy.Spec.Tars.Servants = append(tServerCopy.Spec.Tars.Servants[0:index], tServerCopy.Spec.Tars.Servants[index+1:]...)
 
 	tServerInterface := K8sOption.CrdClientSet.CrdV1alpha1().TServers(namespace)
 	if _, err = tServerInterface.Update(context.TODO(), tServerCopy, k8sMetaV1.UpdateOptions{}); err != nil {
@@ -283,4 +288,3 @@ func equalServerAdapter(oldAdapter *crdv1alpha1.TServant, newAdapter *models.Ser
 	}
 	return true
 }
-

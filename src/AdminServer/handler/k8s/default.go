@@ -2,30 +2,35 @@ package k8s
 
 import (
 	"encoding/json"
-	"github.com/go-openapi/runtime/middleware"
 	"io/ioutil"
 	"os"
 	"tarsadmin/openapi/models"
 	"tarsadmin/openapi/restapi/operations/default_operations"
+
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // 默认Selector类型
 var K8SNodeSelectorKind = models.ArrayString{"AbilityPool", "PublicPool", "NodeBind"}
+
 // 默认Server类型
 var ServerTypeOptional = models.ArrayString{"tars_cpp", "tars_java_war", "tars_java_jar", "tars_nodejs", "not_tars"}
+
 // 默认K8S参数
 var ServerK8S = models.ServerK8S{
 	HostIpc: false, HostNetwork: false, Replicas: 0,
 	HostPort: make([]*models.HostPortElem, 0, 1),
 	NodeSelector: &models.NodeSelector{AbilityPool: &models.NodeSelectorElem{
-	Value: make([]string, 0, 1),
+		Value: make([]string, 0, 1),
 	}},
 }
+
 // 默认私有模板参数
 var asyncThread int32 = 3
 var serverImportant int32 = 5
 var serverSubType = "tars"
 var ServerOption = models.ServerOption{AsyncThread: &asyncThread, ServerImportant: &serverImportant, ServerSubType: &serverSubType, ServerTemplate: "tars.default", ServerProfile: ""}
+
 // 默认Servant参数
 var isTrue = true
 var ServerServantElem = models.ServerServantElem{IsTars: &isTrue, IsTCP: &isTrue, Threads: 3, Port: 10000, Timeout: 60000, Capacity: 10000, Connections: 10000}
@@ -33,25 +38,25 @@ var ServerServantElem = models.ServerServantElem{IsTars: &isTrue, IsTCP: &isTrue
 // Handler处理
 const DefaultConfigMapPath = "/etc/default-env/"
 
-type SelectDefaultValueHandler struct {}
+type SelectDefaultValueHandler struct{}
 
 func (s *SelectDefaultValueHandler) Handle(params default_operations.SelectDefaultValueParams) middleware.Responder {
 	// 如果Config挂载存在，加载挂载的ConfigMap，否则使用硬编码默认
 	_, err := os.Stat(DefaultConfigMapPath)
 	if err == nil {
-		if bs, err := ioutil.ReadFile(DefaultConfigMapPath +"K8SNodeSelectorKind"); err == nil {
+		if bs, err := ioutil.ReadFile(DefaultConfigMapPath + "K8SNodeSelectorKind"); err == nil {
 			_ = json.Unmarshal(bs, &K8SNodeSelectorKind)
 		}
-		if bs, err := ioutil.ReadFile(DefaultConfigMapPath +"ServerTypeOptional"); err == nil {
+		if bs, err := ioutil.ReadFile(DefaultConfigMapPath + "ServerTypeOptional"); err == nil {
 			_ = json.Unmarshal(bs, &ServerTypeOptional)
 		}
-		if bs, err := ioutil.ReadFile(DefaultConfigMapPath +"ServerK8S"); err == nil {
+		if bs, err := ioutil.ReadFile(DefaultConfigMapPath + "ServerK8S"); err == nil {
 			_ = json.Unmarshal(bs, &ServerK8S)
 		}
-		if bs, err := ioutil.ReadFile(DefaultConfigMapPath +"ServerOption"); err == nil {
+		if bs, err := ioutil.ReadFile(DefaultConfigMapPath + "ServerOption"); err == nil {
 			_ = json.Unmarshal(bs, &ServerOption)
 		}
-		if bs, err := ioutil.ReadFile(DefaultConfigMapPath +"ServerServantElem"); err == nil {
+		if bs, err := ioutil.ReadFile(DefaultConfigMapPath + "ServerServantElem"); err == nil {
 			_ = json.Unmarshal(bs, &ServerServantElem)
 		}
 	}

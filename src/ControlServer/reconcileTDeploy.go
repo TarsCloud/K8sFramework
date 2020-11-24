@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/workqueue"
-	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
-	"strings"
-	"time"
+	crdV1Alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
 type TDeployReconcile struct {
@@ -95,7 +96,6 @@ func (r *TDeployReconcile) Start(stopCh chan struct{}) {
 
 func (r *TDeployReconcile) reconcile(name string) ReconcileResult {
 	namespace := r.k8sOption.namespace
-
 	tdeploy, err := r.watcher.tDeployLister.TDeploys(namespace).Get(name)
 	if err != nil {
 		if !errors.IsNotFound(err) {

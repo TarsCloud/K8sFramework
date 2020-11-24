@@ -3,14 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
+
+	k8sAppsV1 "k8s.io/api/apps/v1"
 	k8sCoreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/workqueue"
-	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
-	"time"
+	crdV1Alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
 type DaemonSetReconcile struct {
@@ -73,6 +75,17 @@ func (r *DaemonSetReconcile) EnqueueObj(obj interface{}) {
 		tserver := obj.(*crdV1Alpha1.TServer)
 		key := fmt.Sprintf("%s", tserver.Name)
 		r.workQueue.Add(key)
+	case *k8sAppsV1.DaemonSet:
+		daemonset := obj.(*k8sAppsV1.DaemonSet)
+		if ownerRef := daemonset.GetOwnerReferences(); ownerRef != nil {
+			for i := range ownerRef {
+				if ownerRef[i].Kind == TServerKind && ownerRef[i].APIVersion == TServerAPIVersion {
+					key := fmt.Sprintf("%s", ownerRef[i].Name)
+					r.workQueue.Add(key)
+					return
+				}
+			}
+		}
 	default:
 		return
 	}
@@ -99,7 +112,16 @@ func (r *DaemonSetReconcile) reconcile(name string) ReconcileResult {
 			return RateLimit
 		}
 		err = r.k8sOption.k8sClientSet.AppsV1().DaemonSets(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
-		if err != nil {
+		if err != nil && !errors.IsNotFound(err) {
+			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "daemonset", namespace, name, err.Error()))
+			return RateLimit
+		}
+		return AllOk
+	}
+
+	if tserver.DeletionTimestamp != nil {
+		err = r.k8sOption.k8sClientSet.AppsV1().DaemonSets(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
+		if err != nil && !errors.IsNotFound(err) {
 			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "daemonset", namespace, name, err.Error()))
 			return RateLimit
 		}
@@ -119,15 +141,6 @@ func (r *DaemonSetReconcile) reconcile(name string) ReconcileResult {
 				utilRuntime.HandleError(fmt.Errorf(ResourceCreateError, "daemonset", namespace, name, err.Error()))
 				return RateLimit
 			}
-		}
-		return AllOk
-	}
-
-	if tserver.DeletionTimestamp != nil {
-		err = r.k8sOption.k8sClientSet.AppsV1().DaemonSets(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
-		if err != nil {
-			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "daemonset", namespace, name, err.Error()))
-			return RateLimit
 		}
 		return AllOk
 	}

@@ -4,7 +4,7 @@ import (
 	k8sAppsV1 "k8s.io/api/apps/v1"
 	k8sCoreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
-	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
+	crdV1Alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
 func equalServicePort(l, r []k8sCoreV1.ServicePort) bool {
@@ -139,6 +139,18 @@ func equalEnv(l, r []k8sCoreV1.EnvVar) bool {
 		if l[i].Value != r[i].Value {
 			return false
 		}
+
+		if l[i].ValueFrom == nil {
+			if r[i].ValueFrom == nil {
+				continue
+			}
+			return false
+		}
+
+		if r[i].ValueFrom == nil {
+			return false
+		}
+
 		if !equalEnvConfigMap(l[i].ValueFrom.ConfigMapKeyRef, r[i].ValueFrom.ConfigMapKeyRef) {
 			return false
 		}
@@ -498,48 +510,6 @@ func equalNormal(l, r *crdV1Alpha1.TServerNormal) bool {
 	return true
 }
 
-func equalExternal(l, r *crdV1Alpha1.TServerExternal) bool {
-	if l == nil {
-		if r == nil {
-			return true
-		}
-		return false
-	}
-
-	if r == nil {
-		return false
-	}
-	if len(l.Upstreams) != len(r.Upstreams) {
-		return false
-	}
-
-	for i := range l.Upstreams {
-		if l.Upstreams[i].Name != r.Upstreams[i].Name {
-			return false
-		}
-
-		if l.Upstreams[i].IsTcp != r.Upstreams[i].IsTcp {
-			return false
-		}
-
-		if len(l.Upstreams[i].Addresses) != len(r.Upstreams[i].Addresses) {
-			return false
-		}
-
-		for j := range l.Upstreams[i].Addresses {
-			if l.Upstreams[i].Addresses[j].Port != l.Upstreams[i].Addresses[j].Port {
-				return false
-			}
-
-			if l.Upstreams[i].Addresses[j].IP != l.Upstreams[i].Addresses[j].IP {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
 func equalK8SHostPorts(l, r []crdV1Alpha1.TK8SHostPort) bool {
 	if len(l) != len(r) {
 		return false
@@ -616,7 +586,82 @@ func equalTServerAndService(server *crdV1Alpha1.TServer, service *k8sCoreV1.Serv
 	return true
 }
 
-func equalTServerAndDaemonSet(server *crdV1Alpha1.TServer, set *k8sAppsV1.DaemonSet) bool {
+func equalTServerAndDaemonSet(server *crdV1Alpha1.TServer, daemonset *k8sAppsV1.DaemonSet) bool {
+	daemonSetSpec := &daemonset.Spec
+	tServerSpec := &server.Spec
+
+	targetSelector := map[string]string{
+		TServerAppLabel:  server.Spec.App,
+		TServerNameLabel: server.Spec.Server,
+	}
+
+	if !equalLabelSelector(targetSelector, daemonSetSpec.Selector.MatchLabels) {
+		return false
+	}
+
+	daemonSetSpecTemplateSpec := &daemonSetSpec.Template.Spec
+
+	if tServerSpec.K8S.HostIPC != daemonSetSpecTemplateSpec.HostIPC {
+		return false
+	}
+
+	if tServerSpec.K8S.HostNetwork != daemonSetSpecTemplateSpec.HostNetwork {
+		return false
+	}
+
+	if tServerSpec.K8S.ServiceAccount != daemonSetSpecTemplateSpec.ServiceAccountName {
+		return false
+	}
+
+	targetImagePullSecrets := buildImagePullSecrets(server)
+	if !equality.Semantic.DeepEqual(targetImagePullSecrets, daemonSetSpecTemplateSpec.ImagePullSecrets) {
+		return false
+	}
+
+	targetAffinity := buildPodAffinity(server)
+	if !equality.Semantic.DeepEqual(targetAffinity, daemonSetSpecTemplateSpec.Affinity) {
+		return false
+	}
+
+	targetVolumes, targetVolumeMounts := buildMounts(server)
+	if !equalVolumes(targetVolumes, daemonSetSpecTemplateSpec.Volumes) {
+		return false
+	}
+
+	if len(daemonSetSpecTemplateSpec.Containers) == 0 {
+		return false
+	}
+
+	if !equalVolumesMounts(targetVolumeMounts, daemonSetSpecTemplateSpec.Containers[0].VolumeMounts) {
+		return false
+	}
+
+	targetReadinessGates := buildReadinessGates(server)
+	if !equality.Semantic.DeepEqual(targetReadinessGates, daemonSetSpecTemplateSpec.ReadinessGates) {
+		return false
+	}
+
+	serverImage := ServiceImagePlaceholder
+	if server.Spec.Release != nil {
+		serverImage = server.Spec.Release.Image
+	}
+
+	if serverImage != daemonSetSpecTemplateSpec.Containers[0].Image {
+		return false
+	}
+
+	if !equalEnv(tServerSpec.K8S.Env, daemonSetSpecTemplateSpec.Containers[0].Env) {
+		return false
+	}
+
+	if !equalEnvFrom(tServerSpec.K8S.EnvFrom, daemonSetSpecTemplateSpec.Containers[0].EnvFrom) {
+		return false
+	}
+
+	targetContainerPorts := buildContainerPort(server)
+	if !equalContainerPorts(targetContainerPorts, daemonSetSpecTemplateSpec.Containers[0].Ports) {
+		return false
+	}
 	return true
 }
 

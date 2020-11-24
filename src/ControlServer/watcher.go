@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	//"io/ioutil"
+	"io/ioutil"
+	"time"
+
 	k8sCoreV1 "k8s.io/api/core/v1"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -12,16 +14,14 @@ import (
 	k8sCoreV1Typed "k8s.io/client-go/kubernetes/typed/core/v1"
 	k8sAppsLister "k8s.io/client-go/listers/apps/v1"
 	k8sCoreLister "k8s.io/client-go/listers/core/v1"
-	k8sClientCmd "k8s.io/client-go/tools/clientcmd"
-	//"k8s.io/client-go/rest"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/klog"
-	crdClientSet "k8s.tars.io/crd/clientset/versioned"
-	crdScheme "k8s.tars.io/crd/clientset/versioned/scheme"
-	crdInformers "k8s.tars.io/crd/informers/externalversions"
-	crdLister "k8s.tars.io/crd/listers/crd/v1alpha1"
-	"time"
+	crdClientSet "k8s.tars.io/client-go/clientset/versioned"
+	crdScheme "k8s.tars.io/client-go/clientset/versioned/scheme"
+	crdInformers "k8s.tars.io/client-go/informers/externalversions"
+	crdLister "k8s.tars.io/client-go/listers/crd/v1alpha1"
 )
 
 type K8SOption struct {
@@ -39,22 +39,15 @@ func LoadK8SOption() (*K8SOption, error) {
 
 	var namespace string
 
-	//if bs, err := ioutil.ReadFile(namespaceFile); err != nil {
-	//	return nil, err
-	//} else {
-	//	namespace = string(bs)
-	//}
-	//
-	//clusterConfig, err := rest.InClusterConfig()
-	//if err != nil {
-	//	return nil, err
-	//}
+	if bs, err := ioutil.ReadFile(namespaceFile); err != nil {
+		return nil, err
+	} else {
+		namespace = string(bs)
+	}
 
-	namespace = "tars"
-
-	clusterConfig, err := k8sClientCmd.BuildConfigFromFlags("", "/home/adugeek/.kube/config")
+	clusterConfig, err := rest.InClusterConfig()
 	if err != nil {
-		return nil, fmt.Errorf("Load K8S Config Error : %s ", err.Error())
+		return nil, err
 	}
 
 	k8sClientSet := kubernetes.NewForConfigOrDie(clusterConfig)
@@ -67,7 +60,7 @@ func LoadK8SOption() (*K8SOption, error) {
 	eventBroadcaster.StartLogging(klog.Infof)
 	eventBroadcaster.StartRecordingToSink(&k8sCoreV1Typed.EventSinkImpl{Interface: k8sClientSet.CoreV1().Events(namespace)})
 
-	controllerAgentName := fmt.Sprintf("tars-tarsoperator")
+	controllerAgentName := fmt.Sprintf("tars-tarscontrol")
 	recorder := eventBroadcaster.NewRecorder(k8sSchema.Scheme, k8sCoreV1.EventSource{Component: controllerAgentName})
 
 	option := &K8SOption{
@@ -128,6 +121,7 @@ func NewWatcher(r *K8SOption) *Watcher {
 		tEndpointLister:     tEndpointInformer.Lister(),
 		tTemplateLister:     tTemplateInformer.Lister(),
 		tReleaseLister:      tReleaseInformer.Lister(),
+		tTreeLister:         tTreeInformer.Lister(),
 		tExitedRecordLister: tExitedRecordInformer.Lister(),
 		tDeployLister:       tDeployInformer.Lister(),
 

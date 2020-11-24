@@ -3,20 +3,21 @@ package k8s
 import (
 	"bytes"
 	"fmt"
-	tarsConf "github.com/TarsCloud/TarsGo/tars/util/conf"
-	"github.com/go-openapi/runtime/middleware"
-	"golang.org/x/net/context"
-	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"runtime"
 	"tarsadmin/handler/util"
 	"tarsadmin/openapi/models"
 	"tarsadmin/openapi/restapi/operations/server"
 	"tarsadmin/openapi/restapi/operations/server_option"
+
+	tafConf "github.com/TarsCloud/TarsGo/tars/util/conf"
+	"github.com/go-openapi/runtime/middleware"
+	"golang.org/x/net/context"
+	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-type SelectServerOptionHandler struct {}
+type SelectServerOptionHandler struct{}
 
 func (s *SelectServerOptionHandler) Handle(params server_option.SelectServerOptionParams) middleware.Responder {
 
@@ -39,8 +40,8 @@ func (s *SelectServerOptionHandler) Handle(params server_option.SelectServerOpti
 
 	filterItems := make([]*crdv1alpha1.TServer, 0, 10)
 	if listAll {
-		requirements := BuildSubTypeTarsSelector()
-		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
+		requirements := BuildSubTypeTafSelector()
+		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements...))
 		if err != nil {
 			return server_option.NewSelectServerOptionInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 		}
@@ -86,7 +87,7 @@ func (s *SelectServerOptionHandler) Handle(params server_option.SelectServerOpti
 	return server.NewSelectServerOK().WithPayload(result)
 }
 
-type UpdateServerOptionHandler struct {}
+type UpdateServerOptionHandler struct{}
 
 func (s *UpdateServerOptionHandler) Handle(params server_option.UpdateServerOptionParams) middleware.Responder {
 
@@ -116,7 +117,7 @@ func (s *UpdateServerOptionHandler) Handle(params server_option.UpdateServerOpti
 	return server_option.NewUpdateServerOptionOK().WithPayload(&server_option.UpdateServerOptionOKBody{Result: 0})
 }
 
-type DoPreviewTemplateContentHandler struct {}
+type DoPreviewTemplateContentHandler struct{}
 
 func (s *DoPreviewTemplateContentHandler) Handle(params server_option.DoPreviewTemplateContentParams) middleware.Responder {
 	namespace := K8sOption.Namespace
@@ -132,7 +133,7 @@ func (s *DoPreviewTemplateContentHandler) Handle(params server_option.DoPreviewT
 	allTemplateContent := make([][]byte, 0, 10)
 	allTemplateContent = append(allTemplateContent, profile)
 
-	for  {
+	for {
 		curTemplate, err := K8sWatcher.tTemplateLister.TTemplates(namespace).Get(templateName)
 		if err != nil {
 			return server_option.NewDoPreviewTemplateContentInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -168,7 +169,7 @@ func (s *DoPreviewTemplateContentHandler) Handle(params server_option.DoPreviewT
 		return s
 	}
 	allTemplateContent = reverseSliceFun(allTemplateContent)
-	conf := tarsConf.New()
+	conf := tafConf.New()
 	afterJoinTemplateContent := bytes.Join(allTemplateContent, nil)
 
 	if err := conf.InitFromBytes(afterJoinTemplateContent); err != nil {
@@ -180,17 +181,17 @@ func (s *DoPreviewTemplateContentHandler) Handle(params server_option.DoPreviewT
 	return server_option.NewDoPreviewTemplateContentOK().WithPayload(&server_option.DoPreviewTemplateContentOKBody{Result: conf.ToString()})
 }
 
-func equalServerOption(serverTars *crdv1alpha1.TServerTars, serverImportant int32, newOption *models.ServerOption) bool {
-	if serverTars.Template != newOption.ServerTemplate {
+func equalServerOption(serverTaf *crdv1alpha1.TServerTars, serverImportant int32, newOption *models.ServerOption) bool {
+	if serverTaf.Template != newOption.ServerTemplate {
 		return false
 	}
-	if serverTars.Profile != newOption.ServerProfile {
+	if serverTaf.Profile != newOption.ServerProfile {
 		return false
 	}
 	if serverImportant != *newOption.ServerImportant {
 		return false
 	}
-	if serverTars.AsyncThread != *newOption.AsyncThread {
+	if serverTaf.AsyncThread != *newOption.AsyncThread {
 		return false
 	}
 	return true

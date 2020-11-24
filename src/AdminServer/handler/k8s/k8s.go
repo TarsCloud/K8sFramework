@@ -1,17 +1,18 @@
 package k8s
 
 import (
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/server_k8s"
+
 	"github.com/go-openapi/runtime/middleware"
 	"golang.org/x/net/context"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
-	"tarsadmin/handler/util"
-	"tarsadmin/openapi/models"
-	"tarsadmin/openapi/restapi/operations/server_k8s"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-type SelectServerK8SHandler struct {}
+type SelectServerK8SHandler struct{}
 
 func (s *SelectServerK8SHandler) Handle(params server_k8s.SelectK8SParams) middleware.Responder {
 
@@ -34,8 +35,8 @@ func (s *SelectServerK8SHandler) Handle(params server_k8s.SelectK8SParams) middl
 
 	filterItems := make([]*crdv1alpha1.TServer, 0, 10)
 	if listAll {
-		requirements := BuildSubTypeTarsSelector()
-		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
+		requirements := BuildSubTypeTafSelector()
+		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements...))
 		if err != nil {
 			return server_k8s.NewSelectK8SInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 		}
@@ -82,7 +83,7 @@ func (s *SelectServerK8SHandler) Handle(params server_k8s.SelectK8SParams) middl
 	return server_k8s.NewSelectK8SOK().WithPayload(result)
 }
 
-type UpdateServerK8SHandler struct {}
+type UpdateServerK8SHandler struct{}
 
 func (s *UpdateServerK8SHandler) Handle(params server_k8s.UpdateK8SParams) middleware.Responder {
 
@@ -177,7 +178,7 @@ func equalServerK8S(oldK8S *crdv1alpha1.TServerK8S, newK8S *models.ServerK8S) bo
 		equalNodeSelector(oldK8S.NodeSelector.DaemonSet, newK8S.NodeSelector.DaemonSet)
 }
 
-func equalNodeSelector(oldSelector *crdv1alpha1.TK8SNodeSelectorKind, newSelector *models.NodeSelectorElem) bool  {
+func equalNodeSelector(oldSelector *crdv1alpha1.TK8SNodeSelectorKind, newSelector *models.NodeSelectorElem) bool {
 	if oldSelector == nil && newSelector != nil {
 		return false
 	}

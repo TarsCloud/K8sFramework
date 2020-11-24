@@ -3,7 +3,7 @@ info:
   title: TARS-K8S Admin
   description: Tars Admin接口文档
   version: 1.0.0
-host: tafadmin.com
+host: tarsadmin.com
 basePath: /admin/v1alpha1/
 produces:
   - application/json

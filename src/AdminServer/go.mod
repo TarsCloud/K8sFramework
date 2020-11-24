@@ -8,7 +8,7 @@ require (
 
 replace (
 	k8s.io/client-go => k8s.io/client-go v0.18.2
-	k8s.tars.io/crd v0.0.1 => ../k8s.tars.io/crd/
+	k8s.tars.io v0.0.1 => ../k8s.tars.io
 	tarsadmin/handler v0.0.0 => ./handler
 	tarsadmin/openapi v0.0.0 => ./openapi
 )

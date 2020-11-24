@@ -3,10 +3,6 @@ package test
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-openapi/strfmt"
-	_ "github.com/go-sql-driver/mysql"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	"tarsadmin/handler/k8s"
 	"tarsadmin/handler/mysql"
 	"tarsadmin/openapi/models"
@@ -15,11 +11,16 @@ import (
 	"tarsadmin/openapi/restapi/operations/config"
 	"tarsadmin/openapi/restapi/operations/deploy"
 	"testing"
+
+	"github.com/go-openapi/strfmt"
+	_ "github.com/go-sql-driver/mysql"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
-func loadTarsDBDev() (*sql.DB, error) {
+func loadTafDBDev() (*sql.DB, error) {
 	dbHost := "172.16.8.229"
-	dbName := "tars_db"
+	dbName := "taf_db"
 	dbPort := "3306"
 	dbPass := "8788"
 	dbUser := "root"
@@ -108,16 +109,16 @@ func CreateDeployMeta() *models.DeployMeta {
 
 	notStacked := true
 	serverK8S := models.ServerK8S{
-		Image: "registry.cn-hangzhou.aliyuncs.com/dtool/semantics.analyserserver:a1600911633405313000",
-		Version: "10002",
-		NotStacked: &notStacked,
-		HostIpc: false,
+		Image:       "registry.cn-hangzhou.aliyuncs.com/dtool/semantics.analyserserver:a1600911633405313000",
+		Version:     "10002",
+		NotStacked:  &notStacked,
+		HostIpc:     false,
 		HostNetwork: false,
-		Replicas: 1,
-		HostPort: []*models.HostPortElem {
+		Replicas:    1,
+		HostPort: []*models.HostPortElem{
 			{
 				NameRef: "AnalyserObj",
-				Port: 10070,
+				Port:    10070,
 			},
 		},
 		NodeSelector: &models.NodeSelector{
@@ -132,35 +133,35 @@ func CreateDeployMeta() *models.DeployMeta {
 	serverSubType := "tars"
 
 	serverOption := models.ServerOption{
-		AsyncThread: &asyncThread,
+		AsyncThread:     &asyncThread,
 		ServerImportant: &serverImportant,
-		ServerProfile: "",
-		ServerSubType: &serverSubType,
-		ServerTemplate: "tars.cpp",
+		ServerProfile:   "",
+		ServerSubType:   &serverSubType,
+		ServerTemplate:  "tars.cpp",
 	}
 
 	isTars, isTcp := true, true
 	serverServant := models.MapServant{
 		"AnalyserObj": {
-			Capacity: 10000,
+			Capacity:    10000,
 			Connections: 10000,
-			IsTars: &isTars,
-			IsTCP: &isTcp,
-			Name: "AnalyserObj",
-			Port: 10000,
-			Threads: 1,
-			Timeout: 60000,
+			IsTars:       &isTars,
+			IsTCP:       &isTcp,
+			Name:        "AnalyserObj",
+			Port:        10000,
+			Threads:     1,
+			Timeout:     60000,
 		},
 	}
 
 	return &models.DeployMeta{
 		RequestPerson: "jaminzou",
-		RequestTime: strfmt.NewDateTime(),
-		ServerApp: &serverApp,
-		ServerK8S: &serverK8S,
-		ServerMark: "unit test",
-		ServerName: &serverName,
-		ServerOption: &serverOption,
+		RequestTime:   strfmt.NewDateTime(),
+		ServerApp:     &serverApp,
+		ServerK8S:     &serverK8S,
+		ServerMark:    "unit test",
+		ServerName:    &serverName,
+		ServerOption:  &serverOption,
 		ServerServant: serverServant,
 	}
 }
@@ -185,19 +186,19 @@ func TestUpdateDeployHandler_Handle(t *testing.T) {
 	}
 	isTars, isTcp := true, true
 	deployMeta.ServerServant["TestUpdateObj"] = models.ServerServantElem{
-			Capacity: 10000,
-			Connections: 10000,
-			Name: "TestUpdateObj",
-			Port: 10001,
-			Threads: 1,
-			Timeout: 60000,
-			IsTCP: &isTcp,
-			IsTars: &isTars,
+		Capacity:    10000,
+		Connections: 10000,
+		Name:        "TestUpdateObj",
+		Port:        10001,
+		Threads:     1,
+		Timeout:     60000,
+		IsTCP:       &isTcp,
+		IsTars:       &isTars,
 	}
 	params.Params.Target = &deploy.UpdateDeployParamsBodyTarget{
 		ServerServant: deployMeta.ServerServant,
-		ServerOption: deployMeta.ServerOption,
-		ServerK8S: deployMeta.ServerK8S,
+		ServerOption:  deployMeta.ServerOption,
+		ServerK8S:     deployMeta.ServerK8S,
 	}
 
 	handler := k8s.UpdateDeployHandler{}
@@ -205,13 +206,12 @@ func TestUpdateDeployHandler_Handle(t *testing.T) {
 	fmt.Println(response)
 }
 
-
 func TestCreateApprovalHandler_Handle(t *testing.T) {
 	var params approval.CreateApprovalParams
 	deployId := "base-jceproxyserver-y2enbcrjrs-s5jqn"
 	params.Params.Metadata = &approval.CreateApprovalParamsBodyMetadata{
-		DeployID: &deployId,
-		ApprovalMark: "unit test",
+		DeployID:       &deployId,
+		ApprovalMark:   "unit test",
 		ApprovalResult: true,
 	}
 
@@ -240,11 +240,11 @@ func TestSelectDeployHandler_Handle(t *testing.T) {
 	fmt.Println(response)
 }
 
-func init()  {
+func init() {
 	var err error
-	mysql.TarsDb, err = loadTarsDBDev()
+	mysql.TafDb, err = loadTafDBDev()
 	if err != nil {
-		fmt.Println(fmt.Sprintf("load tars_db error: %v", err))
+		fmt.Println(fmt.Sprintf("load taf_db error: %v", err))
 	}
 
 	k8sNamespace, k8sConfig, err := loadK8SDev()

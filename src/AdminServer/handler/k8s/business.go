@@ -3,28 +3,29 @@ package k8s
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-openapi/runtime/middleware"
-	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"tarsadmin/handler/util"
 	"tarsadmin/openapi/models"
 	"tarsadmin/openapi/restapi/operations/business"
+
+	"github.com/go-openapi/runtime/middleware"
+	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-type CreateBusinessHandler struct {}
+type CreateBusinessHandler struct{}
 
 func (s *CreateBusinessHandler) Handle(params business.CreateBusinessParams) middleware.Responder {
 
 	namespace := K8sOption.Namespace
 	metadata := params.Params.Metadata
 
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
 	if err != nil {
 		return business.NewCreateBusinessInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
 
 	tTree.Businesses = append(tTree.Businesses, crdv1alpha1.TTreeBusiness{Name: *metadata.BusinessName, Show: *metadata.BusinessShow,
-		Mark: metadata.BusinessMark, Weight: *metadata.BusinessOrder, CreatePerson: metadata.CreatePerson, CreateTime: k8sMetaV1.Now()})
+		Mark: metadata.BusinessMark, Weight: *metadata.BusinessOrder, CreatePerson: "TafAdmin", CreateTime: k8sMetaV1.Now()})
 
 	if err = updateTTreeSpec(namespace, tTree); err != nil {
 		return business.NewCreateBusinessInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -33,12 +34,12 @@ func (s *CreateBusinessHandler) Handle(params business.CreateBusinessParams) mid
 	return business.NewCreateBusinessOK().WithPayload(&business.CreateBusinessOKBody{Result: 0})
 }
 
-type SelectBusinessHandler struct {}
+type SelectBusinessHandler struct{}
 
 func (s *SelectBusinessHandler) Handle(params business.SelectBusinessParams) middleware.Responder {
 	namespace := K8sOption.Namespace
 
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
 	if err != nil {
 		return business.NewSelectBusinessInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
@@ -112,7 +113,7 @@ func (s *SelectBusinessHandler) Handle(params business.SelectBusinessParams) mid
 	return business.NewSelectBusinessOK().WithPayload(result)
 }
 
-type UpdateBusinessHandler struct {}
+type UpdateBusinessHandler struct{}
 
 func (s *UpdateBusinessHandler) Handle(params business.UpdateBusinessParams) middleware.Responder {
 
@@ -139,8 +140,7 @@ func (s *UpdateBusinessHandler) Handle(params business.UpdateBusinessParams) mid
 	return business.NewUpdateBusinessOK().WithPayload(&business.UpdateBusinessOKBody{Result: 0})
 }
 
-
-type DeleteBusinessHandler struct {}
+type DeleteBusinessHandler struct{}
 
 func (s *DeleteBusinessHandler) Handle(params business.DeleteBusinessParams) middleware.Responder {
 	namespace := K8sOption.Namespace
@@ -154,7 +154,7 @@ func (s *DeleteBusinessHandler) Handle(params business.DeleteBusinessParams) mid
 		return business.NewDeleteBusinessInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("Invalid Business: %s Is Missing.", *metadata.BusinessName)})
 	}
 
-	tTree.Businesses = append(tTree.Businesses[0:index], tTree.Businesses[index+1:len(tTree.Businesses)] ...)
+	tTree.Businesses = append(tTree.Businesses[0:index], tTree.Businesses[index+1:len(tTree.Businesses)]...)
 
 	if err = updateTTreeSpec(namespace, tTree.DeepCopy()); err != nil {
 		return business.NewDeleteBusinessInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -163,7 +163,7 @@ func (s *DeleteBusinessHandler) Handle(params business.DeleteBusinessParams) mid
 	return business.NewDeleteBusinessOK().WithPayload(&business.DeleteBusinessOKBody{Result: 0})
 }
 
-type DoListBusinessAppHandler struct {}
+type DoListBusinessAppHandler struct{}
 
 func (s *DoListBusinessAppHandler) Handle(params business.DoListBusinessAppParams) middleware.Responder {
 
@@ -174,14 +174,13 @@ func (s *DoListBusinessAppHandler) Handle(params business.DoListBusinessAppParam
 		return business.NewDoListBusinessAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
 
-
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
 	if err != nil {
 		return business.NewDoListBusinessAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
 
 	// 需要BusinessShow
-	buzMap := map[string]*models.BusinessGroupElem {
+	buzMap := map[string]*models.BusinessGroupElem{
 		"": {BusinessName: "", BusinessShow: "", App: make([]string, 0, 5)},
 	}
 	for _, buz := range tTree.Businesses {
@@ -206,14 +205,14 @@ func (s *DoListBusinessAppHandler) Handle(params business.DoListBusinessAppParam
 	return business.NewDoListBusinessAppOK().WithPayload(result)
 }
 
-type DoAddBusinessAppHandler struct {}
+type DoAddBusinessAppHandler struct{}
 
 func (s *DoAddBusinessAppHandler) Handle(params business.DoAddBusinessAppParams) middleware.Responder {
 
 	namespace := K8sOption.Namespace
 	metadata := params.Params.Metadata
 
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
 	if err != nil {
 		return business.NewDoAddBusinessAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
@@ -236,8 +235,8 @@ func (s *DoAddBusinessAppHandler) Handle(params business.DoAddBusinessAppParams)
 	return business.NewDoAddBusinessAppOK().WithPayload(&business.DoAddBusinessAppOKBody{Result: 0})
 }
 
-func getBuzNameIndex(namespace, buzName string) (*crdv1alpha1.TTree, int, error)  {
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
+func getBuzNameIndex(namespace, buzName string) (*crdv1alpha1.TTree, int, error) {
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
 	if err != nil {
 		return nil, -1, err
 	}

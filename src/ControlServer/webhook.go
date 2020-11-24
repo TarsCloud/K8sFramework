@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
-	"k8s.io/apimachinery/pkg/util/wait"
 	"net/http"
 	"time"
+
+	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 type Webhook struct {
@@ -13,7 +14,6 @@ type Webhook struct {
 	mutating   Mutating
 	k8sOption  *K8SOption
 	watcher    *Watcher
-	srv        *http.Server
 }
 
 func NewWebhook(k8sOption *K8SOption, watcher *Watcher) *Webhook {

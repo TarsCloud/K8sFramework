@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
+
 	k8sAppsV1 "k8s.io/api/apps/v1"
 	k8sCoreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -10,8 +12,7 @@ import (
 	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/workqueue"
-	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
-	"time"
+	crdV1Alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
 type StatefulSetReconcile struct {
@@ -110,19 +111,16 @@ func (r *StatefulSetReconcile) reconcile(name string) ReconcileResult {
 			return RateLimit
 		}
 		err = r.k8sOption.k8sClientSet.AppsV1().StatefulSets(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
-		if err != nil {
-			if errors.IsNotFound(err) {
-				return AllOk
-			}
+		if err != nil && !errors.IsNotFound(err) {
 			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "statefulset", namespace, name, err.Error()))
 			return RateLimit
 		}
 		return AllOk
 	}
 
-	if tserver.DeletionTimestamp != nil || tserver.Spec.K8S.NodeSelector.DaemonSet != nil {
+	if tserver.DeletionTimestamp != nil {
 		err = r.k8sOption.k8sClientSet.AppsV1().StatefulSets(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
-		if err != nil {
+		if err != nil && !errors.IsNotFound(err) {
 			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "statefulset", namespace, name, err.Error()))
 			return RateLimit
 		}
@@ -148,7 +146,7 @@ func (r *StatefulSetReconcile) reconcile(name string) ReconcileResult {
 
 	if tserver.DeletionTimestamp != nil {
 		err = r.k8sOption.k8sClientSet.AppsV1().StatefulSets(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
-		if err != nil {
+		if err != nil && !errors.IsNotFound(err) {
 			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "statefulset", namespace, name, err.Error()))
 			return RateLimit
 		}

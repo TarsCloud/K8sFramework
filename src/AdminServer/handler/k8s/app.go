@@ -2,17 +2,18 @@ package k8s
 
 import (
 	"fmt"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/applications"
+
 	"github.com/go-openapi/runtime/middleware"
 	"golang.org/x/net/context"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
-	"tarsadmin/handler/util"
-	"tarsadmin/openapi/models"
-	"tarsadmin/openapi/restapi/operations/applications"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-type CreateAppHandler struct {}
+type CreateAppHandler struct{}
 
 func (s *CreateAppHandler) Handle(params applications.CreateAppParams) middleware.Responder {
 	namespace := K8sOption.Namespace
@@ -27,7 +28,7 @@ func (s *CreateAppHandler) Handle(params applications.CreateAppParams) middlewar
 	}
 
 	tTree.Apps = append(tTree.Apps, crdv1alpha1.TTreeApp{Name: *metadata.AppName, BusinessRef: metadata.BusinessName,
-		CreatePerson: metadata.CreatePerson, CreateTime: k8sMetaV1.Now(), Mark: metadata.AppMark})
+		CreatePerson: "TafAdmin", CreateTime: k8sMetaV1.Now(), Mark: metadata.AppMark})
 
 	if err = updateTTreeSpec(namespace, tTree); err != nil {
 		return applications.NewCreateAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -36,12 +37,12 @@ func (s *CreateAppHandler) Handle(params applications.CreateAppParams) middlewar
 	return applications.NewCreateAppOK().WithPayload(&applications.CreateAppOKBody{Result: 0})
 }
 
-type SelectAppHandler struct {}
+type SelectAppHandler struct{}
 
 func (s *SelectAppHandler) Handle(params applications.SelectAppParams) middleware.Responder {
 	namespace := K8sOption.Namespace
 
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
 	if err != nil {
 		return applications.NewSelectAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
@@ -110,7 +111,7 @@ func (s *SelectAppHandler) Handle(params applications.SelectAppParams) middlewar
 	return applications.NewSelectAppOK().WithPayload(result)
 }
 
-type DeleteAppHandler struct {}
+type DeleteAppHandler struct{}
 
 func (s *DeleteAppHandler) Handle(params applications.DeleteAppParams) middleware.Responder {
 
@@ -126,13 +127,13 @@ func (s *DeleteAppHandler) Handle(params applications.DeleteAppParams) middlewar
 	}
 
 	// 检测server是否存在，如果存在拒绝删除
-	requirements := BuildTarsAppSelector(*metadata.AppName)
-	_, err = K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
+	requirements := BuildTafAppSelector(*metadata.AppName)
+	_, err = K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements...))
 	if err == nil {
 		return applications.NewDeleteAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("Must Clear All TServer With %s.", *metadata.AppName)})
 	}
 
-	tTree.Apps = append(tTree.Apps[0:index], tTree.Apps[index+1:len(tTree.Apps)] ...)
+	tTree.Apps = append(tTree.Apps[0:index], tTree.Apps[index+1:len(tTree.Apps)]...)
 
 	if err = updateTTreeSpec(namespace, tTree.DeepCopy()); err != nil {
 		return applications.NewDeleteAppInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -141,7 +142,7 @@ func (s *DeleteAppHandler) Handle(params applications.DeleteAppParams) middlewar
 	return applications.NewDeleteAppOK().WithPayload(&applications.DeleteAppOKBody{Result: 0})
 }
 
-type UpdateAppHandler struct {}
+type UpdateAppHandler struct{}
 
 func (s *UpdateAppHandler) Handle(params applications.UpdateAppParams) middleware.Responder {
 
@@ -167,8 +168,8 @@ func (s *UpdateAppHandler) Handle(params applications.UpdateAppParams) middlewar
 	return applications.NewUpdateAppOK().WithPayload(&applications.UpdateAppOKBody{Result: 0})
 }
 
-func getAppNameIndex(namespace, appName string) (*crdv1alpha1.TTree, int, error)  {
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
+func getAppNameIndex(namespace, appName string) (*crdv1alpha1.TTree, int, error) {
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
 	if err != nil {
 		return nil, -1, err
 	}

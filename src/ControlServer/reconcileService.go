@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
+
 	k8sCoreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/workqueue"
-	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
-	"time"
+	crdV1Alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
 type ServiceReconcile struct {
@@ -109,10 +110,8 @@ func (r *ServiceReconcile) reconcile(name string) ReconcileResult {
 			return RateLimit
 		}
 		err = r.k8sOption.k8sClientSet.CoreV1().Services(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
-		if err != nil {
-			if !errors.IsNotFound(err) {
-				utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "service", namespace, name, err.Error()))
-			}
+		if err != nil && !errors.IsNotFound(err) {
+			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "service", namespace, name, err.Error()))
 			return RateLimit
 		}
 		return AllOk
@@ -120,7 +119,7 @@ func (r *ServiceReconcile) reconcile(name string) ReconcileResult {
 
 	if tserver.DeletionTimestamp != nil {
 		err = r.k8sOption.k8sClientSet.CoreV1().Services(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
-		if err != nil {
+		if err != nil && !errors.IsNotFound(err) {
 			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "service", namespace, name, err.Error()))
 			return RateLimit
 		}

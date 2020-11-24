@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	k8sCoreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -11,20 +14,18 @@ import (
 	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/workqueue"
-	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
-	"strings"
-	"time"
+	crdV1Alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-type TExitedPodReconcile struct {
+type TExitedRecordReconcile struct {
 	k8sOption *K8SOption
 	watcher   *Watcher
 	threads   int
 	workQueue workqueue.RateLimitingInterface
 }
 
-func NewTExitedPodReconcile(threads int, runtimeOption *K8SOption, watcher *Watcher) *TExitedPodReconcile {
-	reconcile := &TExitedPodReconcile{
+func NewTExitedPodReconcile(threads int, runtimeOption *K8SOption, watcher *Watcher) *TExitedRecordReconcile {
+	reconcile := &TExitedRecordReconcile{
 		k8sOption: runtimeOption,
 		watcher:   watcher,
 		threads:   threads,
@@ -34,7 +35,7 @@ func NewTExitedPodReconcile(threads int, runtimeOption *K8SOption, watcher *Watc
 	return reconcile
 }
 
-func (r *TExitedPodReconcile) EnqueueObj(obj interface{}) {
+func (r *TExitedRecordReconcile) EnqueueObj(obj interface{}) {
 	switch obj.(type) {
 	case *crdV1Alpha1.TServer:
 		tserver := obj.(*crdV1Alpha1.TServer)
@@ -76,11 +77,11 @@ func (r *TExitedPodReconcile) EnqueueObj(obj interface{}) {
 	}
 }
 
-func (r *TExitedPodReconcile) splitKey(key string) []string {
+func (r *TExitedRecordReconcile) splitKey(key string) []string {
 	return strings.Split(key, "/")
 }
 
-func (r *TExitedPodReconcile) processItem() bool {
+func (r *TExitedRecordReconcile) processItem() bool {
 
 	obj, shutdown := r.workQueue.Get()
 
@@ -129,7 +130,7 @@ func (r *TExitedPodReconcile) processItem() bool {
 	}
 }
 
-func (r *TExitedPodReconcile) Start(stopCh chan struct{}) {
+func (r *TExitedRecordReconcile) Start(stopCh chan struct{}) {
 	for i := 0; i < r.threads; i++ {
 		workFun := func() {
 			for r.processItem() {
@@ -140,7 +141,7 @@ func (r *TExitedPodReconcile) Start(stopCh chan struct{}) {
 	}
 }
 
-func (r *TExitedPodReconcile) reconcileBaseTServer(name string) ReconcileResult {
+func (r *TExitedRecordReconcile) reconcileBaseTServer(name string) ReconcileResult {
 	namespace := r.k8sOption.namespace
 	tserver, err := r.watcher.tServerLister.TServers(namespace).Get(name)
 	if err != nil {
@@ -149,10 +150,7 @@ func (r *TExitedPodReconcile) reconcileBaseTServer(name string) ReconcileResult 
 			return RateLimit
 		}
 		err = r.k8sOption.crdClientSet.CrdV1alpha1().TExitedRecords(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
-		if err != nil {
-			if errors.IsNotFound(err) {
-				return AllOk
-			}
+		if err != nil && !errors.IsNotFound(err) {
 			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "texitedrecord", namespace, name, err.Error()))
 			return RateLimit
 		}
@@ -161,7 +159,7 @@ func (r *TExitedPodReconcile) reconcileBaseTServer(name string) ReconcileResult 
 
 	if tserver.DeletionTimestamp != nil {
 		err = r.k8sOption.crdClientSet.CrdV1alpha1().TExitedRecords(namespace).Delete(context.TODO(), name, k8sMetaV1.DeleteOptions{})
-		if err != nil {
+		if err != nil && !errors.IsNotFound(err) {
 			utilRuntime.HandleError(fmt.Errorf(ResourceDeleteError, "texitedrecord", namespace, name, err.Error()))
 			return RateLimit
 		}
@@ -185,7 +183,7 @@ func (r *TExitedPodReconcile) reconcileBaseTServer(name string) ReconcileResult 
 	return AllOk
 }
 
-func (r *TExitedPodReconcile) reconcileBasePod(tExitedPodSpecString string) ReconcileResult {
+func (r *TExitedRecordReconcile) reconcileBasePod(tExitedPodSpecString string) ReconcileResult {
 	namespace := r.k8sOption.namespace
 	var tExitedEvent crdV1Alpha1.TExitedRecord
 	_ = json.Unmarshal([]byte(tExitedPodSpecString), &tExitedEvent)

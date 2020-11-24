@@ -81,8 +81,8 @@ func (s *DoSetPublicNodeHandler) Handle(params node.DoSetPublicNodeParams) middl
 		}
 
 		k8sNodeCopy := k8sNode.DeepCopy()
-		if _, ok := k8sNode.Labels[k8s.TarsPublicNodeLabel]; !ok {
-			k8sNodeCopy.Labels[k8s.TarsPublicNodeLabel] = ""
+		if _, ok := k8sNode.Labels[k8s.TafPublicNodeLabel]; !ok {
+			k8sNodeCopy.Labels[k8s.TafPublicNodeLabel] = ""
 		}
 
 		if _, err := nodeInterface.Update(context.TODO(), k8sNodeCopy, k8sMetaV1.UpdateOptions{}); err != nil {
@@ -114,8 +114,8 @@ func (s *DoDeletePublicNodeHandler) Handle(params node.DoDeletePublicNodeParams)
 		}
 
 		k8sNodeCopy := k8sNode.DeepCopy()
-		if _, ok := k8sNode.Labels[k8s.TarsPublicNodeLabel]; ok {
-			delete(k8sNodeCopy.Labels, k8s.TarsPublicNodeLabel)
+		if _, ok := k8sNode.Labels[k8s.TafPublicNodeLabel]; ok {
+			delete(k8sNodeCopy.Labels, k8s.TafPublicNodeLabel)
 		}
 
 		if _, err := nodeInterface.Update(context.TODO(), k8sNodeCopy, k8sMetaV1.UpdateOptions{}); err != nil {
@@ -199,7 +199,7 @@ func deleteNodeAbility(nodeName string, serverApp ...string) error {
 
 	k8sNodeCopy := k8sNode.DeepCopy()
 	for _, v := range serverApp {
-		abilityLabel := k8s.TarsAbilityNodeLabelPrefix + v
+		abilityLabel := k8s.TafAbilityNodeLabelPrefix + v
 		if _, ok := k8sNode.Labels[abilityLabel]; ok {
 			deletedAnyLabel = true
 			delete(k8sNodeCopy.Labels, abilityLabel)
@@ -300,7 +300,7 @@ func addNodeAbility(nodeName string, serverApp ...string) error {
 
 	k8sNodeCopy := k8sNode.DeepCopy()
 	for _, v := range serverApp {
-		abilityLabel := k8s.TarsAbilityNodeLabelPrefix + v
+		abilityLabel := k8s.TafAbilityNodeLabelPrefix + v
 		if _, ok := k8sNode.Labels[abilityLabel]; !ok {
 			addAnyLabel = true
 			k8sNodeCopy.Labels[abilityLabel] = ""

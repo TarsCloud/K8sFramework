@@ -4,28 +4,48 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"hash/crc32"
+	"net/http"
+	"strings"
+
 	k8sAdmissionV1 "k8s.io/api/admission/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
-	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
-	"net/http"
-	"strings"
+	crdV1Alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-func validTDeploy(newTdeploy *crdV1Alpha1.TDeploy, option *K8SOption, watcher *Watcher) error {
+func validTDeploy(newTdeploy *crdV1Alpha1.TDeploy, oldTDeploy *crdV1Alpha1.TDeploy, option *K8SOption, watcher *Watcher) error {
+
+	if oldTDeploy != nil {
+		if oldTDeploy.Approve != nil {
+			if !equality.Semantic.DeepEqual(newTdeploy.Apply, oldTDeploy.Apply) {
+				return fmt.Errorf("the value of /apply cannot be changed")
+			}
+
+			if !equality.Semantic.DeepEqual(newTdeploy.Approve, oldTDeploy.Approve) {
+				return fmt.Errorf("the value of /approve cannot be changed")
+			}
+		}
+
+		if oldTDeploy.Deployed != nil {
+			if !equality.Semantic.DeepEqual(newTdeploy.Deployed, oldTDeploy.Deployed) {
+				return fmt.Errorf("the value of /deployed cannot be changed")
+			}
+		}
+	}
 
 	targetTServerName := fmt.Sprintf("%s-%s", strings.ToLower(newTdeploy.Apply.App), strings.ToLower(newTdeploy.Apply.Server))
 	_, err := watcher.tServerLister.TServers(option.namespace).Get(targetTServerName)
 
 	if err == nil {
-		return fmt.Errorf("tserver/%s already exist", targetTServerName)
+		return fmt.Errorf("tserver/%s areadly exist", targetTServerName)
 	}
 
 	if !errors.IsNotFound(err) {
-		return fmt.Errorf("get tserver/%s error", targetTServerName)
+		return fmt.Errorf("get tserver/%s error : %s, try again latter ", targetTServerName, err.Error())
 	}
 
 	fakeTServer := &crdV1Alpha1.TServer{
@@ -35,32 +55,13 @@ func validTDeploy(newTdeploy *crdV1Alpha1.TDeploy, option *K8SOption, watcher *W
 		},
 		Spec: newTdeploy.Apply,
 	}
-	return validTServer(fakeTServer, option, watcher)
-}
-
-func immutableTDeploy(newTdeploy *crdV1Alpha1.TDeploy, oldTDeploy *crdV1Alpha1.TDeploy, option *K8SOption, watcher *Watcher) error {
-	if oldTDeploy.Approve != nil {
-		if !equality.Semantic.DeepEqual(newTdeploy.Apply, oldTDeploy.Apply) {
-			return fmt.Errorf("the value of /apply cannot be changed")
-		}
-
-		if !equality.Semantic.DeepEqual(newTdeploy.Approve, oldTDeploy.Approve) {
-			return fmt.Errorf("the value of /approve cannot be changed")
-		}
-	}
-
-	if oldTDeploy.Deployed != nil {
-		if !equality.Semantic.DeepEqual(newTdeploy.Deployed, oldTDeploy.Deployed) {
-			return fmt.Errorf("the value of /deployed cannot be changed")
-		}
-	}
-	return nil
+	return validTServer(fakeTServer, nil, option, watcher)
 }
 
 func (v *Validating) validCreateTDeploy(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
 	tdeploy := &crdV1Alpha1.TDeploy{}
 	_ = json.Unmarshal(requestAdmissionView.Request.Object.Raw, tdeploy)
-	return validTDeploy(tdeploy, v.k8sOption, v.watcher)
+	return validTDeploy(tdeploy, nil, v.k8sOption, v.watcher)
 }
 
 func (v *Validating) validUpdateTDeploy(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
@@ -80,20 +81,40 @@ func (v *Validating) validUpdateTDeploy(requestAdmissionView *k8sAdmissionV1.Adm
 			return fmt.Errorf("only use authorizedAccount can update /deployed")
 		}
 	}
-
-	err := immutableTDeploy(newTDeploy, oldTDeploy, v.k8sOption, v.watcher)
-	if err != nil {
-		return err
-	}
-
-	return validTDeploy(newTDeploy, v.k8sOption, v.watcher)
+	return validTDeploy(newTDeploy, oldTDeploy, v.k8sOption, v.watcher)
 }
 
-func (v *Validating) validDeleteTDeploy(*k8sAdmissionV1.AdmissionReview) error {
+func (v *Validating) validDeleteTDeploy(view *k8sAdmissionV1.AdmissionReview) error {
 	return nil
 }
 
-func validTServer(newTServer *crdV1Alpha1.TServer, option *K8SOption, watcher *Watcher) error {
+func validTServer(newTServer *crdV1Alpha1.TServer, oldTServer *crdV1Alpha1.TServer, option *K8SOption, watcher *Watcher) error {
+
+	if oldTServer != nil {
+		if newTServer.Spec.App != oldTServer.Spec.App {
+			return fmt.Errorf("the value of /spec/app cannot be changed")
+		}
+
+		if newTServer.Spec.Server != oldTServer.Spec.Server {
+			return fmt.Errorf("the value of /spec/server cannot be changed")
+		}
+
+		if newTServer.Spec.SubType != oldTServer.Spec.SubType {
+			return fmt.Errorf("the value of /spec/subType cannot be changed")
+		}
+
+		if oldTServer.Spec.Tars != nil {
+			if newTServer.Spec.Tars == nil {
+				return fmt.Errorf("the value of /spec/tars cannot be changed")
+			}
+		}
+
+		if oldTServer.Spec.Normal != nil {
+			if newTServer.Spec.Normal == nil {
+				return fmt.Errorf("the value of /spec/normal cannot be changed")
+			}
+		}
+	}
 
 	if newTServer.Name != strings.ToLower(newTServer.Spec.App)+"-"+strings.ToLower(newTServer.Spec.Server) {
 		return fmt.Errorf("unexpected resources name")
@@ -140,7 +161,7 @@ func validTServer(newTServer *crdV1Alpha1.TServer, option *K8SOption, watcher *W
 		_, err := watcher.tTemplateLister.TTemplates(option.namespace).Get(templateName)
 		if err != nil {
 			if !errors.IsNotFound(err) {
-				return fmt.Errorf("get ttemplate/%s error: %s, try it again later", templateName, err.Error())
+				return fmt.Errorf("get ttemplate/%s error: %s, try again latter ", templateName, err.Error())
 			}
 			return fmt.Errorf("ttemplate/%s not exist", templateName)
 		}
@@ -193,7 +214,7 @@ func validTServer(newTServer *crdV1Alpha1.TServer, option *K8SOption, watcher *W
 
 		if err != nil {
 			if !errors.IsNotFound(err) {
-				return fmt.Errorf("get trelease/%s error: %s, try it again later", newTServer.Name, err.Error())
+				return fmt.Errorf("get trelease/%s error: %s, try again latter ", newTServer.Name, err.Error())
 			}
 			return fmt.Errorf("trelease/%s not exist", newTServer.Spec.Release.Source)
 		}
@@ -219,38 +240,10 @@ func validTServer(newTServer *crdV1Alpha1.TServer, option *K8SOption, watcher *W
 	return nil
 }
 
-func immutableTServer(newTServer *crdV1Alpha1.TServer, oldTServer *crdV1Alpha1.TServer, option *K8SOption, watcher *Watcher) error {
-
-	if newTServer.Spec.App != oldTServer.Spec.App {
-		return fmt.Errorf("the value of /spec/app cannot be changed")
-	}
-
-	if newTServer.Spec.Server != oldTServer.Spec.Server {
-		return fmt.Errorf("the value of /spec/server cannot be changed")
-	}
-
-	if newTServer.Spec.SubType != oldTServer.Spec.SubType {
-		return fmt.Errorf("the value of /spec/subType cannot be changed")
-	}
-
-	if oldTServer.Spec.Tars != nil {
-		if newTServer.Spec.Tars == nil {
-			return fmt.Errorf("the value of /spec/tars cannot be changed")
-		}
-	}
-
-	if oldTServer.Spec.Normal != nil {
-		if newTServer.Spec.Normal == nil {
-			return fmt.Errorf("the value of /spec/normal cannot be changed")
-		}
-	}
-	return nil
-}
-
 func (v *Validating) validCreateTServer(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
 	newTServer := &crdV1Alpha1.TServer{}
 	_ = json.Unmarshal(requestAdmissionView.Request.Object.Raw, newTServer)
-	return validTServer(newTServer, v.k8sOption, v.watcher)
+	return validTServer(newTServer, nil, v.k8sOption, v.watcher)
 }
 
 func (v *Validating) validUpdateTServer(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
@@ -260,14 +253,10 @@ func (v *Validating) validUpdateTServer(requestAdmissionView *k8sAdmissionV1.Adm
 	oldTServer := &crdV1Alpha1.TServer{}
 	_ = json.Unmarshal(requestAdmissionView.Request.OldObject.Raw, oldTServer)
 
-	err := immutableTServer(newTServer, oldTServer, v.k8sOption, v.watcher)
-	if err != nil {
-		return err
-	}
-	return validTServer(newTServer, v.k8sOption, v.watcher)
+	return validTServer(newTServer, oldTServer, v.k8sOption, v.watcher)
 }
 
-func (v *Validating) validDeleteTServer(*k8sAdmissionV1.AdmissionReview) error {
+func (v *Validating) validDeleteTServer(view *k8sAdmissionV1.AdmissionReview) error {
 	return nil
 }
 
@@ -292,20 +281,22 @@ func (v *Validating) validDeleteTEndpoint(requestAdmissionView *k8sAdmissionV1.A
 	return fmt.Errorf("only use authorizedAccount can delate tendpoints")
 }
 
-func validTConfig(newTConfig *crdV1Alpha1.TConfig, option *K8SOption) error {
+func validTConfig(newTConfig *crdV1Alpha1.TConfig, oldTConfig *crdV1Alpha1.TConfig, option *K8SOption) error {
+
 	if newTConfig.AppConfig != nil {
-		if newTConfig.Name != fmt.Sprintf("%s-%s", strings.ToLower(newTConfig.AppConfig.App), strings.ToLower(newTConfig.AppConfig.ConfigName)) {
+		if newTConfig.Name != fmt.Sprintf("%s-%d", strings.ToLower(newTConfig.AppConfig.App), crc32.ChecksumIEEE([]byte(newTConfig.AppConfig.ConfigName))) {
 			return fmt.Errorf("unexpected resources name")
 		}
+		return nil
 	}
 
 	if newTConfig.ServerConfig != nil {
 		if newTConfig.ServerConfig.PodSeq == nil {
 			if newTConfig.Name != fmt.Sprintf(
-				"%s-%s-%s",
+				"%s-%s-%d",
 				strings.ToLower(newTConfig.ServerConfig.App),
 				strings.ToLower(newTConfig.ServerConfig.Server),
-				strings.ToLower(newTConfig.AppConfig.ConfigName),
+				crc32.ChecksumIEEE([]byte(newTConfig.ServerConfig.ConfigName)),
 			) {
 				return fmt.Errorf("unexpected resources name")
 			}
@@ -313,37 +304,35 @@ func validTConfig(newTConfig *crdV1Alpha1.TConfig, option *K8SOption) error {
 		}
 
 		if newTConfig.Name != fmt.Sprintf(
-			"%s-%s-%s-%s",
+			"%s-%s-%d-%s",
 			strings.ToLower(newTConfig.ServerConfig.App),
 			strings.ToLower(newTConfig.ServerConfig.Server),
-			strings.ToLower(newTConfig.ServerConfig.ConfigName),
+			crc32.ChecksumIEEE([]byte(newTConfig.ServerConfig.ConfigName)),
 			*newTConfig.ServerConfig.PodSeq,
 		) {
 			return fmt.Errorf("unexpected resources name")
 		}
 
 		masterConfigName := fmt.Sprintf(
-			"%s-%s-%s",
+			"%s-%s-%d",
 			strings.ToLower(newTConfig.ServerConfig.App),
 			strings.ToLower(newTConfig.ServerConfig.Server),
-			strings.ToLower(newTConfig.AppConfig.ConfigName),
+			crc32.ChecksumIEEE([]byte(newTConfig.ServerConfig.ConfigName)),
 		)
 		_, err := option.crdClientSet.CrdV1alpha1().TConfigs(option.namespace).Get(context.TODO(), masterConfigName, k8sMetaV1.GetOptions{})
 		if err != nil {
 			return fmt.Errorf(ResourceGetError, "tconfig", option.namespace, masterConfigName, err)
 		}
+		return nil
 	}
-	return nil
-}
 
-func immutableTConfig(newTConfig *crdV1Alpha1.TConfig, oldTConfig *crdV1Alpha1.TConfig, option *K8SOption, watcher *Watcher) error {
-	return nil
+	return fmt.Errorf("should not reach place")
 }
 
 func (v *Validating) validCreateTConfig(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
 	newTConfig := &crdV1Alpha1.TConfig{}
 	_ = json.Unmarshal(requestAdmissionView.Request.Object.Raw, newTConfig)
-	return validTConfig(newTConfig, v.k8sOption)
+	return validTConfig(newTConfig, nil, v.k8sOption)
 }
 
 func (v *Validating) validUpdateTConfig(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
@@ -353,25 +342,54 @@ func (v *Validating) validUpdateTConfig(requestAdmissionView *k8sAdmissionV1.Adm
 	oldTConfig := &crdV1Alpha1.TConfig{}
 	_ = json.Unmarshal(requestAdmissionView.Request.OldObject.Raw, oldTConfig)
 
-	err := immutableTConfig(newTConfig, oldTConfig, v.k8sOption, v.watcher)
-	if err != nil {
-		return err
-	}
-	return validTConfig(newTConfig, v.k8sOption)
+	return validTConfig(newTConfig, oldTConfig, v.k8sOption)
 }
 
-func (v *Validating) validDeleteTConfig(*k8sAdmissionV1.AdmissionReview) error {
+func (v *Validating) validDeleteTConfig(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
+	tconfig := &crdV1Alpha1.TConfig{}
+	_ = json.Unmarshal(requestAdmissionView.Request.OldObject.Raw, tconfig)
+
+	if tconfig.AppConfig != nil {
+		return nil
+	}
+
+	if tconfig.ServerConfig != nil && tconfig.ServerConfig.PodSeq != nil {
+		return nil
+	}
+
+	appRequirement, _ := labels.NewRequirement(TServerAppLabel, "==", []string{tconfig.ServerConfig.App})
+	serverRequirement, _ := labels.NewRequirement(TServerNameLabel, "==", []string{tconfig.ServerConfig.Server})
+	configNameRequirement, _ := labels.NewRequirement(TConfigNameLabel, "==", []string{tconfig.ServerConfig.ConfigName})
+
+	labelsSelector := labels.NewSelector().Add(*appRequirement).Add(*serverRequirement).Add(*configNameRequirement).String()
+	tconfigs, err := v.k8sOption.crdClientSet.CrdV1alpha1().TConfigs(tconfig.Namespace).List(context.TODO(), k8sMetaV1.ListOptions{
+		LabelSelector: labelsSelector,
+	})
+
+	if err != nil {
+		return fmt.Errorf("selector tconfig error: %s, try again later", err.Error())
+	}
+
+	for i := range tconfigs.Items {
+		if tconfigs.Items[i].ServerConfig == nil {
+			return fmt.Errorf("should not reach place")
+		}
+		if tconfigs.Items[i].ServerConfig.PodSeq != nil {
+			return fmt.Errorf("cannot delete tconfig/%s because it is referance by another tconfig", requestAdmissionView.Request.Name)
+		}
+	}
+
 	return nil
 }
 
-func validTTemplate(template *crdV1Alpha1.TTemplate, option *K8SOption, watcher *Watcher) error {
+func validTTemplate(newTTemplate *crdV1Alpha1.TTemplate, oldTTemplate *crdV1Alpha1.TTemplate, option *K8SOption, watcher *Watcher) error {
 
-	parentName := template.Spec.Parent
+	parentName := newTTemplate.Spec.Parent
 	if parentName == "" {
-		return fmt.Errorf("parent value should not empty ")
+		return fmt.Errorf("the valule /spec/parent should not empty ")
 	}
 
-	if template.Name == template.Spec.Parent {
+	if newTTemplate.Name == newTTemplate.Spec.Parent {
 		return nil
 	}
 
@@ -384,14 +402,10 @@ func validTTemplate(template *crdV1Alpha1.TTemplate, option *K8SOption, watcher 
 	return nil
 }
 
-func immutableTTemplate(newTemplate *crdV1Alpha1.TTemplate, oldTemplate *crdV1Alpha1.TTemplate, option *K8SOption, watcher *Watcher) error {
-	return nil
-}
-
 func (v *Validating) validCreateTTemplate(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
 	newTTemplate := &crdV1Alpha1.TTemplate{}
 	_ = json.Unmarshal(requestAdmissionView.Request.Object.Raw, newTTemplate)
-	return validTTemplate(newTTemplate, v.k8sOption, v.watcher)
+	return validTTemplate(newTTemplate, nil, v.k8sOption, v.watcher)
 }
 
 func (v *Validating) validUpdateTTemplate(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
@@ -401,11 +415,7 @@ func (v *Validating) validUpdateTTemplate(requestAdmissionView *k8sAdmissionV1.A
 	oldTTemplate := &crdV1Alpha1.TTemplate{}
 	_ = json.Unmarshal(requestAdmissionView.Request.OldObject.Raw, oldTTemplate)
 
-	err := immutableTTemplate(newTTemplate, oldTTemplate, v.k8sOption, v.watcher)
-	if err != nil {
-		return err
-	}
-	return validTTemplate(newTTemplate, v.k8sOption, v.watcher)
+	return validTTemplate(newTTemplate, oldTTemplate, v.k8sOption, v.watcher)
 }
 
 func (v *Validating) validDeleteTTemplate(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
@@ -418,12 +428,12 @@ func (v *Validating) validDeleteTTemplate(requestAdmissionView *k8sAdmissionV1.A
 		return err
 	}
 	if tServers != nil && len(tServers) != 0 {
-		return fmt.Errorf("can't delete ttemplate/%s because it is used by some tserver", requestAdmissionView.Request.Name)
+		return fmt.Errorf("cannot delete ttemplate/%s because it is reference by some tserver", requestAdmissionView.Request.Name)
 	}
 	return nil
 }
 
-func validTRelease(newRelease *crdV1Alpha1.TRelease, option *K8SOption, watcher *Watcher) error {
+func validTRelease(newRelease *crdV1Alpha1.TRelease, oldRelease *crdV1Alpha1.TRelease, option *K8SOption, watcher *Watcher) error {
 	newTReleaseVersionMap := make(map[string]*crdV1Alpha1.TReleaseVersion, len(newRelease.Spec.List))
 	for _, pos := range newRelease.Spec.List {
 		if _, ok := newTReleaseVersionMap[pos.Tag]; ok {
@@ -431,17 +441,9 @@ func validTRelease(newRelease *crdV1Alpha1.TRelease, option *K8SOption, watcher 
 		}
 		newTReleaseVersionMap[pos.Tag] = pos
 	}
-	return nil
-}
 
-func immutableTTrelease(newRelease *crdV1Alpha1.TRelease, oldRelease *crdV1Alpha1.TRelease, option *K8SOption, watcher *Watcher) error {
-
-	newTReleaseVersionMap := make(map[string]*crdV1Alpha1.TReleaseVersion, len(newRelease.Spec.List))
-	for _, pos := range newRelease.Spec.List {
-		if _, ok := newTReleaseVersionMap[pos.Tag]; ok {
-			return fmt.Errorf("duplicate tag value : %s", pos.Tag)
-		}
-		newTReleaseVersionMap[pos.Tag] = pos
+	if oldRelease == nil {
+		return nil
 	}
 
 	for _, pos := range oldRelease.Spec.List {
@@ -460,10 +462,11 @@ func immutableTTrelease(newRelease *crdV1Alpha1.TRelease, oldRelease *crdV1Alpha
 			tservers, err := watcher.tServerLister.List(labels.NewSelector().Add(*releaseSourceMatch).Add(*releaseTagMatch))
 
 			if err != nil {
+				return fmt.Errorf("selector tserver error: %s, try again later", err.Error())
 			}
 
 			if tservers != nil && len(tservers) > 0 {
-				return fmt.Errorf("can't delete trelease/%s/spec/list/tag/%s ,because it is used by some tserver", newRelease.Name, pos.Tag)
+				return fmt.Errorf("cannot delete trelease/%s/spec/list/tag/%s ,because it is reference by some tserver", newRelease.Name, pos.Tag)
 			}
 		}
 	}
@@ -473,7 +476,7 @@ func immutableTTrelease(newRelease *crdV1Alpha1.TRelease, oldRelease *crdV1Alpha
 func (v *Validating) validCreateTRelease(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
 	newTRelease := &crdV1Alpha1.TRelease{}
 	_ = json.Unmarshal(requestAdmissionView.Request.Object.Raw, newTRelease)
-	return validTRelease(newTRelease, v.k8sOption, v.watcher)
+	return validTRelease(newTRelease, nil, v.k8sOption, v.watcher)
 }
 
 func (v *Validating) validUpdateTRelease(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
@@ -483,7 +486,7 @@ func (v *Validating) validUpdateTRelease(requestAdmissionView *k8sAdmissionV1.Ad
 	oldTRelease := &crdV1Alpha1.TRelease{}
 	_ = json.Unmarshal(requestAdmissionView.Request.OldObject.Raw, oldTRelease)
 
-	return immutableTTrelease(newTRelease, oldTRelease, v.k8sOption, v.watcher)
+	return validTRelease(newTRelease, oldTRelease, v.k8sOption, v.watcher)
 }
 
 func (v *Validating) validDeleteTRelease(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
@@ -495,10 +498,10 @@ func (v *Validating) validDeleteTRelease(requestAdmissionView *k8sAdmissionV1.Ad
 			List: []*crdV1Alpha1.TReleaseVersion{},
 		},
 	}
-	return immutableTTrelease(fakeNewTRelease, oldTrelease, v.k8sOption, v.watcher)
+	return validTRelease(fakeNewTRelease, oldTrelease, v.k8sOption, v.watcher)
 }
 
-func validTTree(newTTree *crdV1Alpha1.TTree, option *K8SOption, watcher *Watcher) error {
+func validTTree(newTTree *crdV1Alpha1.TTree, oldTTree *crdV1Alpha1.TTree, option *K8SOption, watcher *Watcher) error {
 	businessMap := make(map[string]interface{}, len(newTTree.Businesses))
 	for _, business := range newTTree.Businesses {
 		if _, ok := businessMap[business.Name]; ok {
@@ -519,6 +522,25 @@ func validTTree(newTTree *crdV1Alpha1.TTree, option *K8SOption, watcher *Watcher
 		}
 		appMap[app.Name] = nil
 	}
+
+	if oldTTree == nil {
+		return nil
+	}
+
+	for i := range oldTTree.Apps {
+		appName := oldTTree.Apps[i].Name
+		if _, ok := appMap[appName]; !ok {
+			requirement, _ := labels.NewRequirement(TServerAppLabel, "==", []string{appName})
+			tservers, err := watcher.tServerLister.List(labels.NewSelector().Add(*requirement))
+			if err != nil {
+				utilRuntime.HandleError(err)
+				return err
+			}
+			if tservers != nil && len(tservers) != 0 {
+				return fmt.Errorf("cannot delete ttree/apps[%s] because it is reference by some tserver", appName)
+			}
+		}
+	}
 	return nil
 }
 
@@ -529,7 +551,11 @@ func (v *Validating) validCreateTTree(view *k8sAdmissionV1.AdmissionReview) erro
 func (v *Validating) validUpdateTTree(requestAdmissionView *k8sAdmissionV1.AdmissionReview) error {
 	newTTree := &crdV1Alpha1.TTree{}
 	_ = json.Unmarshal(requestAdmissionView.Request.Object.Raw, newTTree)
-	return validTTree(newTTree, v.k8sOption, v.watcher)
+
+	oldTTree := &crdV1Alpha1.TTree{}
+	_ = json.Unmarshal(requestAdmissionView.Request.OldObject.Raw, oldTTree)
+
+	return validTTree(newTTree, oldTTree, v.k8sOption, v.watcher)
 }
 
 func (v *Validating) validDeleteTTree(view *k8sAdmissionV1.AdmissionReview) error {

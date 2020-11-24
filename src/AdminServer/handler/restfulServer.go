@@ -3,13 +3,14 @@ package handler
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-openapi/loads"
-	"k8s.io/client-go/rest"
 	"tarsadmin/handler/compatible"
 	"tarsadmin/handler/k8s"
 	"tarsadmin/handler/mysql"
 	"tarsadmin/openapi/restapi"
 	"tarsadmin/openapi/restapi/operations"
+
+	"github.com/go-openapi/loads"
+	"k8s.io/client-go/rest"
 )
 
 func loadSwagger() (*restapi.Server, *operations.TarsadminOpenapiAPI) {
@@ -27,7 +28,7 @@ func loadSwagger() (*restapi.Server, *operations.TarsadminOpenapiAPI) {
 func StartServer(namespace string, config *rest.Config, tarsDb *sql.DB, port int) error {
 	var err error
 
-	mysql.TarsDb = tarsDb
+	mysql.TafDb = tarsDb
 
 	// start common watcher
 	if k8s.K8sOption, k8s.K8sWatcher, err = k8s.StartWatcher(namespace, config); err != nil {
@@ -48,4 +49,3 @@ func StartServer(namespace string, config *rest.Config, tarsDb *sql.DB, port int
 	server.SetHandler(adminHandler.ConfigureAPI(api))
 	return server.Serve()
 }
-

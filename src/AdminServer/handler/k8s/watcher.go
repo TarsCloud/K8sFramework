@@ -2,6 +2,8 @@ package k8s
 
 import (
 	"fmt"
+	"time"
+
 	k8sCoreV1 "k8s.io/api/core/v1"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilRuntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -9,17 +11,14 @@ import (
 	"k8s.io/client-go/kubernetes"
 	k8sSchema "k8s.io/client-go/kubernetes/scheme"
 	k8sCoreV1Typed "k8s.io/client-go/kubernetes/typed/core/v1"
-	k8sAppsLister "k8s.io/client-go/listers/apps/v1"
-	k8sCoreLister "k8s.io/client-go/listers/core/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/klog"
-	crdClientSet "k8s.tars.io/crd/clientset/versioned"
-	crdScheme "k8s.tars.io/crd/clientset/versioned/scheme"
-	crdInformers "k8s.tars.io/crd/informers/externalversions"
-	crdLister "k8s.tars.io/crd/listers/crd/v1alpha1"
-	"time"
+	crdClientSet "k8s.tars.io/client-go/clientset/versioned"
+	crdScheme "k8s.tars.io/client-go/clientset/versioned/scheme"
+	crdInformers "k8s.tars.io/client-go/informers/externalversions"
+	crdLister "k8s.tars.io/client-go/listers/crd/v1alpha1"
 )
 
 type K8SOption struct {
@@ -33,11 +32,6 @@ type K8SOption struct {
 type Watcher struct {
 	k8sInformerFactory k8sInformers.SharedInformerFactory
 	crdInformerFactory crdInformers.SharedInformerFactory
-
-	serviceLister     k8sCoreLister.ServiceLister
-	podLister         k8sCoreLister.PodLister
-	statefulSetLister k8sAppsLister.StatefulSetLister
-	daemonSetLister   k8sAppsLister.DaemonSetLister
 
 	tServerLister   crdLister.TServerLister
 	tEndpointLister crdLister.TEndpointLister
@@ -67,7 +61,7 @@ func StartWatcher(namespace string, config *rest.Config) (*K8SOption, *Watcher, 
 	eventBroadcaster.StartLogging(klog.Infof)
 	eventBroadcaster.StartRecordingToSink(&k8sCoreV1Typed.EventSinkImpl{Interface: k8sClient.CoreV1().Events(namespace)})
 
-	controllerAgentName := fmt.Sprintf("tars-operator")
+	controllerAgentName := fmt.Sprintf("tars-tafcontrol")
 	recorder := eventBroadcaster.NewRecorder(k8sSchema.Scheme, k8sCoreV1.EventSource{Component: controllerAgentName})
 
 	k8sOption := &K8SOption{Namespace: namespace, config: config,
@@ -90,10 +84,6 @@ func newWatcher(r *K8SOption) *Watcher {
 	k8sInformerFactory := k8sInformers.NewSharedInformerFactoryWithOptions(r.K8SClientSet, time.Minute*30, k8sInformers.WithNamespace(r.Namespace))
 	crdInformerFactory := crdInformers.NewSharedInformerFactoryWithOptions(r.CrdClientSet, time.Minute*15, crdInformers.WithNamespace(r.Namespace))
 
-	serviceInformer := k8sInformerFactory.Core().V1().Services()
-	daemonSetInformer := k8sInformerFactory.Apps().V1().DaemonSets()
-	podInformer := k8sInformerFactory.Core().V1().Pods()
-	statefulSetInformer := k8sInformerFactory.Apps().V1().StatefulSets()
 	tServerInformer := crdInformerFactory.Crd().V1alpha1().TServers()
 	tEndpointInformer := crdInformerFactory.Crd().V1alpha1().TEndpoints()
 	tTemplateInformer := crdInformerFactory.Crd().V1alpha1().TTemplates()
@@ -105,23 +95,16 @@ func newWatcher(r *K8SOption) *Watcher {
 	watcher := &Watcher{
 		k8sInformerFactory: k8sInformerFactory,
 		crdInformerFactory: crdInformerFactory,
-		serviceLister:      serviceInformer.Lister(),
-		daemonSetLister:    daemonSetInformer.Lister(),
-		statefulSetLister:  statefulSetInformer.Lister(),
-		podLister:          podInformer.Lister(),
-		tServerLister:      tServerInformer.Lister(),
-		tEndpointLister:    tEndpointInformer.Lister(),
-		tTemplateLister:    tTemplateInformer.Lister(),
-		tReleaseLister:     tReleaseInformer.Lister(),
-		tTreeLister:        tTreeInformer.Lister(),
-		tTExitedPod:        tExitedPodInformer.Lister(),
-		tDeployLister: 		tDeployInformer.Lister(),
+
+		tServerLister:   tServerInformer.Lister(),
+		tEndpointLister: tEndpointInformer.Lister(),
+		tTemplateLister: tTemplateInformer.Lister(),
+		tReleaseLister:  tReleaseInformer.Lister(),
+		tTreeLister:     tTreeInformer.Lister(),
+		tTExitedPod:     tExitedPodInformer.Lister(),
+		tDeployLister:   tDeployInformer.Lister(),
 
 		synced: []cache.InformerSynced{
-			serviceInformer.Informer().HasSynced,
-			daemonSetInformer.Informer().HasSynced,
-			statefulSetInformer.Informer().HasSynced,
-			podInformer.Informer().HasSynced,
 			tServerInformer.Informer().HasSynced,
 			tEndpointInformer.Informer().HasSynced,
 			tTemplateInformer.Informer().HasSynced,
@@ -144,10 +127,6 @@ func newWatcher(r *K8SOption) *Watcher {
 		DeleteFunc: func(obj interface{}) {
 		},
 	}
-	serviceInformer.Informer().AddEventHandler(eventHandler)
-	daemonSetInformer.Informer().AddEventHandler(eventHandler)
-	statefulSetInformer.Informer().AddEventHandler(eventHandler)
-	podInformer.Informer().AddEventHandler(eventHandler)
 	tServerInformer.Informer().AddEventHandler(eventHandler)
 	tEndpointInformer.Informer().AddEventHandler(eventHandler)
 	tTemplateInformer.Informer().AddEventHandler(eventHandler)

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"time"
@@ -13,6 +14,7 @@ func notifyStop() {
 }
 
 func main() {
+	flag.Parse()
 
 	stopCh = make(chan struct{})
 
@@ -28,8 +30,10 @@ func main() {
 		NewTDeployReconcile(1, k8SOption, watcher),
 		NewServiceReconcile(2, k8SOption, watcher),
 		NewStatefulSetReconcile(2, k8SOption, watcher),
+		NewDaemonSetReconcile(1, k8SOption, watcher),
 		NewTEndpointReconcile(4, k8SOption, watcher),
 		NewTExitedPodReconcile(2, k8SOption, watcher),
+		NewTTreeReconcile(1, k8SOption, watcher),
 	}
 
 	watcher.Start(stopCh)

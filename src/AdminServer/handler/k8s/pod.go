@@ -1,17 +1,17 @@
 package k8s
 
 import (
-	"github.com/go-openapi/runtime/middleware"
-	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"sort"
 	"tarsadmin/handler/util"
 	"tarsadmin/openapi/models"
 	"tarsadmin/openapi/restapi/operations/server_pod"
+
+	"github.com/go-openapi/runtime/middleware"
+	"k8s.io/apimachinery/pkg/labels"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-
-type SelectPodAliveHandler struct {}
+type SelectPodAliveHandler struct{}
 
 func (s *SelectPodAliveHandler) Handle(params server_pod.SelectPodAliveParams) middleware.Responder {
 
@@ -41,7 +41,7 @@ func (s *SelectPodAliveHandler) Handle(params server_pod.SelectPodAliveParams) m
 		return server_pod.NewSelectPodAliveInternalServerError().WithPayload(&models.Error{Code: -1, Message: "Invalid Select Query Request."})
 	} else {
 		requirements := BuildDoubleEqualSelector(selectParams.Filter, KeyLabel)
-		list, err := K8sWatcher.tEndpointLister.TEndpoints(namespace).List(labels.NewSelector().Add(requirements ...))
+		list, err := K8sWatcher.tEndpointLister.TEndpoints(namespace).List(labels.NewSelector().Add(requirements...))
 		if err != nil {
 			return server_pod.NewSelectPodAliveInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 		}
@@ -113,7 +113,7 @@ func (s *SelectPodAliveHandler) Handle(params server_pod.SelectPodAliveParams) m
 	return server_pod.NewSelectPodAliveOK().WithPayload(result)
 }
 
-type SelectPodPerishedHandler struct {}
+type SelectPodPerishedHandler struct{}
 
 func (s *SelectPodPerishedHandler) Handle(params server_pod.SelectPodPerishedParams) middleware.Responder {
 
@@ -143,7 +143,7 @@ func (s *SelectPodPerishedHandler) Handle(params server_pod.SelectPodPerishedPar
 		return server_pod.NewSelectPodPerishedInternalServerError().WithPayload(&models.Error{Code: -1, Message: "Invalid Select Query Request."})
 	} else {
 		requirements := BuildDoubleEqualSelector(selectParams.Filter, KeyLabel)
-		list, err := K8sWatcher.tTExitedPod.TExitedRecords(namespace).List(labels.NewSelector().Add(requirements ...))
+		list, err := K8sWatcher.tTExitedPod.TExitedRecords(namespace).List(labels.NewSelector().Add(requirements...))
 		if err != nil {
 			return server_pod.NewSelectPodPerishedInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 		}

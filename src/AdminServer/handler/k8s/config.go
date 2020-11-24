@@ -3,14 +3,7 @@ package k8s
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-openapi/runtime/middleware"
-	"golang.org/x/net/context"
 	"hash/crc32"
-	"k8s.io/apimachinery/pkg/api/errors"
-	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"strconv"
 	"strings"
 	"tarsadmin/handler/mysql"
@@ -20,7 +13,15 @@ import (
 	"tarsadmin/openapi/restapi/operations/server_pod"
 	"tarsadmin/openapi/restapi/operations/template"
 
-	tarsConf "github.com/TarsCloud/TarsGo/tars/util/conf"
+	"github.com/go-openapi/runtime/middleware"
+	"golang.org/x/net/context"
+	"k8s.io/apimachinery/pkg/api/errors"
+	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
+
+	tafConf "github.com/TarsCloud/TarsGo/tars/util/conf"
 )
 
 var configHistoryColumnsSqlColumnsMap = mysql.RequestColumnSqlColumnMap{
@@ -62,7 +63,7 @@ var configHistoryColumnsSqlColumnsMap = mysql.RequestColumnSqlColumnMap{
 	},
 }
 
-type CreateServerConfigHandler struct {}
+type CreateServerConfigHandler struct{}
 
 func (s *CreateServerConfigHandler) Handle(params config.CreateServerConfigParams) middleware.Responder {
 	namespace := K8sOption.Namespace
@@ -81,7 +82,7 @@ func (s *CreateServerConfigHandler) Handle(params config.CreateServerConfigParam
 	return config.NewCreateServerConfigOK().WithPayload(&config.CreateServerConfigOKBody{Result: 0})
 }
 
-type SelectServerConfigHandler struct {}
+type SelectServerConfigHandler struct{}
 
 func (s *SelectServerConfigHandler) Handle(params config.SelectServerConfigParams) middleware.Responder {
 	// fetch list
@@ -104,21 +105,24 @@ func (s *SelectServerConfigHandler) Handle(params config.SelectServerConfigParam
 
 	tConfigInterface := K8sOption.CrdClientSet.CrdV1alpha1().TConfigs(namespace)
 
-	isNodeConfig := false
-
 	allItems := make([]crdv1alpha1.TConfig, 0, 10)
 	if listAll {
 		return config.NewSelectServerConfigInternalServerError().WithPayload(&models.Error{Code: -1, Message: "Invalid Select Query Request."})
 	} else {
 		requirements := BuildDoubleEqualSelector(selectParams.Filter, KeyLabel)
 
+		// 查询某个configName的节点配置
 		pattern, ok := selectParams.Filter.Eq["ConfigName"]
 		if ok && pattern != "" {
-			isNodeConfig = true
 			requirement, _ := labels.NewRequirement(TConfigNameLabel, selection.DoubleEquals, []string{pattern.(string)})
 			requirements = append(requirements, *requirement)
+			requirement, _ = labels.NewRequirement(TConfigPodSeqLabel, selection.NotEquals, []string{"m"})
+			requirements = append(requirements, *requirement)
+		} else {
+			requirement, _ := labels.NewRequirement(TConfigPodSeqLabel, selection.DoubleEquals, []string{"m"})
+			requirements = append(requirements, *requirement)
 		}
-		list, err := tConfigInterface.List(context.TODO(), k8sMetaV1.ListOptions{LabelSelector: labels.NewSelector().Add(requirements ...).String()})
+		list, err := tConfigInterface.List(context.TODO(), k8sMetaV1.ListOptions{LabelSelector: labels.NewSelector().Add(requirements...).String()})
 		if err != nil {
 			return server_pod.NewSelectPodAliveInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 		}
@@ -169,17 +173,9 @@ func (s *SelectServerConfigHandler) Handle(params config.SelectServerConfigParam
 			elem["ConfigMark"] = item.AppConfig.UpdateReason
 		} else if item.ServerConfig != nil {
 			elem["ServerId"] = util.GetServerId(item.ServerConfig.App, item.ServerConfig.Server)
-			if isNodeConfig {
-				// 节点配置不展示主配置
-				if item.ServerConfig.PodSeq == nil {
-					continue
-				}
+			if item.ServerConfig.PodSeq != nil {
 				elem["PodSeq"] = item.ServerConfig.PodSeq
 			} else {
-				// 主配置不展示节点配置
-				if item.ServerConfig.PodSeq != nil {
-					continue
-				}
 				elem["PodSeq"] = ""
 			}
 			elem["ConfigName"] = item.ServerConfig.ConfigName
@@ -195,7 +191,7 @@ func (s *SelectServerConfigHandler) Handle(params config.SelectServerConfigParam
 	return config.NewSelectServerConfigOK().WithPayload(result)
 }
 
-type UpdateServerConfigHandler struct {}
+type UpdateServerConfigHandler struct{}
 
 func (s *UpdateServerConfigHandler) Handle(params config.UpdateServerConfigParams) middleware.Responder {
 	namespace := K8sOption.Namespace
@@ -215,7 +211,7 @@ func (s *UpdateServerConfigHandler) Handle(params config.UpdateServerConfigParam
 
 	target := params.Params.Target
 
-	conf := tarsConf.New()
+	conf := tafConf.New()
 	if err := conf.InitFromString(target.ConfigContent); err != nil {
 		return config.NewUpdateServerConfigInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
@@ -239,7 +235,7 @@ func (s *UpdateServerConfigHandler) Handle(params config.UpdateServerConfigParam
 	return config.NewUpdateServerConfigOK().WithPayload(&config.UpdateServerConfigOKBody{Result: 0})
 }
 
-type DeleteServerConfigHandler struct {}
+type DeleteServerConfigHandler struct{}
 
 func (s *DeleteServerConfigHandler) Handle(params config.DeleteServerConfigParams) middleware.Responder {
 
@@ -257,7 +253,7 @@ func (s *DeleteServerConfigHandler) Handle(params config.DeleteServerConfigParam
 	return config.NewDeleteServerConfigOK().WithPayload(&config.DeleteServerConfigOKBody{Result: 0})
 }
 
-type DoPreviewConfigContentHandler struct {}
+type DoPreviewConfigContentHandler struct{}
 
 func (s *DoPreviewConfigContentHandler) Handle(params config.DoPreviewConfigContentParams) middleware.Responder {
 
@@ -282,64 +278,64 @@ func (s *DoPreviewConfigContentHandler) Handle(params config.DoPreviewConfigCont
 	return config.NewDoPreviewConfigContentOK().WithPayload(&config.DoPreviewConfigContentOKBody{Result: result})
 }
 
-type SelectServerConfigHistoryHandler struct {}
+type SelectServerConfigHistoryHandler struct{}
 
 func (s *SelectServerConfigHistoryHandler) Handle(params config.SelectServerConfigHistoryParams) middleware.Responder {
 	/*
-	const from = "t_config_history"
+		const from = "t_config_history"
 
-	result, err := mysql.SelectQueryResult(from, params.Filter, params.Limiter, params.Order, configHistoryColumnsSqlColumnsMap)
-	if err != nil {
-		return config.NewSelectServerConfigHistoryInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
-	}
+		result, err := mysql.SelectQueryResult(from, params.Filter, params.Limiter, params.Order, configHistoryColumnsSqlColumnsMap)
+		if err != nil {
+			return config.NewSelectServerConfigHistoryInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
+		}
 
-	return config.NewSelectServerConfigHistoryOK().WithPayload(result)
-	 */
+		return config.NewSelectServerConfigHistoryOK().WithPayload(result)
+	*/
 	return config.NewSelectServerConfigHistoryInternalServerError().WithPayload(&models.Error{Code: -1, Message: "History Config Has Not Been Supported."})
 }
 
 type DeleteServerConfigHistoryHandler struct {
-	tarsDb *sql.DB
+	tafDb *sql.DB
 }
 
 func (s *DeleteServerConfigHistoryHandler) Handle(params config.DeleteServerConfigHistoryParams) middleware.Responder {
 	/*
-	metadata := params.Params.Metadata
+		metadata := params.Params.Metadata
 
-	DeleteConfigHistoryResourceSql1 := "delete from t_config_history where f_history_id=?"
-	if _, err := mysql.TarsDb.Exec(DeleteConfigHistoryResourceSql1, metadata.HistoryID); err != nil {
-		_, file, line, _ := runtime.Caller(0)
-		fmt.Println(fmt.Sprintf("file %s , Line: %d , Err: %s ", file, line, err.Error()))
-		return config.NewDeleteServerConfigHistoryInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
-	}
+		DeleteConfigHistoryResourceSql1 := "delete from t_config_history where f_history_id=?"
+		if _, err := mysql.TafDb.Exec(DeleteConfigHistoryResourceSql1, metadata.HistoryID); err != nil {
+			_, file, line, _ := runtime.Caller(0)
+			fmt.Println(fmt.Sprintf("file %s , Line: %d , Err: %s ", file, line, err.Error()))
+			return config.NewDeleteServerConfigHistoryInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
+		}
 
-	return config.NewDeleteServerConfigHistoryOK().WithPayload(&config.DeleteServerConfigHistoryOKBody{Result: 0})
-	 */
+		return config.NewDeleteServerConfigHistoryOK().WithPayload(&config.DeleteServerConfigHistoryOKBody{Result: 0})
+	*/
 	return config.NewDeleteServerConfigHistoryInternalServerError().WithPayload(&models.Error{Code: -1, Message: "History Config Has Not Been Supported."})
 }
 
-type DoActiveHistoryConfigHandler struct {}
+type DoActiveHistoryConfigHandler struct{}
 
 func (s *DoActiveHistoryConfigHandler) Handle(params config.DoActiveHistoryConfigParams) middleware.Responder {
 	/*
-	metadata := params.Params.Metadata
+		metadata := params.Params.Metadata
 
-	updateConfigSql1 := "insert into t_config_history (f_app_server, f_config_name, f_config_version, f_config_content,f_config_id,f_create_person,f_create_time, f_config_mark,f_pod_seq) select f_app_server,f_config_name,f_config_version,f_config_content,f_config_id,f_create_person,f_create_time,f_config_mark,f_pod_seq from t_config where f_config_id = (select f_config_id from t_config_history where f_history_id=?) ON DUPLICATE KEY UPDATE f_history_id=f_history_id"
-	if _, err := mysql.TarsDb.Exec(updateConfigSql1, metadata.HistoryID); err != nil {
-		_, file, line, _ := runtime.Caller(0)
-		fmt.Println(fmt.Sprintf("file %s , Line: %d , Err: %s ", file, line, err.Error()))
-		return config.NewDoActiveHistoryConfigInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
-	}
+		updateConfigSql1 := "insert into t_config_history (f_app_server, f_config_name, f_config_version, f_config_content,f_config_id,f_create_person,f_create_time, f_config_mark,f_pod_seq) select f_app_server,f_config_name,f_config_version,f_config_content,f_config_id,f_create_person,f_create_time,f_config_mark,f_pod_seq from t_config where f_config_id = (select f_config_id from t_config_history where f_history_id=?) ON DUPLICATE KEY UPDATE f_history_id=f_history_id"
+		if _, err := mysql.TafDb.Exec(updateConfigSql1, metadata.HistoryID); err != nil {
+			_, file, line, _ := runtime.Caller(0)
+			fmt.Println(fmt.Sprintf("file %s , Line: %d , Err: %s ", file, line, err.Error()))
+			return config.NewDoActiveHistoryConfigInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
+		}
 
-	updateConfigSql2 := "update t_config a inner join t_config_history b using (f_config_id) set a.f_config_version=b.f_config_version,a.f_config_content=b.f_config_content,a.f_create_person=b.f_create_person,a.f_config_content=b.f_config_content, a.f_create_time=b.f_create_time,a.f_config_mark=b.f_config_mark,a.f_pod_seq=b.f_pod_seq where b.f_history_id=?"
-	if _, err := mysql.TarsDb.Exec(updateConfigSql2, metadata.HistoryID); err != nil {
-		_, file, line, _ := runtime.Caller(0)
-		fmt.Println(fmt.Sprintf("file %s , Line: %d , Err: %s ", file, line, err.Error()))
-		return config.NewDoActiveHistoryConfigInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
-	}
+		updateConfigSql2 := "update t_config a inner join t_config_history b using (f_config_id) set a.f_config_version=b.f_config_version,a.f_config_content=b.f_config_content,a.f_create_person=b.f_create_person,a.f_config_content=b.f_config_content, a.f_create_time=b.f_create_time,a.f_config_mark=b.f_config_mark,a.f_pod_seq=b.f_pod_seq where b.f_history_id=?"
+		if _, err := mysql.TafDb.Exec(updateConfigSql2, metadata.HistoryID); err != nil {
+			_, file, line, _ := runtime.Caller(0)
+			fmt.Println(fmt.Sprintf("file %s , Line: %d , Err: %s ", file, line, err.Error()))
+			return config.NewDoActiveHistoryConfigInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
+		}
 
-	return config.NewDoActiveHistoryConfigOK().WithPayload(&config.DoActiveHistoryConfigOKBody{Result: 0})
-	 */
+		return config.NewDoActiveHistoryConfigOK().WithPayload(&config.DoActiveHistoryConfigOKBody{Result: 0})
+	*/
 	return config.NewDoPreviewConfigContentInternalServerError().WithPayload(&models.Error{Code: -1, Message: "History Config Has Not Been Supported."})
 }
 
@@ -355,7 +351,7 @@ func getConfId(param ...string) string {
 		} else {
 			configId += param[i]
 		}
-		if i < (n-1) {
+		if i < (n - 1) {
 			configId += "-"
 		}
 	}
@@ -366,12 +362,12 @@ func getConfId(param ...string) string {
 func buildTConfig(namespace string, metadata *models.ConfigMeta) (*crdv1alpha1.TConfig, error) {
 
 	tConfig := &crdv1alpha1.TConfig{
-		ObjectMeta: k8sMetaV1.ObjectMeta {
+		ObjectMeta: k8sMetaV1.ObjectMeta{
 			Namespace: namespace,
 		},
 	}
 
-	conf := tarsConf.New()
+	conf := tafConf.New()
 	if err := conf.InitFromString(*metadata.ConfigContent); err != nil {
 		return nil, fmt.Errorf("Bad Schema : Bad Params.Metadata.ConfigContent Value. ")
 	}
@@ -382,15 +378,15 @@ func buildTConfig(namespace string, metadata *models.ConfigMeta) (*crdv1alpha1.T
 			return nil, fmt.Errorf("Bad Schema : Bad Params.Metadata.PodSeq Value. ")
 		}
 		tConfig.Name = getConfId(metadata.ServerApp, metadata.ServerName, *metadata.ConfigName, metadata.PodSeq)
-		tConfig.ServerConfig = &crdv1alpha1.TConfigServer {
-			App: metadata.ServerApp,
-			Server: metadata.ServerName,
-			ConfigName: *metadata.ConfigName,
+		tConfig.ServerConfig = &crdv1alpha1.TConfigServer{
+			App:           metadata.ServerApp,
+			Server:        metadata.ServerName,
+			ConfigName:    *metadata.ConfigName,
 			ConfigContent: *metadata.ConfigContent,
-			PodSeq: &metadata.PodSeq,
-			UpdateTime: k8sMetaV1.Now(),
-			UpdatePerson: "TarsAdmin",
-			UpdateReason: "Create",
+			PodSeq:        &metadata.PodSeq,
+			UpdateTime:    k8sMetaV1.Now(),
+			UpdatePerson:  "TafAdmin",
+			UpdateReason:  "Create",
 		}
 	} else if metadata.ServerName != "" {
 		// 服务配置
@@ -398,26 +394,26 @@ func buildTConfig(namespace string, metadata *models.ConfigMeta) (*crdv1alpha1.T
 			return nil, fmt.Errorf("Bad Schema : Bad Params.Metadata.ServerName Value. ")
 		}
 		tConfig.Name = getConfId(metadata.ServerApp, metadata.ServerName, *metadata.ConfigName)
-		tConfig.ServerConfig = &crdv1alpha1.TConfigServer {
-			App: metadata.ServerApp,
-			Server: metadata.ServerName,
-			ConfigName: *metadata.ConfigName,
+		tConfig.ServerConfig = &crdv1alpha1.TConfigServer{
+			App:           metadata.ServerApp,
+			Server:        metadata.ServerName,
+			ConfigName:    *metadata.ConfigName,
 			ConfigContent: *metadata.ConfigContent,
-			PodSeq: nil,
-			UpdateTime: k8sMetaV1.Now(),
-			UpdatePerson: "TarsAdmin",
-			UpdateReason: "Create",
+			PodSeq:        nil,
+			UpdateTime:    k8sMetaV1.Now(),
+			UpdatePerson:  "TafAdmin",
+			UpdateReason:  "Create",
 		}
 	} else if metadata.ServerApp != "" {
 		// 应用配置
 		tConfig.Name = getConfId(metadata.ServerApp, *metadata.ConfigName)
-		tConfig.AppConfig = &crdv1alpha1.TConfigApp {
-			App: metadata.ServerApp,
-			ConfigName: *metadata.ConfigName,
+		tConfig.AppConfig = &crdv1alpha1.TConfigApp{
+			App:           metadata.ServerApp,
+			ConfigName:    *metadata.ConfigName,
 			ConfigContent: *metadata.ConfigContent,
-			UpdateTime: k8sMetaV1.Now(),
-			UpdatePerson: "TarsAdmin",
-			UpdateReason: "Create",
+			UpdateTime:    k8sMetaV1.Now(),
+			UpdatePerson:  "TafAdmin",
+			UpdateReason:  "Create",
 		}
 	} else {
 		if metadata.ServerApp == "" {

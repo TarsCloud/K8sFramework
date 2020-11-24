@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"strings"
+
 	k8sAppsV1 "k8s.io/api/apps/v1"
 	k8sCoreV1 "k8s.io/api/core/v1"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
-	"strings"
+	crdV1Alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
 func buildPodAffinity(server *crdV1Alpha1.TServer) *k8sCoreV1.Affinity {
@@ -23,8 +24,9 @@ func buildPodAffinity(server *crdV1Alpha1.TServer) *k8sCoreV1.Affinity {
 								Operator: k8sCoreV1.NodeSelectorOpExists,
 							},
 							{
-								Key:      TarsAbilityNodeLabelPrefix + server.Spec.App,
-								Operator: k8sCoreV1.NodeSelectorOpExists,
+								Key:      K8SHostNameLabel,
+								Operator: k8sCoreV1.NodeSelectorOpIn,
+								Values:   server.Spec.K8S.NodeSelector.NodeBind.Values,
 							},
 						},
 					},
@@ -97,7 +99,7 @@ func buildPodAffinity(server *crdV1Alpha1.TServer) *k8sCoreV1.Affinity {
 						},
 					},
 					Namespaces:  []string{server.Namespace},
-					TopologyKey: "kubernetes.io/hostname",
+					TopologyKey: K8SHostNameLabel,
 				},
 			},
 		}
@@ -449,30 +451,29 @@ func buildTEndpoint(server *crdV1Alpha1.TServer) *crdV1Alpha1.TEndpoint {
 	return endpoint
 }
 
-func buildTExitedRecord(server *crdV1Alpha1.TServer) *crdV1Alpha1.TExitedRecord {
-	tExitedPod := &crdV1Alpha1.TExitedRecord{
-		TypeMeta: k8sMetaV1.TypeMeta{},
+func buildTExitedRecord(tserver *crdV1Alpha1.TServer) *crdV1Alpha1.TExitedRecord {
+	tExitedRecord := &crdV1Alpha1.TExitedRecord{
 		ObjectMeta: k8sMetaV1.ObjectMeta{
-			Name:      server.Name,
-			Namespace: server.Namespace,
+			Name:      tserver.Name,
+			Namespace: tserver.Namespace,
 			OwnerReferences: []k8sMetaV1.OwnerReference{
 				{
 					APIVersion: TServerAPIVersion,
 					Kind:       TServerKind,
-					Name:       server.Name,
-					UID:        server.UID,
+					Name:       tserver.Name,
+					UID:        tserver.UID,
 				},
 			},
 			Labels: map[string]string{
-				TServerAppLabel:  server.Spec.App,
-				TServerNameLabel: server.Spec.Server,
+				TServerAppLabel:  tserver.Spec.App,
+				TServerNameLabel: tserver.Spec.Server,
 			},
 		},
-		App:    server.Spec.App,
-		Server: server.Spec.Server,
+		App:    tserver.Spec.App,
+		Server: tserver.Spec.Server,
 		Pods:   []crdV1Alpha1.TExitedPod{},
 	}
-	return tExitedPod
+	return tExitedRecord
 }
 
 func syncTEndpoint(server *crdV1Alpha1.TServer, endpoint *crdV1Alpha1.TEndpoint) {

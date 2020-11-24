@@ -2,13 +2,15 @@ package main
 
 import (
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	crdV1Alpha1 "k8s.tars.io/crd/v1alpha1"
+	crdV1Alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
 const (
 	ResourceOutControlReason = "ResourceOutControlReason"
 
 	ResourceDeleteReason = "ResourceDeleteReason"
+
+	ResourceGetReason = "ResourceGetReason"
 )
 
 const (
@@ -47,6 +49,7 @@ const TSubTypeLabel = "tars.io/SubType"
 const TServerAppLabel = "tars.io/ServerApp"
 const TServerNameLabel = "tars.io/ServerName"
 const TServerTagLabel = "tars.io/ServerTag"
+const TConfigNameLabel = "tars.io/ConfigName"
 
 const NodeServantName = "nodeobj"
 const NodeServantPort = 19385
@@ -56,13 +59,17 @@ const TServerKind = "TServer"
 
 const TPodReadinessGate = "tars.io/active"
 
+const K8SHostNameLabel = "kubernetes.io/hostname"
+
 const ReleaseSourceLabel = "tars.io/ReleaseSource"
 const ReleaseTagLabel = "tars.io/ReleaseTag"
 
-const WebhookCertFile = "/etc/tarsoperator-cert/cert.pem"
-const WebhookCertKey = "/etc/tarsoperator-cert/cert.key"
+const WebhookCertFile = "/etc/tarscontrol-cert/cert.pem"
+const WebhookCertKey = "/etc/tarscontrol-cert/cert.key"
 
 const TarsControlServiceAccount = "tars-tarscontrol"
+
+const TarsTreeResourceName = "tars-tree"
 
 func isOwnerByTServer(server *crdV1Alpha1.TServer, object k8sMetaV1.Object) bool {
 	if ownerRef := object.GetOwnerReferences(); ownerRef != nil {

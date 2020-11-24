@@ -21,7 +21,7 @@ func (s *SelectServerTreeHandler) Handle(params tree.SelectServerTreeParams) mid
 
 	var lastBusiness string
 
-	requirements := BuildSubTypeTarsSelector()
+	requirements := BuildSubTypeTafSelector()
 	list, err := K8sWatcher.tServerLister.TServers(namespace).List(labels.NewSelector().Add(requirements ...))
 	if err != nil {
 		return tree.NewSelectServerTreeInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -51,7 +51,7 @@ func (s *SelectServerTreeHandler) Handle(params tree.SelectServerTreeParams) mid
 		App:          make([]*models.AppElem, 0, 10),
 	}
 
-	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TarsTreeName)
+	tTree, err := K8sWatcher.tTreeLister.TTrees(namespace).Get(TafTreeName)
 	if err != nil {
 		return tree.NewSelectServerTreeInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}

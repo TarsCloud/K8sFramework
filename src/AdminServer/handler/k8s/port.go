@@ -18,11 +18,11 @@ func (s *SelectAvailHostPortHandler) Handle(params agent.SelectAvailHostPortPara
 	}
 	containers := pod.Spec.Containers
 	if len(containers) <= 0 {
-		return agent.NewSelectAvailHostPortInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("%s.%s Has No Container.", *params.NodeName, TarsAgentDaemonSetName)})
+		return agent.NewSelectAvailHostPortInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("%s.%s Has No Container.", *params.NodeName, TafAgentDaemonSetName)})
 	}
 	ports := containers[0].Ports
 	if len(ports) <= 0 {
-		return agent.NewSelectAvailHostPortInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("%s.%s Has No Host Port.", *params.NodeName, TarsAgentDaemonSetName)})
+		return agent.NewSelectAvailHostPortInternalServerError().WithPayload(&models.Error{Code: -1, Message: fmt.Sprintf("%s.%s Has No Host Port.", *params.NodeName, TafAgentDaemonSetName)})
 	}
 
 	hostIp := pod.Status.HostIP

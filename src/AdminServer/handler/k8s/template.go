@@ -2,17 +2,18 @@ package k8s
 
 import (
 	"fmt"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/template"
+
 	"github.com/go-openapi/runtime/middleware"
 	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
-	"tarsadmin/handler/util"
-	"tarsadmin/openapi/models"
-	"tarsadmin/openapi/restapi/operations/template"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-type CreateTemplateHandler struct {}
+type CreateTemplateHandler struct{}
 
 func (s *CreateTemplateHandler) Handle(params template.CreateTemplateParams) middleware.Responder {
 	namespace := K8sOption.Namespace
@@ -36,7 +37,7 @@ func (s *CreateTemplateHandler) Handle(params template.CreateTemplateParams) mid
 	return template.NewCreateTemplateOK().WithPayload(&template.CreateTemplateOKBody{Result: 0})
 }
 
-type SelectTemplateHandler struct {}
+type SelectTemplateHandler struct{}
 
 func (s *SelectTemplateHandler) Handle(params template.SelectTemplateParams) middleware.Responder {
 
@@ -106,8 +107,7 @@ func (s *SelectTemplateHandler) Handle(params template.SelectTemplateParams) mid
 	return template.NewSelectTemplateOK().WithPayload(result)
 }
 
-
-type UpdateTemplateHandler struct {}
+type UpdateTemplateHandler struct{}
 
 func (s *UpdateTemplateHandler) Handle(params template.UpdateTemplateParams) middleware.Responder {
 
@@ -136,7 +136,7 @@ func (s *UpdateTemplateHandler) Handle(params template.UpdateTemplateParams) mid
 	return template.NewUpdateTemplateOK().WithPayload(&template.UpdateTemplateOKBody{Result: 0})
 }
 
-type DeleteTemplateHandler struct {}
+type DeleteTemplateHandler struct{}
 
 func (s *DeleteTemplateHandler) Handle(params template.DeleteTemplateParams) middleware.Responder {
 
@@ -172,11 +172,10 @@ func buildTTemplate(namespace, templateName, templateParent, templateContent str
 			Name:      templateName,
 			Namespace: namespace,
 		},
-		Spec: crdv1alpha1.TTemplateSpec {
+		Spec: crdv1alpha1.TTemplateSpec{
 			Content: templateContent,
-			Parent: templateParent,
+			Parent:  templateParent,
 		},
 	}
 	return tTemplate
 }
-

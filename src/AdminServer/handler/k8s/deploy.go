@@ -2,21 +2,22 @@ package k8s
 
 import (
 	"fmt"
+	"sort"
+	"tarsadmin/handler/util"
+	"tarsadmin/openapi/models"
+	"tarsadmin/openapi/restapi/operations/deploy"
+	"tarsadmin/openapi/restapi/operations/server_pod"
+
 	"github.com/go-openapi/runtime/middleware"
 	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/api/errors"
 	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
-	"sort"
-	"tarsadmin/handler/util"
-	"tarsadmin/openapi/models"
-	"tarsadmin/openapi/restapi/operations/deploy"
-	"tarsadmin/openapi/restapi/operations/server_pod"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-type CreateDeployHandler struct {}
+type CreateDeployHandler struct{}
 
 func (s *CreateDeployHandler) Handle(params deploy.CreateDeployParams) middleware.Responder {
 	namespace := K8sOption.Namespace
@@ -32,7 +33,7 @@ func (s *CreateDeployHandler) Handle(params deploy.CreateDeployParams) middlewar
 	return deploy.NewCreateDeployOK().WithPayload(&deploy.CreateDeployOKBody{Result: 0})
 }
 
-type SelectDeployHandler struct {}
+type SelectDeployHandler struct{}
 
 func (s *SelectDeployHandler) Handle(params deploy.SelectDeployParams) middleware.Responder {
 	// fetch list
@@ -47,7 +48,7 @@ func (s *SelectDeployHandler) Handle(params deploy.SelectDeployParams) middlewar
 	requirement, _ := labels.NewRequirement(TDeployApproveLabel, selection.DoubleEquals, []string{"Pending"})
 	requirements := []labels.Requirement{*requirement}
 
-	allItems, err := K8sWatcher.tDeployLister.TDeploys(namespace).List(labels.NewSelector().Add(requirements ...))
+	allItems, err := K8sWatcher.tDeployLister.TDeploys(namespace).List(labels.NewSelector().Add(requirements...))
 	if err != nil {
 		return deploy.NewSelectDeployInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
@@ -99,7 +100,6 @@ func (s *SelectDeployHandler) Handle(params deploy.SelectDeployParams) middlewar
 		filterItems = filterItems[start:stop]
 	}
 
-
 	// Count填充
 	result := &models.SelectResult{}
 	result.Count = make(models.MapInt)
@@ -129,7 +129,7 @@ func (s *SelectDeployHandler) Handle(params deploy.SelectDeployParams) middlewar
 	return deploy.NewSelectDeployOK().WithPayload(result)
 }
 
-type UpdateDeployHandler struct {}
+type UpdateDeployHandler struct{}
 
 func (s *UpdateDeployHandler) Handle(params deploy.UpdateDeployParams) middleware.Responder {
 
@@ -156,7 +156,7 @@ func (s *UpdateDeployHandler) Handle(params deploy.UpdateDeployParams) middlewar
 	return deploy.NewUpdateDeployOK().WithPayload(&deploy.UpdateDeployOKBody{Result: 0})
 }
 
-type DeleteDeployHandler struct {}
+type DeleteDeployHandler struct{}
 
 func (s *DeleteDeployHandler) Handle(params deploy.DeleteDeployParams) middleware.Responder {
 	namespace := K8sOption.Namespace
@@ -178,17 +178,17 @@ func buildTDeploy(namespace string, metadata *models.DeployMeta) *crdv1alpha1.TD
 		metadata.ServerK8S.HostPort = make([]*models.HostPortElem, 0, 1)
 	}
 
-	// 通过管理平台的部署都是TARS服务
+	// 通过管理平台的部署都是TAF服务
 	serverSubType := "tars"
 	metadata.ServerOption.ServerSubType = &serverSubType
 
 	deployName := fmt.Sprintf("%s-%s-%s", util.GetTServerName(util.GetServerId(*metadata.ServerApp, *metadata.ServerName)), RandStringRunes(10), RandStringRunes(5))
 	tServer := buildTServer(namespace, *metadata.ServerApp, *metadata.ServerName, metadata.ServerServant, metadata.ServerK8S, metadata.ServerOption)
 
-	tDeploy := &crdv1alpha1.TDeploy {
+	tDeploy := &crdv1alpha1.TDeploy{
 		ObjectMeta: k8sMetaV1.ObjectMeta{
-			Name:      deployName,
-			Namespace: namespace,
+			Name:              deployName,
+			Namespace:         namespace,
 			CreationTimestamp: k8sMetaV1.Now(),
 		},
 		Apply: tServer.Spec,
@@ -223,11 +223,11 @@ func ConvertOperatorK8SToAdminK8S(operatorK8S crdv1alpha1.TServerK8S) models.Ser
 	}
 
 	return models.ServerK8S{
-		HostIpc: operatorK8S.HostIPC,
-		HostNetwork: operatorK8S.HostNetwork,
-		NotStacked: operatorK8S.NotStacked,
-		Replicas: operatorK8S.Replicas,
-		HostPort: hostPort,
+		HostIpc:      operatorK8S.HostIPC,
+		HostNetwork:  operatorK8S.HostNetwork,
+		NotStacked:   operatorK8S.NotStacked,
+		Replicas:     operatorK8S.Replicas,
+		HostPort:     hostPort,
 		NodeSelector: &nodeSelector,
 	}
 }
@@ -239,14 +239,14 @@ func ConvertOperatorServantToAdminK8S(operatorServant []crdv1alpha1.TServant) mo
 		serverServant = make(models.MapServant)
 		for _, servant := range operatorServant {
 			serverServant[servant.Name] = models.ServerServantElem{
-				Capacity: servant.Capacity,
+				Capacity:    servant.Capacity,
 				Connections: servant.Connection,
-				IsTars: &servant.IsTars,
-				IsTCP: &servant.IsTcp,
-				Name: servant.Name,
-				Port: servant.Port,
-				Threads: servant.Thread,
-				Timeout: servant.Timeout,
+				IsTars:      &servant.IsTars,
+				IsTCP:       &servant.IsTcp,
+				Name:        servant.Name,
+				Port:        servant.Port,
+				Threads:     servant.Thread,
+				Timeout:     servant.Timeout,
 			}
 		}
 	}
@@ -260,10 +260,10 @@ func ConvertOperatorOptionToAdminK8S(operatorTServerSpec crdv1alpha1.TServerSpec
 	serverSubType := string(operatorTServerSpec.SubType)
 
 	return models.ServerOption{
-		AsyncThread: &asyncThread,
+		AsyncThread:     &asyncThread,
 		ServerImportant: &serverImportant,
-		ServerProfile: operatorTServerSpec.Tars.Profile,
-		ServerTemplate: operatorTServerSpec.Tars.Template,
-		ServerSubType: &serverSubType,
+		ServerProfile:   operatorTServerSpec.Tars.Profile,
+		ServerTemplate:  operatorTServerSpec.Tars.Template,
+		ServerSubType:   &serverSubType,
 	}
 }

@@ -2,20 +2,21 @@ package k8s
 
 import (
 	"fmt"
-	"github.com/go-openapi/runtime/middleware"
-	"golang.org/x/net/context"
-	"k8s.io/apimachinery/pkg/api/errors"
-	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	crdv1alpha1 "k8s.tars.io/crd/v1alpha1"
 	"strconv"
 	"strings"
 	"tarsadmin/handler/util"
 	"tarsadmin/openapi/models"
 	"tarsadmin/openapi/restapi/operations/release"
+
+	"github.com/go-openapi/runtime/middleware"
+	"golang.org/x/net/context"
+	"k8s.io/apimachinery/pkg/api/errors"
+	k8sMetaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	crdv1alpha1 "k8s.tars.io/api/crd/v1alpha1"
 )
 
-type SelectServiceEnabledHandler struct {}
+type SelectServiceEnabledHandler struct{}
 
 func (s *SelectServiceEnabledHandler) Handle(params release.SelectServiceEnabledParams) middleware.Responder {
 
@@ -38,8 +39,8 @@ func (s *SelectServiceEnabledHandler) Handle(params release.SelectServiceEnabled
 
 	allServerItems := make([]*crdv1alpha1.TServer, 0, 10)
 	if listAll {
-		requirements := BuildSubTypeTarsSelector()
-		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements ...))
+		requirements := BuildSubTypeTafSelector()
+		list, err := K8sWatcher.tServerLister.TServers(K8sOption.Namespace).List(labels.NewSelector().Add(requirements...))
 		if err != nil {
 			return release.NewSelectServiceEnabledInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 		}
@@ -95,8 +96,7 @@ func (s *SelectServiceEnabledHandler) Handle(params release.SelectServiceEnabled
 	return release.NewSelectServiceEnabledOK().WithPayload(result)
 }
 
-
-type SelectServicePoolHandler struct {}
+type SelectServicePoolHandler struct{}
 
 func (s *SelectServicePoolHandler) Handle(params release.SelectServicePoolParams) middleware.Responder {
 
@@ -135,8 +135,8 @@ func (s *SelectServicePoolHandler) Handle(params release.SelectServicePoolParams
 		if err != nil {
 			if errors.IsNotFound(err) {
 				return release.NewSelectServicePoolOK().WithPayload(&models.SelectResult{
-					Count: models.MapInt {
-						"AllCount": 0,
+					Count: models.MapInt{
+						"AllCount":    0,
 						"FilterCount": 0,
 					},
 					Data: make(models.ArrayMapInterface, 0),
@@ -184,7 +184,7 @@ func (s *SelectServicePoolHandler) Handle(params release.SelectServicePoolParams
 	return release.NewSelectServicePoolOK().WithPayload(result)
 }
 
-type CreateServicePoolHandler struct {}
+type CreateServicePoolHandler struct{}
 
 func (s *CreateServicePoolHandler) Handle(params release.CreateServicePoolParams) middleware.Responder {
 
@@ -196,20 +196,20 @@ func (s *CreateServicePoolHandler) Handle(params release.CreateServicePoolParams
 		return release.NewCreateServicePoolInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
 	if tServer.Spec.SubType != crdv1alpha1.TARS {
-		return release.NewCreateServicePoolInternalServerError().WithPayload(&models.Error{Code: -1, Message: "NonTars Is Not Supported."})
+		return release.NewCreateServicePoolInternalServerError().WithPayload(&models.Error{Code: -1, Message: "NonTaf Is Not Supported."})
 	}
 
 	newTServerRelease := &crdv1alpha1.TServerRelease{
-		Source: tServer.Name,
-		ServerType: *metadata.ServerType,
-		Image: *metadata.ServiceImage,
+		Source:          tServer.Name,
+		ServerType:      *metadata.ServerType,
+		Image:           *metadata.ServiceImage,
 		ImagePullSecret: "tars-image-secret",
-		ActivePerson: metadata.ActivePerson,
-		ActiveReason: metadata.ActiveReason,
-		ActiveTime: k8sMetaV1.Now(),
+		ActivePerson:    "TafAdmin",
+		ActiveReason:    metadata.ActiveReason,
+		ActiveTime:      k8sMetaV1.Now(),
 	}
 
-	// 更新TRelease，Tars服务一一对应
+	// 更新TRelease，Taf服务一一对应
 	bCreate := false
 	releaseId := tServer.Name
 	tRelease, err := K8sWatcher.tReleaseLister.TReleases(namespace).Get(util.GetTServerName(releaseId))
@@ -219,7 +219,7 @@ func (s *CreateServicePoolHandler) Handle(params release.CreateServicePoolParams
 		}
 		tRelease = &crdv1alpha1.TRelease{
 			ObjectMeta: k8sMetaV1.ObjectMeta{
-				Name: releaseId,
+				Name:      releaseId,
 				Namespace: namespace,
 			},
 			Spec: crdv1alpha1.TReleaseSpec{
@@ -238,17 +238,17 @@ func (s *CreateServicePoolHandler) Handle(params release.CreateServicePoolParams
 			}
 		}
 	}
-	newTServerRelease.Tag = strconv.Itoa(maxTag+1)
+	newTServerRelease.Tag = strconv.Itoa(maxTag + 1)
 
 	tReleaseInterface := K8sOption.CrdClientSet.CrdV1alpha1().TReleases(namespace)
 	if bCreate {
-		tRelease.Spec.List = append([]*crdv1alpha1.TReleaseVersion{buildTReleaseVersion(newTServerRelease)}, tRelease.Spec.List ...)
-		if _, err = tReleaseInterface.Create(context.TODO(), tRelease, k8sMetaV1.CreateOptions{}); err != nil && !errors.IsAlreadyExists(err)  {
+		tRelease.Spec.List = append([]*crdv1alpha1.TReleaseVersion{buildTReleaseVersion(newTServerRelease)}, tRelease.Spec.List...)
+		if _, err = tReleaseInterface.Create(context.TODO(), tRelease, k8sMetaV1.CreateOptions{}); err != nil && !errors.IsAlreadyExists(err) {
 			return release.NewCreateServicePoolInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 		}
 	} else {
 		tReleaseCopy := tRelease.DeepCopy()
-		tReleaseCopy.Spec.List = append([]*crdv1alpha1.TReleaseVersion{buildTReleaseVersion(newTServerRelease)}, tReleaseCopy.Spec.List ...)
+		tReleaseCopy.Spec.List = append([]*crdv1alpha1.TReleaseVersion{buildTReleaseVersion(newTServerRelease)}, tReleaseCopy.Spec.List...)
 		if _, err = tReleaseInterface.Update(context.TODO(), tReleaseCopy, k8sMetaV1.UpdateOptions{}); err != nil {
 			return release.NewCreateServicePoolInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 		}
@@ -257,7 +257,7 @@ func (s *CreateServicePoolHandler) Handle(params release.CreateServicePoolParams
 	return release.NewCreateServicePoolOK().WithPayload(&release.CreateServicePoolOKBody{Result: 0})
 }
 
-type DoEnableServiceHandler struct {}
+type DoEnableServiceHandler struct{}
 
 func (s *DoEnableServiceHandler) Handle(params release.DoEnableServiceParams) middleware.Responder {
 	namespace := K8sOption.Namespace
@@ -268,10 +268,10 @@ func (s *DoEnableServiceHandler) Handle(params release.DoEnableServiceParams) mi
 		return release.NewDoEnableServiceInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
 	}
 	if tServer.Spec.SubType != crdv1alpha1.TARS {
-		return release.NewDoEnableServiceInternalServerError().WithPayload(&models.Error{Code: -1, Message: "NonTars Is Not Supported."})
+		return release.NewDoEnableServiceInternalServerError().WithPayload(&models.Error{Code: -1, Message: "NonTaf Is Not Supported."})
 	}
 
-	// TARS服务的TRelease和TServer一一对应
+	// TAF服务的TRelease和TServer一一对应
 	tRelease, err := K8sWatcher.tReleaseLister.TReleases(namespace).Get(util.GetTServerName(tServer.Name))
 	if err != nil {
 		return release.NewDoEnableServiceInternalServerError().WithPayload(&models.Error{Code: -1, Message: err.Error()})
@@ -316,10 +316,10 @@ func (s *DoEnableServiceHandler) Handle(params release.DoEnableServiceParams) mi
 
 	// 更新TRelease
 	if index != -1 {
-		tempList := append(tRelease.Spec.List[0:index], tRelease.Spec.List[index+1:] ...)
+		tempList := append(tRelease.Spec.List[0:index], tRelease.Spec.List[index+1:]...)
 
 		tReleaseCopy := tRelease.DeepCopy()
-		tReleaseCopy.Spec.List = append([]*crdv1alpha1.TReleaseVersion{readyActiveRelease}, tempList ...)
+		tReleaseCopy.Spec.List = append([]*crdv1alpha1.TReleaseVersion{readyActiveRelease}, tempList...)
 
 		tReleaseInterface := K8sOption.CrdClientSet.CrdV1alpha1().TReleases(namespace)
 		if _, err = tReleaseInterface.Update(context.TODO(), tReleaseCopy, k8sMetaV1.UpdateOptions{}); err != nil {
@@ -332,12 +332,12 @@ func (s *DoEnableServiceHandler) Handle(params release.DoEnableServiceParams) mi
 
 func buildTReleaseVersion(tServerRelease *crdv1alpha1.TServerRelease) *crdv1alpha1.TReleaseVersion {
 	return &crdv1alpha1.TReleaseVersion{
-		ServerType: tServerRelease.ServerType,
-		Image: tServerRelease.Image,
-		Tag: tServerRelease.Tag,
+		ServerType:      tServerRelease.ServerType,
+		Image:           tServerRelease.Image,
+		Tag:             tServerRelease.Tag,
 		ImagePullSecret: tServerRelease.ImagePullSecret,
-		CreatePerson: tServerRelease.ActivePerson,
-		CreateTime: tServerRelease.ActiveTime,
+		CreatePerson:    tServerRelease.ActivePerson,
+		CreateTime:      tServerRelease.ActiveTime,
 	}
 }
 
