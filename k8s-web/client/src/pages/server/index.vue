@@ -186,7 +186,7 @@ export default {
     getTreeData() {
       this.treeData = null;
 
-      this.$nextTick(() => {
+      // this.$nextTick(() => {
         const loading = this.$loading.show({
           target: this.$refs.treeLoading,
         });
@@ -200,7 +200,7 @@ export default {
           this.treeErrMsg = err.err_msg || err.message || '加载失败';
           this.treeData = false;
         });
-      });
+      // });
     },
     getServerData() {
       if (!this.treeid) {
@@ -313,7 +313,7 @@ export default {
     },
 
     checkCurrBTabs() {
-      this.$nextTick(() => {
+      // this.$nextTick(() => {
         let boxEl = this.$refs.btabs || ''
         let itemEl = boxEl.children || []
         let currEl = ''
@@ -332,7 +332,7 @@ export default {
           const x = currEl.offsetLeft + currEl.offsetWidth - boxEl.offsetWidth
           boxEl.scrollTo(x, 0)
         }
-      })
+      // })
     },
 
     selectBTabs(nodeKey) {

@@ -14,8 +14,8 @@
  * specific language governing permissions and limitations under the License.
  */
 
-// const NodeProxy = require("../util/rpcClient/rpcProxy/NodeProxy");
-const NodeProxy = require("../util/rpcClient/tarsProxy/NodeProxy");
+const NodeProxy = require("../util/rpcClient/rpcProxy/NodeProxy");
+// const NodeProxy = require("../util/rpcClient/tarsProxy/NodeProxy");
 const { nodePrx, RPCClientPrx } = require('../util/rpcClient');
 
 const NodeService = {};

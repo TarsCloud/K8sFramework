@@ -29,20 +29,13 @@ module.exports = {
         }
     },
     webConf: {
-        host: '127.0.0.1',
-        port: 3000,              //服务启动端口
+        host: '0.0.0.0',
+        port: 5001,              //服务启动端口
         loggerPath: path.join(__dirname, '../log'),    //本地日志的目录
         logFileKeepDays: '1',         //日志保留时间
         defaultLanguage: 'cn',    //cn 或 en ，用户默认的语言环境
         strict: false,              //true: tarslog模式(tarslog需要首先从框架上迁移走, 基础框架服务器上不能部署其他服务)
         uploadLogin: false,          //上传文件是否需要登录(开发或者调试时可以放开)
-    },
-    kafkaConf : {
-        enable : false,
-        kafkaHost : 'localhost:9092',
-        zkHost : 'localhost:2181',
-        topic : 'tarsTask',
-        maxCount : 100              // 后台并行处理的最大任务数
     },
     pkgUploadPath : {
         path: '/usr/local/app/patchs/tars.upload',

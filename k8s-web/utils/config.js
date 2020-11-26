@@ -5,9 +5,9 @@
 'use strict';
 
 const Q = require('q');
-const ConfigParser = require('@tars/tars-utils').Config;
+const ConfigParser = require('@tars/utils').Config;
 
-const config = {};
+// const config = {};
 
 function parseConf(content, configFormat) {
     let ret = content;
@@ -24,7 +24,7 @@ function parseConf(content, configFormat) {
 function loadConfig(filename, configFormat) {
     const dfd = Q.defer();
     if (process.env.TARS_CONFIG) {
-        const tarsConfigHelper = require('@tars/tars-config');
+        const tarsConfigHelper = require('@tars/config');
         const helper = new tarsConfigHelper();
         helper.loadConfig(filename, configFormat).then((data) => {
             data = parseConf(data, configFormat);

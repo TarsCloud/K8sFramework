@@ -2,7 +2,7 @@ const logger = require('../../logger')
 const request = require('request')
 const axios = require('axios');
 const fs = require('fs')
-const LdapServer = require('../../../proxy/LdapServer')
+// const LdapServer = require('../../../proxy/LdapServer')
 
 const { pkgUploadPath, rpcDomain, uploadDomain } = global.WebConf
 

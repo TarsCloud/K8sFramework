@@ -21,6 +21,7 @@
 const arguments = process.argv.splice(2);
 global.WebConf = require(arguments[0])
 
+
 // websocket代理对象，要同时在www.js和app.js里使用，故暂时放在global对象中
 // https://github.com/chimurai/http-proxy-middleware/blob/master/examples/websocket/index.js
 global.wsProxyMidware = require('../app/midware/wsProxyMidware')
@@ -39,40 +40,55 @@ const webConf = global.WebConf.webConf;
 const port = normalizePort(process.env.PORT || webConf.port || '3000');
 const enableMultiProcess = false;
 
+// console.log(global.WebConf, port);
+
 //创建服务
 try {
 	loadConfig('TarsWebServer.conf', 'c').then(() => {
+
+		console.log("loadConfig ok, port:", port, cluster.isMaster, cluster.isWorker);
+
 		//优先环境变量生效
 		if(process.env.TARS_WEB_STRICT) {
 			webConf.strict = (process.env.TARS_WEB_STRICT == "true");
 		}
-		// webConf.strict = process.env.TARS_WEB_STRICT || webConf.strict;
+
 		const app = require('../app');
-		let numCpus = os.cpus().length;
-		if (cluster.isMaster && enableMultiProcess) {
-			for (let i = 0; i < numCpus; i++) {
-				cluster.fork();
-			}
-			cluster.on('listening', function (worker, address) {
-			});
-			let processNum = numCpus;
-			cluster.on('exit', function (worker, code, signal) {
-				processNum--;
-				console.error('worker ' + worker.process.pid + ' died');
-				if (!processNum) {
-					throw(new Error('Server startup failed'));
-				}
-			});
-		} else if (cluster.isWorker || !enableMultiProcess) {
+
+		console.log("app ok");
+
+		// let numCpus = os.cpus().length;
+		// if (cluster.isMaster && enableMultiProcess) {
+		// 	for (let i = 0; i < numCpus; i++) {
+		// 		cluster.fork();
+		// 	}
+		// 	cluster.on('listening', function (worker, address) {
+		// 	});
+		// 	let processNum = numCpus;
+		// 	cluster.on('exit', function (worker, code, signal) {
+		// 		processNum--;
+		// 		console.error('worker ' + worker.process.pid + ' died');
+		// 		if (!processNum) {
+		// 			throw(new Error('Server startup failed'));
+		// 		}
+		// 	});
+		// } else if (cluster.isWorker || !enableMultiProcess) {
+		
+			console.log("start");
+
 			let server = http.createServer(app.callback());
 			server.listen(port, '0.0.0.0', function () {
+				console.log('Server has been started successfully');
 				logger.info('Server has been started successfully');
 			});
 			server.on('error', onError);
 			server.on('upgrade', global.wsProxyMidware.upgrade);
-		}
+		// }
+	}).catch((e) => {
+		console.log(e);
 	})
 } catch (e) {
+	console.log(e);
 	logger.error(e.toString())
 }
 

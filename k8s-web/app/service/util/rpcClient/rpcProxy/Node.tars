@@ -1,4 +1,4 @@
-#include "RegistryDescriptor.tars"
+#include "NodeDescriptor.tars"
 
 module tars
 {

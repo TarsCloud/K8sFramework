@@ -45,7 +45,7 @@ app.proxy = true;
 onerror(app);
 
 //防洪水攻击
-app.use(limitMidware());
+// app.use(limitMidware());
 
 //安全防护
 app.use(helmet());
@@ -66,42 +66,42 @@ preMidware.forEach((midware) => {
 let loginConf = require('./config/loginConf.js');
 loginConf.ignore = loginConf.ignore.concat(['/web_version','/static', '/files', '/get_tarssnode', '/install.sh', '/favicon.ico', '/pages/server/api/get_locale']);
 
-//上传文件不需要登录
-if(WebConf.webConf.uploadLogin || process.env.TARS_WEB_UPLOAD == 'true') {
-	loginConf.ignore.push('/pages/server/api/upload_patch_package');
-	loginConf.ignore.push('/api/upload_patch_package');
-	loginConf.ignore.push('/pages/server/api/upload_and_publish');
-	loginConf.ignore.push('/api/upload_and_publish');
-}
+// //上传文件不需要登录
+// if(WebConf.webConf.uploadLogin || process.env.TARS_WEB_UPLOAD == 'true') {
+// 	loginConf.ignore.push('/pages/server/api/upload_patch_package');
+// 	loginConf.ignore.push('/api/upload_patch_package');
+// 	loginConf.ignore.push('/pages/server/api/upload_and_publish');
+// 	loginConf.ignore.push('/api/upload_and_publish');
+// }
 
-//web和demo的cookie写在同一个域名下
-if(process.env.COOKIE_DOMAIN) {
-	loginConf.cookieDomain = process.env.COOKIE_DOMAIN
-}
+// //web和demo的cookie写在同一个域名下
+// if(process.env.COOKIE_DOMAIN) {
+// 	loginConf.cookieDomain = process.env.COOKIE_DOMAIN
+// }
 
-if(process.env.USER_CENTER_HOST) {
-	//存在外部host, 使用外部host代替 
-	loginConf.userCenterUrl = process.env.USER_CENTER_HOST;
-} 
+// if(process.env.USER_CENTER_HOST) {
+// 	//存在外部host, 使用外部host代替 
+// 	loginConf.userCenterUrl = process.env.USER_CENTER_HOST;
+// } 
 
-loginConf.loginUrl = loginConf.baseLoginUrl.replace("http://localhost:3001", loginConf.userCenterUrl);
+// loginConf.loginUrl = loginConf.baseLoginUrl.replace("http://localhost:3001", loginConf.userCenterUrl);
 
-logger.info('loginUrl:', loginConf.loginUrl, 'userCenterUrl:', loginConf.userCenterUrl, 'cookieDomain', loginConf.cookieDomain);
+// logger.info('loginUrl:', loginConf.loginUrl, 'userCenterUrl:', loginConf.userCenterUrl, 'cookieDomain', loginConf.cookieDomain);
 
-app.use(async (ctx, next) => {
-	// logger.info('loginUrl:', loginConf.loginUrl, 'userCenterUrl:', loginConf.userCenterUrl, 'cookieDomain', loginConf.cookieDomain);
-	if(!process.env.USER_CENTER_HOST) {
-		//直接用当前host代替, 端口还是保留
-		let userCenterIp = ctx.host.split(':')[0];
+// app.use(async (ctx, next) => {
+// 	// logger.info('loginUrl:', loginConf.loginUrl, 'userCenterUrl:', loginConf.userCenterUrl, 'cookieDomain', loginConf.cookieDomain);
+// 	if(!process.env.USER_CENTER_HOST) {
+// 		//直接用当前host代替, 端口还是保留
+// 		let userCenterIp = ctx.host.split(':')[0];
 
-		loginConf.userCenterUrl = loginConf.baseUserCenterUrl.replace("localhost", userCenterIp);
+// 		loginConf.userCenterUrl = loginConf.baseUserCenterUrl.replace("localhost", userCenterIp);
 
-		loginConf.loginUrl = loginConf.baseLoginUrl.replace("localhost", userCenterIp);
+// 		loginConf.loginUrl = loginConf.baseLoginUrl.replace("localhost", userCenterIp);
 
-	}
+// 	}
 
-	await next();
-  });
+// 	await next();
+//   });
 app.use(loginMidware(loginConf));
 
 //安装包资源中间件
@@ -111,24 +111,24 @@ app.use(staticRouter([
     router: '/files'    //路由命名
 }]));
 
-let dcacheConf = require('./config/dcacheConf.js');
-if (dcacheConf.enableDcache) {
-	app.use(async (ctx, next) => {
-		await next();
-		ctx.cookies.set('dcache', 'true', {httpOnly: false});
-	});
-	//  tars-dcache 的包，依赖了很多tars的模块，引用路径是从根目录开始的，防止引用出错，先改后更
-	let cwd = process.cwd();
-	process.chdir(path.join(__dirname, './'));
-	require('./dcache');
-	// let tarsDcache = require('@tars/dcache');
-	process.chdir(cwd);
-} else {
-	app.use(async (ctx, next) => {
-		await next();
-		ctx.cookies.set('dcache', 'false', {httpOnly: false});
-	})
-}
+// let dcacheConf = require('./config/dcacheConf.js');
+// if (dcacheConf.enableDcache) {
+// 	app.use(async (ctx, next) => {
+// 		await next();
+// 		ctx.cookies.set('dcache', 'true', {httpOnly: false});
+// 	});
+// 	//  tars-dcache 的包，依赖了很多tars的模块，引用路径是从根目录开始的，防止引用出错，先改后更
+// 	let cwd = process.cwd();
+// 	process.chdir(path.join(__dirname, './'));
+// 	require('./dcache');
+// 	// let tarsDcache = require('@tars/dcache');
+// 	process.chdir(cwd);
+// } else {
+// 	app.use(async (ctx, next) => {
+// 		await next();
+// 		ctx.cookies.set('dcache', 'false', {httpOnly: false});
+// 	})
+// }
 
 //激活router
 // dcache 会添加新的 page、api router， 不能提前
@@ -149,6 +149,7 @@ app.use(static(path.join(__dirname, './client/dist'), {maxage: 7 * 24 * 60 * 60 
 postMidware.forEach((midware) => {
 	app.use(midware);
 });
+
 //
 module.exports = app;
 

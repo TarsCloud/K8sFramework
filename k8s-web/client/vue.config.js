@@ -1,6 +1,8 @@
 const path = require("path")
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const server_port = process.env.SERVER_PORT || '3000'
+console.log("server_port:", server_port);
+
 module.exports = {
     outputDir: "./dist",
     productionSourceMap:false,
@@ -38,19 +40,19 @@ module.exports = {
         proxy: {
             "/pages/server/api": {
               target: `http://127.0.0.1:${server_port}`,
-              changeOrigin: false
+              changeOrigin: true 
             },
             "/auth": {
               target: `http://127.0.0.1:${server_port}`,
-              changeOrigin: false
+              changeOrigin: true
             },
             "/web_version":{
               target: `http://localhost:${server_port}`,
-              changeOrigin: false
+              changeOrigin: true
             },
             "/favicon.ico":{
               target: `http://localhost:${server_port}`,
-              changeOrigin: false
+              changeOrigin: true
             }
           }
     }

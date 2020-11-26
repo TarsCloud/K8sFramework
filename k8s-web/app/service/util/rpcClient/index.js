@@ -14,59 +14,50 @@
  * specific language governing permissions and limitations under the License.
  */
 
-// const client  = require("@tars/rpc/protal.js").client;
-// const AdminRegProxy = require("./rpcProxy/AdminRegProxy");
-// const ConfigFProxy = require("./rpcProxy/ConfigFProxy");
-// const DCacheOptProxy = require("./rpcProxy/DCacheOptProxy");
-// const MonitorQueryProxy = require("./rpcProxy/MonitorQueryProxy");
-// const NodeProxy = require("./rpcProxy/NodeProxy");
-// const path = require('path');
-// const logger = require('./../../../logger');
-// client.initialize(path.join(__dirname, '../../../../config/tars.conf'));
-
-const client  = require("@tars/tars-rpc/protal.js").client;
-const AdminRegProxy = require("./tarsProxy/AdminRegProxy");
-const ConfigFProxy = require("./tarsProxy/ConfigFProxy");
-const DCacheOptProxy = require("./tarsProxy/DCacheOptProxy");
-const MonitorQueryProxy = require("./tarsProxy/MonitorQueryProxy");
+const client = require("@tars/rpc/protal.js").client;
+const AdminRegProxy = require("./rpcProxy/AdminRegProxy");
+const ConfigFProxy = require("./rpcProxy/ConfigFProxy");
+const DCacheOptProxy = require("./rpcProxy/DCacheOptProxy");
+const MonitorQueryProxy = require("./rpcProxy/MonitorQueryProxy");
+const BenchmarkAdminProxy = require("./rpcProxy/BenchmarkAdminProxy");
+const BenchmarkNode = require("./rpcProxy/BenchmarkNodeTars");
 const path = require('path');
 const logger = require('./../../../logger');
 client.initialize(path.join(__dirname, '../../../../config/tars.conf'));
-
 const RPCClientPrx = (proxy, moduleName, interfaceName, servantName, setInfo) => {
     var module = proxy[moduleName];
-    var rpcClient = client.stringToProxy(module[interfaceName+'Proxy'], servantName, setInfo);
-    for(let p in rpcClient){
-        if(!rpcClient.hasOwnProperty(p) && p!='getTimeout' && p!='setTimeout'){
+    var rpcClient = client.stringToProxy(module[interfaceName + 'Proxy'], servantName, setInfo);
+    for (let p in rpcClient) {
+        if (!rpcClient.hasOwnProperty(p) && p != 'getTimeout' && p != 'setTimeout') {
             ((p, fun) => {
-                rpcClient[p] = (function(p) {
+                rpcClient[p] = (function (p) {
                     let fnName = p;
-                    return async function(...args){
-                        try{
+                    return async function (...args) {
+                        try {
                             var _args = args;
-                            var rst = await (async ()=>{
+                            var rst = await (async () => {
                                 var result = await fun.apply(rpcClient, _args);
                                 // logger.info( 'method: ',fnName, ' request: ', _args, ' response: ', JSON.stringify(result.response));
                                 var args = result.response.arguments;
-                                var rst = {__return: result.response.return};
-                                for(var p in args){
-                                    if(typeof args[p] == 'object'){
+                                var rst = { __return: result.response.return };
+                                for (var p in args) {
+                                    if (typeof args[p] == 'object') {
                                         rst[p] = args[p].toObject();
-                                    }else{
+                                    } else {
                                         rst[p] = args[p];
                                     }
                                 }
 
-                                logger.info( 'method: ',fnName, ' request: ', _args, ' response: ', rst);
+                                // logger.info( 'method: ',fnName, ' request: ', _args, ' response: ', rst);
                                 return rst;
                             })();
                             return rst;
-                        }catch(e){
+                        } catch (e) {
                             console.error(e);
-                            if(e.response){
+                            if (e.response) {
                                 throw new Error(e.response && e.response.error && e.response.error.message);
-                            }else{
-                                throw(e);
+                            } else {
+                                throw (e);
                             }
                         }
                     };
@@ -79,16 +70,16 @@ const RPCClientPrx = (proxy, moduleName, interfaceName, servantName, setInfo) =>
 };
 
 //生成rpc结构体
-const RPCStruct = function(proxy, moduleName){
+const RPCStruct = function (proxy, moduleName) {
     var module = proxy[moduleName];
     var rpcStruct = {};
-    for(var p in module){
-        if(module.hasOwnProperty(p)){
-            if(typeof module[p] == 'function'){
-                if(new module[p]()._classname){
+    for (var p in module) {
+        if (module.hasOwnProperty(p)) {
+            if (typeof module[p] == 'function') {
+                if (new module[p]()._classname) {
                     rpcStruct[p] = module[p];
                 }
-            }else{
+            } else {
                 rpcStruct[p] = module[p];
             }
         }
@@ -98,39 +89,25 @@ const RPCStruct = function(proxy, moduleName){
 
 //输出TARS RPC代理和组件
 module.exports = {
-    RPCClientPrx,
 
-    // adminRegPrx : RPCClientPrx(AdminRegProxy, 'tars', 'AdminReg', 'tars.tarsAdminRegistry.AdminRegObj'),
-    // adminRegStruct : RPCStruct(AdminRegProxy, 'tars'),
+    adminRegPrx: RPCClientPrx(AdminRegProxy, 'tars', 'AdminReg', 'tars.tarsAdminRegistry.AdminRegObj'),
+    adminRegStruct: RPCStruct(AdminRegProxy, 'tars'),
 
-    // configFPrx : RPCClientPrx(ConfigFProxy, 'tars', 'Config', 'tars.tarsconfig.ConfigObj'),
-    // configFStruct : RPCStruct(ConfigFProxy, 'tars'),
+    configFPrx: RPCClientPrx(ConfigFProxy, 'tars', 'Config', 'tars.tarsconfig.ConfigObj'),
+    configFStruct: RPCStruct(ConfigFProxy, 'tars'),
 
-    // statQueryPrx : RPCClientPrx(MonitorQueryProxy, 'tars', 'MonitorQuery', 'tars.tarsquerystat.QueryObj'),
-    // propertyQueryPrx : RPCClientPrx(MonitorQueryProxy, 'tars', 'MonitorQuery', 'tars.tarsqueryproperty.QueryObj'),
-    // monitorQueryStruct : RPCStruct(MonitorQueryProxy, 'tars'),
-
-    // DCacheOptPrx: RPCClientPrx(DCacheOptProxy, 'DCache', 'DCacheOpt', 'DCache.DCacheOptServer.DCacheOptObj'),
-    // DCacheOptStruct: RPCStruct(DCacheOptProxy, 'DCache'),
-
-    // nodePrx: RPCClientPrx(NodeProxy, 'tars', 'Node', 'tars.tarsnode.NodeObj'),
-    // nodeStruct: RPCStruct(NodeProxy, 'tars'),
-
-	adminRegPrx : RPCClientPrx(AdminRegProxy, 'tars', 'AdminReg', 'tars.tarsAdminRegistry.AdminRegObj'),
-    adminRegStruct : RPCStruct(AdminRegProxy, 'tars'),
-
-    configFPrx : RPCClientPrx(ConfigFProxy, 'tars', 'Config', 'tars.tarsconfig.ConfigObj'),
-    configFStruct : RPCStruct(ConfigFProxy, 'tars'),
-
-    statQueryPrx : RPCClientPrx(MonitorQueryProxy, 'tars', 'MonitorQuery', 'tars.tarsquerystat.QueryObj'),
-    propertyQueryPrx : RPCClientPrx(MonitorQueryProxy, 'tars', 'MonitorQuery', 'tars.tarsqueryproperty.QueryObj'),
-    monitorQueryStruct : RPCStruct(MonitorQueryProxy, 'tars'),
+    statQueryPrx: RPCClientPrx(MonitorQueryProxy, 'tars', 'MonitorQuery', 'tars.tarsquerystat.QueryObj'),
+    propertyQueryPrx: RPCClientPrx(MonitorQueryProxy, 'tars', 'MonitorQuery', 'tars.tarsqueryproperty.QueryObj'),
+    monitorQueryStruct: RPCStruct(MonitorQueryProxy, 'tars'),
 
     DCacheOptPrx: RPCClientPrx(DCacheOptProxy, 'DCache', 'DCacheOpt', 'DCache.DCacheOptServer.DCacheOptObj'),
     DCacheOptStruct: RPCStruct(DCacheOptProxy, 'DCache'),
-	
+
     // nodePrx: RPCClientPrx(NodeProxy, 'tars', 'Node', 'tars.tarsnode.NodeObj'),
     // nodeStruct: RPCStruct(NodeProxy, 'tars'),
+    benchmarkPrx: RPCClientPrx(BenchmarkAdminProxy, 'bm', 'Admin', 'benchmark.AdminServer.AdminObj'),
+    benchmarkStruct: RPCStruct(BenchmarkAdminProxy, 'bm'),
+    benchmarkNodeStruct: RPCStruct(BenchmarkNode, 'bm'),
 
     client: client
 };
