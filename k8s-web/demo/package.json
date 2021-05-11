@@ -27,7 +27,7 @@
     "koa-session2": "^2.2.5",
     "koa-static": "*",
     "koa-views": "^5.2.1",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.21",
     "moment": "^2.22.0",
     "mysql": "^2.15.0",
     "mysql2": "^1.5.1",
